@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { getSurahDetails, getAyahs, getSurahAudio, type Surah, type Ayah } from '../services/api';
+import { getSurahDetails, getAyahs, type Surah, type Ayah } from '../services/api';
 import { useSettings } from '../contexts/SettingsContext';
 
 const SurahPage: React.FC = () => {
