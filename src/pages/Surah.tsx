@@ -85,7 +85,7 @@ const SurahPage: React.FC = () => {
 
                 {/* Verses List */}
                 <div className="space-y-16 max-w-3xl mx-auto">
-                    {ayahs.map((ayah, index) => (
+                    {ayahs.map((ayah) => (
                         <div key={ayah.verse_key} className="group relative">
                             {/* Verse Number Indicator */}
                             <div className="absolute -left-12 top-2 hidden lg:flex size-8 bg-primary/10 rounded text-primary text-xs font-bold items-center justify-center border border-primary/20">
