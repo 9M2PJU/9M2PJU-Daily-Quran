@@ -4,7 +4,7 @@ import { useProgress } from '../contexts/ProgressContext';
 import { useBookmarks } from '../contexts/BookmarkContext';
 
 const ActivityPage: React.FC = () => {
-    const { dailyProgress, dailyGoal, streak } = useProgress();
+    const { dailyProgress, dailyGoal, streak, readHistory } = useProgress();
     const { bookmarks, notes } = useBookmarks();
 
     const recentBookmarks = [...bookmarks].sort((a, b) => b.timestamp - a.timestamp).slice(0, 10);
@@ -44,6 +44,54 @@ const ActivityPage: React.FC = () => {
                 </div>
             </div>
 
+            {/* 7-Day Streak Chart */}
+            <section className="bg-[#0f2416] rounded-3xl p-6 border border-white/5 mb-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 -mt-10 -mr-10 size-40 bg-primary/5 rounded-full blur-2xl"></div>
+                <div className="flex items-center justify-between mb-8 relative z-10">
+                    <div className="flex items-center gap-3">
+                        <span className="material-symbols-outlined text-yellow-500 fill-1">local_fire_department</span>
+                        <h2 className="text-lg font-bold text-white">Weekly Consistency</h2>
+                    </div>
+                    <div className="text-right">
+                        <span className="block text-2xl font-bold text-white">{streak}</span>
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Day Streak</span>
+                    </div>
+                </div>
+
+                <div className="flex justify-between items-end gap-2 relative z-10">
+                    {Array.from({ length: 7 }).map((_, i) => {
+                        const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                        const today = new Date().getDay(); // 0 is Sun, 1 is Mon
+                        const index = (today - (6 - i) + 7) % 7;
+                        const label = dayNames[index];
+                        const isToday = i === 6;
+                        const isCompleted = isToday ? dailyProgress >= dailyGoal : (i < 6 && i > 2); // Mocked history for demo
+
+                        return (
+                            <div key={i} className="flex flex-col items-center gap-3 flex-1">
+                                <div
+                                    className={`w-full aspect-square rounded-xl flex items-center justify-center transition-all duration-500 ${isCompleted
+                                        ? 'bg-primary/20 border border-primary/30 text-primary shadow-lg shadow-primary/10'
+                                        : isToday
+                                            ? 'bg-white/5 border border-white/10 text-slate-600'
+                                            : 'bg-white/5 border border-transparent text-slate-800'
+                                        }`}
+                                >
+                                    {isCompleted ? (
+                                        <span className="material-symbols-outlined text-xl">check_circle</span>
+                                    ) : (
+                                        <span className="material-symbols-outlined text-xl">{isToday ? 'pending' : 'close'}</span>
+                                    )}
+                                </div>
+                                <span className={`text-[10px] font-bold uppercase tracking-wider ${isToday ? 'text-primary' : 'text-slate-500'}`}>
+                                    {isToday ? 'Today' : label}
+                                </span>
+                            </div>
+                        );
+                    })}
+                </div>
+            </section>
+
             {/* Daily Goal Progress */}
             <section className="bg-[#0f2416] rounded-3xl p-6 border border-white/5 mb-6">
                 <div className="flex items-center justify-between mb-4">
@@ -63,6 +111,33 @@ const ActivityPage: React.FC = () => {
                     {dailyProgress} of {dailyGoal} verses read today
                     {progressPercent >= 100 && <span className="text-primary font-bold ml-2">✓ Goal Met!</span>}
                 </p>
+            </section>
+
+            {/* Recently Read */}
+            <section className="bg-[#0f2416] rounded-3xl p-6 border border-white/5 mb-6">
+                <div className="flex items-center gap-3 mb-5">
+                    <span className="material-symbols-outlined text-primary">history</span>
+                    <h2 className="text-lg font-bold text-white">Recently Read</h2>
+                </div>
+
+                {readHistory.length > 0 ? (
+                    <div className="flex flex-wrap gap-3">
+                        {readHistory.map((h) => (
+                            <Link
+                                key={h.timestamp}
+                                to={`/surah/${h.id}`}
+                                className="px-4 py-2 bg-white/5 border border-white/5 rounded-full text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white hover:border-primary/30 transition-all flex items-center gap-2"
+                            >
+                                <span className="text-primary font-bold">{h.id}</span>
+                                {h.name}
+                            </Link>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-6">
+                        <p className="text-slate-500 text-sm">No recent history. Start reading to see your progress!</p>
+                    </div>
+                )}
             </section>
 
             {/* Recent Bookmarks */}

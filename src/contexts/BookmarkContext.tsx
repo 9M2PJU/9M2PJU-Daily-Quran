@@ -17,12 +17,22 @@ export interface Note {
     timestamp: number;
 }
 
+export interface SurahBookmark {
+    id: number;
+    name: string;
+    englishName: string;
+    timestamp: number;
+}
+
 interface BookmarkContextType {
     bookmarks: Bookmark[];
+    surahBookmarks: SurahBookmark[];
     notes: Note[];
     isBookmarked: (verseKey: string) => boolean;
     toggleBookmark: (bookmark: Omit<Bookmark, 'timestamp'>) => void;
     removeBookmark: (verseKey: string) => void;
+    isSurahBookmarked: (surahId: number) => boolean;
+    toggleSurahBookmark: (surah: Omit<SurahBookmark, 'timestamp'>) => void;
     getNote: (verseKey: string) => Note | undefined;
     saveNote: (note: Omit<Note, 'timestamp'>) => void;
     deleteNote: (verseKey: string) => void;
@@ -42,6 +52,7 @@ function loadFromStorage<T>(key: string, fallback: T): T {
 
 export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [bookmarks, setBookmarks] = useState<Bookmark[]>(() => loadFromStorage('quran-bookmarks', []));
+    const [surahBookmarks, setSurahBookmarks] = useState<SurahBookmark[]>(() => loadFromStorage('quran-surah-bookmarks', []));
     const [notes, setNotes] = useState<Note[]>(() => loadFromStorage('quran-notes', []));
 
     const isBookmarked = useCallback((verseKey: string) => {
@@ -63,6 +74,21 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setBookmarks(prev => {
             const updated = prev.filter(b => b.verseKey !== verseKey);
             localStorage.setItem('quran-bookmarks', JSON.stringify(updated));
+            return updated;
+        });
+    }, []);
+
+    const isSurahBookmarked = useCallback((surahId: number) => {
+        return surahBookmarks.some(s => s.id === surahId);
+    }, [surahBookmarks]);
+
+    const toggleSurahBookmark = useCallback((surah: Omit<SurahBookmark, 'timestamp'>) => {
+        setSurahBookmarks(prev => {
+            const exists = prev.some(s => s.id === surah.id);
+            const updated = exists
+                ? prev.filter(s => s.id !== surah.id)
+                : [...prev, { ...surah, timestamp: Date.now() }];
+            localStorage.setItem('quran-surah-bookmarks', JSON.stringify(updated));
             return updated;
         });
     }, []);
@@ -93,7 +119,20 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }, [notes]);
 
     return (
-        <BookmarkContext.Provider value={{ bookmarks, notes, isBookmarked, toggleBookmark, removeBookmark, getNote, saveNote, deleteNote, getNotesBySurah }}>
+        <BookmarkContext.Provider value={{
+            bookmarks,
+            surahBookmarks,
+            notes,
+            isBookmarked,
+            toggleBookmark,
+            removeBookmark,
+            isSurahBookmarked,
+            toggleSurahBookmark,
+            getNote,
+            saveNote,
+            deleteNote,
+            getNotesBySurah
+        }}>
             {children}
         </BookmarkContext.Provider>
     );

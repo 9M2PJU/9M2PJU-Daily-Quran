@@ -9,6 +9,8 @@ interface AudioContextType {
     pause: () => void;
     toggle: (surahId: number, totalVerses: number) => void;
     stop: () => void;
+    playNext: () => void;
+    playPrevious: () => void;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -105,16 +107,29 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const toggle = useCallback((surahId: number, totalVerses: number) => {
         if (isPlaying && currentSurah === surahId) {
             pause();
-        } else if (!isPlaying && currentSurah === surahId && audioRef.current) {
-            // Resume from current position
-            audioRef.current.play().then(() => setIsPlaying(true)).catch(console.error);
         } else {
             play(surahId, totalVerses);
         }
     }, [isPlaying, currentSurah, pause, play]);
 
+    const playNext = useCallback(() => {
+        if (!playStateRef.current || playStateRef.current.stopped) return;
+        const { surahId, verseIndex, totalVerses } = playStateRef.current;
+        const nextIndex = verseIndex + 1;
+        if (nextIndex < totalVerses) {
+            playVerse(surahId, nextIndex, totalVerses);
+        }
+    }, [playVerse]);
+
+    const playPrevious = useCallback(() => {
+        if (!playStateRef.current || playStateRef.current.stopped) return;
+        const { surahId, verseIndex, totalVerses } = playStateRef.current;
+        const prevIndex = Math.max(0, verseIndex - 1);
+        playVerse(surahId, prevIndex, totalVerses);
+    }, [playVerse]);
+
     return (
-        <AudioContext.Provider value={{ isPlaying, currentSurah, currentVerseIndex, play, pause, toggle, stop: stopAudio }}>
+        <AudioContext.Provider value={{ isPlaying, currentSurah, currentVerseIndex, play, pause, toggle, stop: stopAudio, playNext, playPrevious }}>
             {children}
         </AudioContext.Provider>
     );

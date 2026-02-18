@@ -1,9 +1,39 @@
 import React, { useEffect } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link, Outlet } from 'react-router-dom';
+import { useAudio } from '../contexts/AudioContext';
+import { useSettings, RECITERS } from '../contexts/SettingsContext';
+import { useProgress } from '../contexts/ProgressContext';
+import { useNotifications } from '../contexts/NotificationContext';
 
 const Layout: React.FC = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const isReadingMode = location.pathname.startsWith('/surah/');
+    const { isPlaying, toggle, playNext, playPrevious, currentSurah, currentVerseIndex } = useAudio();
+    const { reciterId } = useSettings();
+    const { lastReadSurah, streak } = useProgress();
+    const { unreadCount } = useNotifications();
+
+    const [searchQuery, setSearchQuery] = React.useState('');
+
+    const handleSearch = (e: React.FormEvent | React.KeyboardEvent) => {
+        if ('key' in e && e.key !== 'Enter') return;
+        e.preventDefault();
+
+        const query = searchQuery.trim();
+        if (!query) return;
+
+        // If numeric, go to surah ID
+        const id = parseInt(query, 10);
+        if (!isNaN(id) && id >= 1 && id <= 114) {
+            navigate(`/surah/${id}`);
+            setSearchQuery('');
+        }
+        // Basic name matching could be added here if we had surah names list
+    };
+
+    const currentReciter = RECITERS.find(r => r.id === reciterId) || RECITERS[0];
+    const surahName = lastReadSurah?.name || 'Quran';
 
     useEffect(() => {
         if (localStorage.getItem('theme') === 'dark' ||
@@ -65,14 +95,12 @@ const Layout: React.FC = () => {
                             {/* Streak Card Content (Hidden in collapsed mode) */}
                             <div className="flex justify-between items-end mb-2 relative z-10">
                                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Streak</span>
-                                <span className="text-lg font-bold text-primary">12 Days</span>
+                                <span className="text-lg font-bold text-primary">{streak} Days</span>
                             </div>
                             <div className="flex gap-1 h-1.5 relative z-10">
-                                <div className="flex-1 rounded-full bg-primary"></div>
-                                <div className="flex-1 rounded-full bg-primary"></div>
-                                <div className="flex-1 rounded-full bg-primary"></div>
-                                <div className="flex-1 rounded-full bg-primary"></div>
-                                <div className="flex-1 rounded-full bg-white/10"></div>
+                                {Array.from({ length: 7 }).map((_, i) => (
+                                    <div key={i} className={`flex-1 rounded-full ${i < streak % 7 || (streak > 0 && streak % 7 === 0) ? 'bg-primary' : 'bg-white/10'}`}></div>
+                                ))}
                             </div>
                         </div>
                     )}
@@ -93,27 +121,51 @@ const Layout: React.FC = () => {
                         // Reading Mode Header: Audio Player
                         <div className="flex-1 flex items-center justify-between">
                             <div className="flex items-center gap-4 bg-[#11241a] px-4 py-2 rounded-full border border-white/5">
-                                <button className="text-slate-400 hover:text-white transition-colors"><span className="material-symbols-outlined">skip_previous</span></button>
-                                <button className="size-10 rounded-full bg-primary text-[#0a1a10] flex items-center justify-center hover:bg-primary-light transition-colors shadow-lg shadow-primary/20">
-                                    <span className="material-symbols-outlined fill-1">play_arrow</span>
+                                <button
+                                    onClick={playPrevious}
+                                    className="text-slate-400 hover:text-white transition-colors"
+                                >
+                                    <span className="material-symbols-outlined">skip_previous</span>
                                 </button>
-                                <button className="text-slate-400 hover:text-white transition-colors"><span className="material-symbols-outlined">skip_next</span></button>
+                                <button
+                                    onClick={() => currentSurah && toggle(currentSurah, 0)} // totalVerses not strictly needed for toggle if already playing
+                                    className="size-10 rounded-full bg-primary text-[#0a1a10] flex items-center justify-center hover:bg-primary-light transition-colors shadow-lg shadow-primary/20"
+                                >
+                                    <span className="material-symbols-outlined fill-1">{isPlaying ? 'pause' : 'play_arrow'}</span>
+                                </button>
+                                <button
+                                    onClick={playNext}
+                                    className="text-slate-400 hover:text-white transition-colors"
+                                >
+                                    <span className="material-symbols-outlined">skip_next</span>
+                                </button>
                                 <div className="w-px h-6 bg-white/10 mx-2"></div>
-                                <button className="flex items-center gap-2 text-xs font-bold text-white hover:text-primary transition-colors">
-                                    <div className="size-6 rounded-full bg-slate-700 overflow-hidden">
-                                        <img src="https://ui-avatars.com/api/?name=Mishary+Alafasy&background=random" alt="Reciter" />
-                                    </div>
-                                    Mishary Alafasy
-                                    <span className="material-symbols-outlined text-sm">expand_more</span>
-                                </button>
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] font-bold text-primary uppercase tracking-tighter leading-none mb-1">
+                                        {isPlaying ? `Playing Verse ${currentVerseIndex + 1}` : surahName}
+                                    </span>
+                                    <Link to="/settings" className="flex items-center gap-2 text-xs font-bold text-white hover:text-primary transition-colors">
+                                        <div className="size-5 rounded-full bg-slate-700 overflow-hidden shrink-0">
+                                            <img src={`https://ui-avatars.com/api/?name=${currentReciter.name.replace(' ', '+')}&background=random`} alt="Reciter" />
+                                        </div>
+                                        <span className="truncate max-w-[120px]">{currentReciter.name}</span>
+                                        <span className="material-symbols-outlined text-sm">expand_more</span>
+                                    </Link>
+                                </div>
                             </div>
 
                             {/* Search & Actions */}
                             <div className="flex items-center gap-4">
-                                <div className="w-64 relative">
+                                <form onSubmit={handleSearch} className="w-64 relative">
                                     <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-lg">search</span>
-                                    <input type="text" placeholder="Search Surah or Verse..." className="w-full bg-[#11241a] border border-white/5 rounded-full py-2 pl-10 pr-4 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-primary/50" />
-                                </div>
+                                    <input
+                                        type="text"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        placeholder="Search Surah Number..."
+                                        className="w-full bg-[#11241a] border border-white/5 rounded-full py-2 pl-10 pr-4 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-primary/50"
+                                    />
+                                </form>
                                 <button className="text-slate-400 hover:text-white"><span className="material-symbols-outlined fill-1">bookmark</span></button>
                                 <Link to="/settings" className="text-slate-400 hover:text-white"><span className="material-symbols-outlined">settings</span></Link>
                             </div>
@@ -121,19 +173,23 @@ const Layout: React.FC = () => {
                     ) : (
                         // Standard Dashboard Header
                         <>
-                            <div className="w-96 relative group">
+                            <form onSubmit={handleSearch} className="w-96 relative group">
                                 <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors">search</span>
                                 <input
                                     type="text"
-                                    placeholder="Search for a Surah, Verse, or Topic..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    placeholder="Search for Surah (eg. 18)..."
                                     className="w-full bg-white/5 border border-white/5 rounded-full py-3 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary/50 transition-all"
                                 />
-                            </div>
+                            </form>
 
                             <div className="flex items-center gap-6">
                                 <Link to="/notifications" className="relative text-slate-400 hover:text-white transition-colors">
                                     <span className="material-symbols-outlined fill-1">notifications</span>
-                                    {/* <span className="absolute top-0 right-0.5 w-2 h-2 rounded-full bg-red-500 border-2 border-[#0a1a10]"></span> */}
+                                    {unreadCount > 0 && (
+                                        <span className="absolute top-0 right-0.5 w-2.5 h-2.5 rounded-full bg-red-500 border-2 border-[#0a1a10]"></span>
+                                    )}
                                 </Link>
                                 <Link to="/settings" className="text-slate-400 hover:text-white transition-colors">
                                     <span className="material-symbols-outlined">settings</span>

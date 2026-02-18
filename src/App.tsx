@@ -13,31 +13,34 @@ import { SettingsProvider } from './contexts/SettingsContext';
 import { AudioProvider } from './contexts/AudioContext';
 import { ProgressProvider } from './contexts/ProgressContext';
 import { BookmarkProvider } from './contexts/BookmarkContext';
+import { NotificationProvider } from './contexts/NotificationContext';
 
 function App() {
   return (
     <SettingsProvider>
-      <ProgressProvider>
-        <BookmarkProvider>
-          <AudioProvider>
-            <HashRouter>
-              <Routes>
-                <Route path="/" element={<Layout />}>
-                  <Route index element={<Home />} />
-                  <Route path="quran" element={<SurahList />} />
-                  <Route path="surah/:id" element={<SurahPage />} />
-                  <Route path="prayer-times" element={<PrayerTimes />} />
-                  <Route path="settings" element={<Settings />} />
-                  <Route path="library" element={<Library />} />
-                  <Route path="bookmarks" element={<BookmarksPage />} />
-                  <Route path="activity" element={<ActivityPage />} />
-                  <Route path="notifications" element={<Notifications />} />
-                </Route>
-              </Routes>
-            </HashRouter>
-          </AudioProvider>
-        </BookmarkProvider>
-      </ProgressProvider>
+      <NotificationProvider>
+        <ProgressProvider>
+          <BookmarkProvider>
+            <AudioProvider>
+              <HashRouter>
+                <Routes>
+                  <Route path="/" element={<Layout />}>
+                    <Route index element={<Home />} />
+                    <Route path="quran" element={<SurahList />} />
+                    <Route path="surah/:id" element={<SurahPage />} />
+                    <Route path="prayer-times" element={<PrayerTimes />} />
+                    <Route path="settings" element={<Settings />} />
+                    <Route path="library" element={<Library />} />
+                    <Route path="bookmarks" element={<BookmarksPage />} />
+                    <Route path="activity" element={<ActivityPage />} />
+                    <Route path="notifications" element={<Notifications />} />
+                  </Route>
+                </Routes>
+              </HashRouter>
+            </AudioProvider>
+          </BookmarkProvider>
+        </ProgressProvider>
+      </NotificationProvider>
     </SettingsProvider>
   );
 }

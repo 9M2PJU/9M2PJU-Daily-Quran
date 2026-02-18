@@ -4,7 +4,9 @@ interface ProgressContextType {
     dailyGoal: number; // Pages per day
     dailyProgress: number; // Pages read today
     streak: number;
-    incrementProgress: () => void;
+    lastReadSurah: { id: number; name: string } | null;
+    readHistory: { id: number; name: string; timestamp: number }[];
+    incrementProgress: (surah?: { id: number; name: string }) => void;
     setDailyGoal: (goal: number) => void;
 }
 
@@ -31,6 +33,18 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         return readInt('dailyProgress', 0);
     });
     const [streak, setStreak] = useState(() => readInt('streak', 0));
+    const [lastReadSurah, setLastReadSurah] = useState<{ id: number; name: string } | null>(() => {
+        try {
+            const saved = localStorage.getItem('lastReadSurah');
+            return saved ? JSON.parse(saved) : null;
+        } catch { return null; }
+    });
+    const [readHistory, setReadHistory] = useState<{ id: number; name: string; timestamp: number }[]>(() => {
+        try {
+            const saved = localStorage.getItem('readHistory');
+            return saved ? JSON.parse(saved) : [];
+        } catch { return []; }
+    });
 
     // Track whether today's goal has already been counted for streak
     const [goalMetToday, setGoalMetToday] = useState(() => {
@@ -76,7 +90,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         }
     }, []);
 
-    const incrementProgress = useCallback(() => {
+    const incrementProgress = useCallback((surah?: { id: number; name: string }) => {
         // Debounce: ignore calls within 200ms (prevents StrictMode double-fire)
         const now = Date.now();
         if (now - lastIncrementTime.current < 200) return;
@@ -88,6 +102,28 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             localStorage.setItem('lastReadDate', getTodayStr());
             return newProgress;
         });
+
+        if (surah) {
+            setLastReadSurah(surah);
+            localStorage.setItem('lastReadSurah', JSON.stringify(surah));
+
+            setReadHistory(prev => {
+                // Add to history if not the same as the last entry in the last 1 hour
+                const lastEntry = prev[0];
+                const shouldAdd = !lastEntry || lastEntry.id !== surah.id || (Date.now() - lastEntry.timestamp > 3600000);
+
+                let updated = prev;
+                if (shouldAdd) {
+                    updated = [{ ...surah, timestamp: Date.now() }, ...prev].slice(0, 20);
+                } else if (lastEntry && lastEntry.id === surah.id) {
+                    // Just update timestamp
+                    updated = [{ ...surah, timestamp: Date.now() }, ...prev.slice(1)];
+                }
+
+                localStorage.setItem('readHistory', JSON.stringify(updated));
+                return updated;
+            });
+        }
     }, []);
 
     // Handle streak update when goal is met (separate from increment to avoid closure issues)
@@ -104,7 +140,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }, [dailyProgress, dailyGoal, goalMetToday]);
 
     return (
-        <ProgressContext.Provider value={{ dailyGoal, dailyProgress, streak, incrementProgress, setDailyGoal }}>
+        <ProgressContext.Provider value={{ dailyGoal, dailyProgress, streak, lastReadSurah, readHistory, incrementProgress, setDailyGoal }}>
             {children}
         </ProgressContext.Provider>
     );
