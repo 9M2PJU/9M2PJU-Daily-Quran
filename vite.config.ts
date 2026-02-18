@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -14,6 +15,8 @@ export default defineConfig({
         short_name: 'DailyQuran',
         description: 'Read the Quran daily with a beautiful, clean interface.',
         theme_color: '#047857',
+        background_color: '#ffffff',
+        display: 'standalone',
         icons: [
           {
             src: 'pwa-192x192.png',
@@ -27,8 +30,12 @@ export default defineConfig({
           }
         ]
       }
-    }
     })
   ],
-base: '/',
+  base: '/',
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
 });
