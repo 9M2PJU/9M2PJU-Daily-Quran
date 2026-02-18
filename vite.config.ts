@@ -14,8 +14,8 @@ export default defineConfig({
         name: '9M2PJU Daily Quran',
         short_name: '9M2PJU Quran',
         description: 'Read the Quran daily with a beautiful, clean interface.',
-        theme_color: '#047857',
-        background_color: '#ffffff',
+        theme_color: '#0a1a10',
+        background_color: '#0a1a10',
         display: 'standalone',
         icons: [
           {
@@ -26,6 +26,11 @@ export default defineConfig({
           {
             src: 'pwa-512x512.png',
             sizes: '512x512',
+            type: 'image/png'
+          },
+          {
+            src: 'apple-touch-icon.png',
+            sizes: '180x180',
             type: 'image/png'
           }
         ]
