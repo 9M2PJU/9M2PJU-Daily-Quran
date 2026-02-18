@@ -254,119 +254,119 @@ const SurahPage: React.FC = () => {
                         </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Bismillah */}
-            {Number(id) !== 9 && (
-                <div className="text-center mb-20 relative">
-                    <p className="font-arabic text-4xl text-emerald-500/80">بسم الله الرحمن الرحيم</p>
-                </div>
-            )}
+                {/* Bismillah */}
+                {Number(id) !== 9 && (
+                    <div className="text-center mb-20 relative">
+                        <p className="font-arabic text-4xl text-emerald-500/80">بسم الله الرحمن الرحيم</p>
+                    </div>
+                )}
 
-            {/* Verses List */}
-            <div className="space-y-16 max-w-3xl mx-auto">
-                {ayahs.map((ayah, index) => {
-                    const isFocused = !focusMode || focusedVerse === index;
-                    const isDimmed = focusMode && focusedVerse !== index;
-                    const isCurrentlyPlaying = isPlaying && currentSurah === Number(id) && currentVerseIndex === index;
-                    return (
-                        <div
-                            key={ayah.verse_key}
-                            ref={el => { verseRefs.current[index] = el; }}
-                            onClick={() => { if (focusMode) { setFocusedVerse(index); } }}
-                            className={`group relative transition-all duration-500 rounded-2xl ${isCurrentlyPlaying
-                                ? 'bg-primary/[0.06] border border-primary/40 p-6 shadow-lg shadow-primary/10'
-                                : focusMode
-                                    ? isFocused
-                                        ? 'bg-primary/10 border-2 border-primary/50 p-6 shadow-xl shadow-primary/10 scale-100'
-                                        : 'opacity-10 scale-95 cursor-pointer hover:opacity-25 p-6'
-                                    : ''
-                                }`}
-                        >
-                            {/* Verse Number Indicator */}
-                            <div className={`absolute -left-12 top-2 hidden lg:flex size-8 rounded text-xs font-bold items-center justify-center border transition-colors ${focusMode && isFocused ? 'bg-primary text-[#0a1a10] border-primary' : 'bg-primary/10 text-primary border-primary/20'
-                                }`}>
-                                {ayah.verse_key.split(':')[1]}
-                            </div>
-
-                            {/* Focus Mode - Verse Counter */}
-                            {focusMode && isFocused && (
-                                <div className="flex items-center justify-between mb-4">
-                                    <span className="text-[10px] font-bold text-primary/70 uppercase tracking-widest">
-                                        Verse {index + 1} of {ayahs.length}
-                                    </span>
-                                    <div className="flex items-center gap-1">
-                                        <button
-                                            onClick={(e) => { e.stopPropagation(); goToPrevVerse(); }}
-                                            disabled={focusedVerse === 0}
-                                            className={`size-7 rounded-full flex items-center justify-center transition-colors ${focusedVerse === 0 ? 'text-slate-700 cursor-not-allowed' : 'text-slate-400 hover:bg-white/10 hover:text-white'}`}
-                                        >
-                                            <span className="material-symbols-outlined text-sm">arrow_upward</span>
-                                        </button>
-                                        <button
-                                            onClick={(e) => { e.stopPropagation(); goToNextVerse(); }}
-                                            disabled={focusedVerse === ayahs.length - 1}
-                                            className={`size-7 rounded-full flex items-center justify-center transition-colors ${focusedVerse === ayahs.length - 1 ? 'text-slate-700 cursor-not-allowed' : 'text-slate-400 hover:bg-white/10 hover:text-white'}`}
-                                        >
-                                            <span className="material-symbols-outlined text-sm">arrow_downward</span>
-                                        </button>
-                                    </div>
+                {/* Verses List */}
+                <div className="space-y-16 max-w-3xl mx-auto">
+                    {ayahs.map((ayah, index) => {
+                        const isFocused = !focusMode || focusedVerse === index;
+                        const isDimmed = focusMode && focusedVerse !== index;
+                        const isCurrentlyPlaying = isPlaying && currentSurah === Number(id) && currentVerseIndex === index;
+                        return (
+                            <div
+                                key={ayah.verse_key}
+                                ref={el => { verseRefs.current[index] = el; }}
+                                onClick={() => { if (focusMode) { setFocusedVerse(index); } }}
+                                className={`group relative transition-all duration-500 rounded-2xl ${isCurrentlyPlaying
+                                    ? 'bg-primary/[0.06] border border-primary/40 p-6 shadow-lg shadow-primary/10'
+                                    : focusMode
+                                        ? isFocused
+                                            ? 'bg-primary/10 border-2 border-primary/50 p-6 shadow-xl shadow-primary/10 scale-100'
+                                            : 'opacity-10 scale-95 cursor-pointer hover:opacity-25 p-6'
+                                        : ''
+                                    }`}
+                            >
+                                {/* Verse Number Indicator */}
+                                <div className={`absolute -left-12 top-2 hidden lg:flex size-8 rounded text-xs font-bold items-center justify-center border transition-colors ${focusMode && isFocused ? 'bg-primary text-[#0a1a10] border-primary' : 'bg-primary/10 text-primary border-primary/20'
+                                    }`}>
+                                    {ayah.verse_key.split(':')[1]}
                                 </div>
-                            )}
 
-                            {/* Arabic Text */}
-                            <p className={`text-right font-arabic ${fontSizeClasses[fontSize]} mb-8 transition-colors duration-500`} style={{ fontFamily: 'Amiri, serif', color: isDimmed ? 'rgba(255,255,255,0.15)' : '#ffffff' }}>
-                                {ayah.text_uthmani}
-                            </p>
+                                {/* Focus Mode - Verse Counter */}
+                                {focusMode && isFocused && (
+                                    <div className="flex items-center justify-between mb-4">
+                                        <span className="text-[10px] font-bold text-primary/70 uppercase tracking-widest">
+                                            Verse {index + 1} of {ayahs.length}
+                                        </span>
+                                        <div className="flex items-center gap-1">
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); goToPrevVerse(); }}
+                                                disabled={focusedVerse === 0}
+                                                className={`size-7 rounded-full flex items-center justify-center transition-colors ${focusedVerse === 0 ? 'text-slate-700 cursor-not-allowed' : 'text-slate-400 hover:bg-white/10 hover:text-white'}`}
+                                            >
+                                                <span className="material-symbols-outlined text-sm">arrow_upward</span>
+                                            </button>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); goToNextVerse(); }}
+                                                disabled={focusedVerse === ayahs.length - 1}
+                                                className={`size-7 rounded-full flex items-center justify-center transition-colors ${focusedVerse === ayahs.length - 1 ? 'text-slate-700 cursor-not-allowed' : 'text-slate-400 hover:bg-white/10 hover:text-white'}`}
+                                            >
+                                                <span className="material-symbols-outlined text-sm">arrow_downward</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
 
-                            {/* Translation */}
-                            {ayah.translations && (
-                                <p className={`${translationSizeClasses[fontSize]} font-serif leading-relaxed transition-colors duration-500`} style={{ color: isDimmed ? 'rgba(148,163,184,0.3)' : '#e2e8f0' }}>
-                                    {ayah.translations[0].text.replace(/<sup[^>]*>.*?<\/sup>/g, '').replace(/<[^>]*>/g, '')}
+                                {/* Arabic Text */}
+                                <p className={`text-right font-arabic ${fontSizeClasses[fontSize]} mb-8 transition-colors duration-500`} style={{ fontFamily: 'Amiri, serif', color: isDimmed ? 'rgba(255,255,255,0.15)' : '#ffffff' }}>
+                                    {ayah.text_uthmani}
                                 </p>
-                            )}
 
-                            <div className={`mt-6 flex items-center gap-3 flex-wrap transition-opacity duration-300 ${focusMode && isFocused ? 'opacity-100' : 'opacity-100 lg:opacity-0 lg:group-hover:opacity-100'
-                                }`}>
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); handlePlayVerse(ayah, index); }}
-                                    className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-white transition-colors"
-                                >
-                                    <span className="material-symbols-outlined text-lg">play_arrow</span> Play
-                                </button>
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); handleCopyVerse(ayah); }}
-                                    className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-white transition-colors"
-                                >
-                                    <span className="material-symbols-outlined text-lg">{copiedVerse === ayah.verse_key ? 'check' : 'content_copy'}</span>
-                                    {copiedVerse === ayah.verse_key ? 'Copied!' : 'Copy'}
-                                </button>
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); handleShareVerse(ayah); }}
-                                    className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-white transition-colors"
-                                >
-                                    <span className="material-symbols-outlined text-lg">share</span> Share
-                                </button>
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        toggleBookmark({
-                                            verseKey: ayah.verse_key,
-                                            surahId: Number(id),
-                                            surahName: surah?.name_simple || '',
-                                            arabicText: ayah.text_uthmani,
-                                            translationText: ayah.translations?.[0]?.text.replace(/<sup[^>]*>.*?<\/sup>/g, '').replace(/<[^>]*>/g, '') || '',
-                                        });
-                                    }}
-                                    className={`flex items-center gap-2 text-xs font-bold transition-colors ${isBookmarked(ayah.verse_key) ? 'text-primary' : 'text-slate-500 hover:text-white'}`}
-                                >
-                                    <span className="material-symbols-outlined text-lg fill-1">{isBookmarked(ayah.verse_key) ? 'bookmark' : 'bookmark_border'}</span>
-                                    {isBookmarked(ayah.verse_key) ? 'Saved' : 'Bookmark'}
-                                </button>
+                                {/* Translation */}
+                                {ayah.translations && (
+                                    <p className={`${translationSizeClasses[fontSize]} font-serif leading-relaxed transition-colors duration-500`} style={{ color: isDimmed ? 'rgba(148,163,184,0.3)' : '#e2e8f0' }}>
+                                        {ayah.translations[0].text.replace(/<sup[^>]*>.*?<\/sup>/g, '').replace(/<[^>]*>/g, '')}
+                                    </p>
+                                )}
+
+                                <div className={`mt-6 flex items-center gap-3 flex-wrap transition-opacity duration-300 ${focusMode && isFocused ? 'opacity-100' : 'opacity-100 lg:opacity-0 lg:group-hover:opacity-100'
+                                    }`}>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handlePlayVerse(ayah, index); }}
+                                        className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-white transition-colors"
+                                    >
+                                        <span className="material-symbols-outlined text-lg">play_arrow</span> Play
+                                    </button>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleCopyVerse(ayah); }}
+                                        className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-white transition-colors"
+                                    >
+                                        <span className="material-symbols-outlined text-lg">{copiedVerse === ayah.verse_key ? 'check' : 'content_copy'}</span>
+                                        {copiedVerse === ayah.verse_key ? 'Copied!' : 'Copy'}
+                                    </button>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleShareVerse(ayah); }}
+                                        className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-white transition-colors"
+                                    >
+                                        <span className="material-symbols-outlined text-lg">share</span> Share
+                                    </button>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            toggleBookmark({
+                                                verseKey: ayah.verse_key,
+                                                surahId: Number(id),
+                                                surahName: surah?.name_simple || '',
+                                                arabicText: ayah.text_uthmani,
+                                                translationText: ayah.translations?.[0]?.text.replace(/<sup[^>]*>.*?<\/sup>/g, '').replace(/<[^>]*>/g, '') || '',
+                                            });
+                                        }}
+                                        className={`flex items-center gap-2 text-xs font-bold transition-colors ${isBookmarked(ayah.verse_key) ? 'text-primary' : 'text-slate-500 hover:text-white'}`}
+                                    >
+                                        <span className="material-symbols-outlined text-lg fill-1">{isBookmarked(ayah.verse_key) ? 'bookmark' : 'bookmark_border'}</span>
+                                        {isBookmarked(ayah.verse_key) ? 'Saved' : 'Bookmark'}
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    );
-                })}
+                        );
+                    })}
+                </div>
             </div>
 
             {/* Right Sidebar (Tafsir & Notes) - Hidden in Focus Mode */}
