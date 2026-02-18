@@ -9,7 +9,7 @@ import { useBookmarks } from '../contexts/BookmarkContext';
 const SurahPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const { translationId } = useSettings();
-    const { isPlaying, currentSurah, currentVerseIndex, play, pause, toggle, stop } = useAudio();
+    const { isPlaying, currentSurah, currentVerseIndex, play, toggle, stop } = useAudio();
     const { incrementProgress } = useProgress();
 
     // Stop audio when leaving the surah page
@@ -115,7 +115,7 @@ const SurahPage: React.FC = () => {
         }
     }, [surah, handleCopyVerse]);
 
-    const handlePlayVerse = useCallback(async (ayah: Ayah, index: number) => {
+    const handlePlayVerse = useCallback(async (_ayah: Ayah, index: number) => {
         if (!id) return;
         const surahId = Number(id);
         // Play from this verse onwards
