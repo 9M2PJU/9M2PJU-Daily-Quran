@@ -1,93 +1,215 @@
-import React, { useState, useEffect } from 'react';
-import { Outlet, Link } from 'react-router-dom';
-import { Moon, Sun, Globe } from 'lucide-react';
-import { useSettings, TRANSLATIONS } from '../contexts/SettingsContext';
+import React, { useEffect } from 'react';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 
 const Layout: React.FC = () => {
-    const [isDark, setIsDark] = useState(() => {
-        if (typeof window !== 'undefined') {
-            return localStorage.getItem('theme') === 'dark' ||
-                (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        }
-        return false;
-    });
-
-    const { translationId, setTranslationId } = useSettings();
-    const [showLangMenu, setShowLangMenu] = useState(false);
+    const location = useLocation();
+    const isReadingMode = location.pathname.startsWith('/surah/');
 
     useEffect(() => {
-        if (isDark) {
+        if (localStorage.getItem('theme') === 'dark' ||
+            (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
         } else {
             document.documentElement.classList.remove('dark');
-            localStorage.setItem('theme', 'light');
         }
-    }, [isDark]);
+    }, []);
+
+    const isActive = (path: string) => location.pathname === path;
+
+    const SidebarItem = ({ to, icon, label, collapsed = false }: { to: string, icon: string, label: string, collapsed?: boolean }) => (
+        <Link
+            to={to}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive(to)
+                    ? 'bg-primary/10 text-primary font-bold'
+                    : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                } ${collapsed ? 'justify-center px-0' : ''}`}
+            title={collapsed ? label : ''}
+        >
+            <span className={`material-symbols-outlined text-2xl ${isActive(to) ? 'fill-1' : ''}`}>{icon}</span>
+            {!collapsed && <span className="text-sm font-medium">{label}</span>}
+            {!collapsed && isActive(to) && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(17,212,66,0.5)]"></div>}
+        </Link>
+    );
 
     return (
-        <div className="min-h-screen flex flex-col transition-colors duration-300 bg-[size:200%_200%] animate-gradient">
-            <header className="sticky top-0 z-50 glass border-b transition-colors duration-300 shadow-sm" style={{ borderBottomColor: 'rgba(255,255,255,0.1)' }}>
-                <div className="container mx-auto flex items-center justify-between py-3 px-4">
-                    <Link to="/" className="flex items-center gap-3 group">
-                        <div className="relative">
-                            <div className="absolute inset-0 bg-emerald-500 blur-lg opacity-20 group-hover:opacity-40 transition-opacity rounded-full"></div>
-                            <img src="/logo.png" alt="9M2PJU Daily Quran Logo" className="h-12 w-auto relative z-10 transition-transform group-hover:scale-110 drop-shadow-md object-contain" />
-                        </div>
-                        <h1 className="text-xl font-bold tracking-tight text-gradient">
-                            9M2PJU Daily Quran
-                        </h1>
-                    </Link>
-
-                    <div className="flex items-center gap-2">
-                        <div className="relative">
-                            <button
-                                onClick={() => setShowLangMenu(!showLangMenu)}
-                                className="p-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
-                                title="Change Language"
-                            >
-                                <Globe className="w-5 h-5 text-gray-700 dark:text-gray-200" />
-                            </button>
-
-                            {showLangMenu && (
-                                <div className="absolute right-0 top-12 glass rounded-xl shadow-lg py-2 w-56 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
-                                    <div className="px-4 py-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Select Translation</div>
-                                    {TRANSLATIONS.map((t) => (
-                                        <button
-                                            key={t.id}
-                                            onClick={() => {
-                                                setTranslationId(t.id);
-                                                setShowLangMenu(false);
-                                            }}
-                                            className={`w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors ${translationId === t.id ? 'text-emerald-700 dark:text-emerald-400 font-bold' : 'text-gray-700 dark:text-gray-200'}`}
-                                        >
-                                            {t.name}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-
-                        <button
-                            onClick={() => setIsDark(!isDark)}
-                            className="p-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
-                            title="Toggle Theme"
-                        >
-                            {isDark ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5 text-slate-600" />}
-                        </button>
+        <div className="min-h-screen flex bg-[#0a1a10] text-white font-sans selection:bg-primary/30">
+            {/* Desktop Sidebar */}
+            <aside
+                className={`hidden lg:flex fixed top-0 left-0 bottom-0 flex-col border-r border-white/5 bg-[#0a1a10] z-50 transition-all duration-300 ${isReadingMode ? 'w-20 p-4' : 'w-72 p-6'
+                    }`}
+            >
+                {/* Logo */}
+                <div className={`flex items-center gap-3 mb-10 ${isReadingMode ? 'justify-center' : 'px-2'}`}>
+                    <div className="size-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 shrink-0">
+                        <span className="material-symbols-outlined text-[#0a1a10] fill-1">menu_book</span>
                     </div>
+                    {!isReadingMode && (
+                        <div className="overflow-hidden">
+                            <h1 className="text-lg font-bold leading-tight whitespace-nowrap">Daily Quran</h1>
+                            <p className="text-[10px] text-slate-500 font-medium tracking-wider uppercase whitespace-nowrap">Spiritual Growth</p>
+                        </div>
+                    )}
                 </div>
-            </header>
 
-            <main className="flex-1 container mx-auto py-8 px-4">
-                <Outlet />
+                {/* Main Nav */}
+                <nav className="flex-1 space-y-2">
+                    <SidebarItem to="/" icon="dashboard" label="Dashboard" collapsed={isReadingMode} />
+                    <SidebarItem to="/library" icon="auto_stories" label="Library" collapsed={isReadingMode} />
+                    <SidebarItem to="/quran" icon="format_list_bulleted" label="Surah Index" collapsed={isReadingMode} />
+                    <SidebarItem to="/bookmarks" icon="bookmark" label="Bookmarks" collapsed={isReadingMode} />
+                    <SidebarItem to="/activity" icon="history" label="Recent Activity" collapsed={isReadingMode} />
+                </nav>
+
+                {/* Bottom Section */}
+                <div className="mt-auto space-y-6">
+                    {!isReadingMode && (
+                        <div className="bg-white/5 rounded-2xl p-4 border border-white/5 relative overflow-hidden group">
+                            {/* Streak Card Content (Hidden in collapsed mode) */}
+                            <div className="flex justify-between items-end mb-2 relative z-10">
+                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Streak</span>
+                                <span className="text-lg font-bold text-primary">12 Days</span>
+                            </div>
+                            <div className="flex gap-1 h-1.5 relative z-10">
+                                <div className="flex-1 rounded-full bg-primary"></div>
+                                <div className="flex-1 rounded-full bg-primary"></div>
+                                <div className="flex-1 rounded-full bg-primary"></div>
+                                <div className="flex-1 rounded-full bg-primary"></div>
+                                <div className="flex-1 rounded-full bg-white/10"></div>
+                            </div>
+                        </div>
+                    )}
+
+                    <Link to="/settings" className={`flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-colors rounded-xl hover:bg-white/5 ${isReadingMode ? 'justify-center' : ''}`}>
+                        <span className="material-symbols-outlined">settings</span>
+                        {!isReadingMode && <span className="text-sm font-medium">Settings</span>}
+                    </Link>
+                </div>
+            </aside>
+
+            {/* Main Content Area */}
+            <main className={`flex-1 min-h-screen flex flex-col relative transition-all duration-300 ${isReadingMode ? 'lg:ml-20' : 'lg:ml-72'}`}>
+                {/* Top Header (Desktop) */}
+                <header className="sticky top-0 z-30 px-6 py-4 hidden lg:flex items-center justify-between bg-[#0a1a10]/80 backdrop-blur-xl border-b border-white/5">
+
+                    {isReadingMode ? (
+                        // Reading Mode Header: Audio Player
+                        <div className="flex-1 flex items-center justify-between">
+                            <div className="flex items-center gap-4 bg-[#11241a] px-4 py-2 rounded-full border border-white/5">
+                                <button className="text-slate-400 hover:text-white transition-colors"><span className="material-symbols-outlined">skip_previous</span></button>
+                                <button className="size-10 rounded-full bg-primary text-[#0a1a10] flex items-center justify-center hover:bg-primary-light transition-colors shadow-lg shadow-primary/20">
+                                    <span className="material-symbols-outlined fill-1">play_arrow</span>
+                                </button>
+                                <button className="text-slate-400 hover:text-white transition-colors"><span className="material-symbols-outlined">skip_next</span></button>
+                                <div className="w-px h-6 bg-white/10 mx-2"></div>
+                                <button className="flex items-center gap-2 text-xs font-bold text-white hover:text-primary transition-colors">
+                                    <div className="size-6 rounded-full bg-slate-700 overflow-hidden">
+                                        <img src="https://ui-avatars.com/api/?name=Mishary+Alafasy&background=random" alt="Reciter" />
+                                    </div>
+                                    Mishary Alafasy
+                                    <span className="material-symbols-outlined text-sm">expand_more</span>
+                                </button>
+                            </div>
+
+                            {/* Search & Actions */}
+                            <div className="flex items-center gap-4">
+                                <div className="w-64 relative">
+                                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-lg">search</span>
+                                    <input type="text" placeholder="Search Surah or Verse..." className="w-full bg-[#11241a] border border-white/5 rounded-full py-2 pl-10 pr-4 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-primary/50" />
+                                </div>
+                                <button className="text-slate-400 hover:text-white"><span className="material-symbols-outlined fill-1">bookmark</span></button>
+                                <button className="text-slate-400 hover:text-white"><span className="material-symbols-outlined">settings</span></button>
+                                <button className="size-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs border border-primary/20">AK</button>
+                            </div>
+                        </div>
+                    ) : (
+                        // Standard Dashboard Header
+                        <>
+                            <div className="w-96 relative group">
+                                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors">search</span>
+                                <input
+                                    type="text"
+                                    placeholder="Search for a Surah, Verse, or Topic..."
+                                    className="w-full bg-white/5 border border-white/5 rounded-full py-3 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary/50 transition-all"
+                                />
+                            </div>
+
+                            <div className="flex items-center gap-6">
+                                <button className="relative text-slate-400 hover:text-white transition-colors">
+                                    <span className="material-symbols-outlined fill-1">notifications</span>
+                                    <span className="absolute top-0 right-0.5 w-2 h-2 rounded-full bg-red-500 border-2 border-[#0a1a10]"></span>
+                                </button>
+
+                                <div className="flex items-center gap-3 pl-6 border-l border-white/5">
+                                    <div className="text-right">
+                                        <h3 className="text-sm font-bold text-white leading-tight">Ahmed Khalid</h3>
+                                        <p className="text-[10px] font-bold text-primary uppercase tracking-wider">Premium Member</p>
+                                    </div>
+                                    <div className="size-10 rounded-full border border-white/10 bg-white/5 p-0.5">
+                                        <img
+                                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0G9lBRzZ9C4KasJyIRb7BCZP927Na54SUPTvU4czWnxisRZJbs_6RTTpR2PbkIvzgdvJt4vRxcZWlgFSHYcc8j-0wk9zMwiYrtciwXQBcCEN6ynFES02aGJ7iGzwGFyx7MMxSL3W-f5rUITedLYaQ1-VPRqGT-kJeEVuKLOYGil1arJLpcZrfvLLa559R3Alb3ME1JSqFbIk4slbuxG0agfgzfRDqG4Pa6DOzMavma_Ay6pzmqcV5hVQWoK820D6v9xtjYsDmWyo"
+                                            alt="User"
+                                            className="w-full h-full rounded-full object-cover"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </header>
+
+                {/* Mobile Header */}
+                <header className="lg:hidden sticky top-0 z-20 px-4 pt-6 pb-4 flex items-center justify-between bg-[#193320]/90 backdrop-blur-md border-b border-white/5">
+                    <div className="flex items-center gap-3">
+                        <div className="size-10 rounded-full border-2 border-primary/30 p-0.5 overflow-hidden">
+                            <img
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0G9lBRzZ9C4KasJyIRb7BCZP927Na54SUPTvU4czWnxisRZJbs_6RTTpR2PbkIvzgdvJt4vRxcZWlgFSHYcc8j-0wk9zMwiYrtciwXQBcCEN6ynFES02aGJ7iGzwGFyx7MMxSL3W-f5rUITedLYaQ1-VPRqGT-kJeEVuKLOYGil1arJLpcZrfvLLa559R3Alb3ME1JSqFbIk4slbuxG0agfgzfRDqG4Pa6DOzMavma_Ay6pzmqcV5hVQWoK820D6v9xtjYsDmWyo"
+                                alt="User"
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+                        <div>
+                            <h1 className="text-sm font-bold leading-none text-white">Assalamu Alaikum</h1>
+                            <p className="text-xs text-primary font-medium mt-1">15 Ramadan</p>
+                        </div>
+                    </div>
+                    <button className="size-10 flex items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <span className="material-symbols-outlined">notifications</span>
+                    </button>
+                </header>
+
+                <div className={`flex-1 overflow-y-auto ${isReadingMode ? 'p-0' : 'p-4 lg:p-8'}`}>
+                    <Outlet />
+                </div>
             </main>
 
-            <footer className="py-8 text-center text-sm mt-auto glass border-t" style={{ borderTopColor: 'rgba(255,255,255,0.1)' }}>
-                <div className="container mx-auto">
-                    <p className="text-slate-600 dark:text-slate-400">© {new Date().getFullYear()} <span className="font-semibold text-emerald-600 dark:text-emerald-400">9M2PJU Daily Quran</span>. Refined for the Soul.</p>
-                </div>
-            </footer>
+            {/* Mobile Bottom Navigation Bar (Hide on Reading Mode logic could be added, but keeping for now) */}
+            {!isReadingMode && (
+                <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-[#193320]/95 backdrop-blur-xl border-t border-white/5 px-6 pb-8 pt-3">
+                    <div className="flex justify-between items-center">
+                        <Link to="/" className={`flex flex-col items-center gap-1 ${isActive('/') ? 'text-primary' : 'text-white/40 hover:text-primary'} transition-colors`}>
+                            <span className={`material-symbols-outlined text-2xl ${isActive('/') ? 'fill-1' : ''}`}>home</span>
+                            <span className="text-[10px] font-bold uppercase tracking-tighter">Home</span>
+                        </Link>
+
+                        <Link to="/quran" className={`flex flex-col items-center gap-1 ${isActive('/quran') ? 'text-primary' : 'text-white/40 hover:text-primary'} transition-colors`}>
+                            <span className={`material-symbols-outlined text-2xl ${isActive('/quran') ? 'fill-1' : ''}`}>menu_book</span>
+                            <span className="text-[10px] font-medium uppercase tracking-tighter">Quran</span>
+                        </Link>
+
+                        <Link to="/prayer-times" className={`flex flex-col items-center gap-1 ${isActive('/prayer-times') ? 'text-white' : 'text-white/40 hover:text-primary'} transition-colors`}>
+                            <div className={`${isActive('/prayer-times') ? 'bg-primary/20' : ''} p-1 rounded-full mb-0.5`}>
+                                <span className={`material-symbols-outlined text-2xl block ${isActive('/prayer-times') ? 'fill-1' : ''}`}>explore</span>
+                            </div>
+                            <span className="text-[10px] font-medium uppercase tracking-tighter">Prayer</span>
+                        </Link>
+
+                        <button className="flex flex-col items-center gap-1 text-white/40 hover:text-primary transition-colors">
+                            <span className="material-symbols-outlined text-2xl">settings</span>
+                            <span className="text-[10px] font-medium uppercase tracking-tighter">Settings</span>
+                        </button>
+                    </div>
+                </nav>
+            )}
         </div>
     );
 };

@@ -1,8 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { getSurahDetails, getAyahs, getSurahAudio, type Surah, type Ayah } from '../services/api';
-import { ArrowLeft, Play, Pause, Loader2 } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { useSettings } from '../contexts/SettingsContext';
 
 const SurahPage: React.FC = () => {
@@ -10,36 +8,27 @@ const SurahPage: React.FC = () => {
     const { translationId } = useSettings();
     const [surah, setSurah] = useState<Surah | null>(null);
     const [ayahs, setAyahs] = useState<Ayah[]>([]);
-    const [audioUrl, setAudioUrl] = useState<string | null>(null);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [isLoadingAudio, setIsLoadingAudio] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState<'tafsir' | 'notes'>('tafsir');
 
-    const audioRef = useRef<HTMLAudioElement | null>(null);
-
-    useEffect(() => {
-        if (surah && ayahs.length > 0) {
-            localStorage.setItem('daily-quran-last-read', JSON.stringify({
-                surahId: surah.id,
-                surahName: surah.name_simple,
-                timestamp: Date.now()
-            }));
-        }
-    }, [surah, ayahs]);
+    // Mock Data for Sidebar functionality validation
+    const mockTafsir = {
+        scholar: "Ibn Kathir",
+        text: "Regarding the statement of Allah, \"And they followed what the devils had recited...\", Ibn Jarir said that this means the devils used to write magic and talismans and bury them under the throne of Solomon.",
+        insight: "Allah clarifies that magic is a trial and disbelief. Those who seek it trade their share in the Hereafter for a miserable gain."
+    };
 
     useEffect(() => {
         const fetchData = async () => {
             if (!id) return;
             setLoading(true);
             try {
-                const [surahData, ayahsData, audio] = await Promise.all([
+                const [surahData, ayahsData] = await Promise.all([
                     getSurahDetails(Number(id)),
-                    getAyahs(Number(id), 1, 286, translationId),
-                    getSurahAudio(Number(id))
+                    getAyahs(Number(id), 1, 286, translationId), // Default limit for demo
                 ]);
                 setSurah(surahData);
                 setAyahs(ayahsData);
-                setAudioUrl(audio);
             } catch (error) {
                 console.error('Error fetching surah data:', error);
             } finally {
@@ -48,135 +37,168 @@ const SurahPage: React.FC = () => {
         };
         fetchData();
         window.scrollTo(0, 0);
-        setIsPlaying(false);
     }, [id, translationId]);
 
-    const togglePlay = () => {
-        if (!audioRef.current) return;
-
-        if (isPlaying) {
-            audioRef.current.pause();
-        } else {
-            const playPromise = audioRef.current.play();
-            if (playPromise !== undefined) {
-                setIsLoadingAudio(true);
-                playPromise
-                    .then(() => setIsLoadingAudio(false))
-                    .catch(error => {
-                        console.error("Audio playback error:", error);
-                        setIsLoadingAudio(false);
-                    });
-            }
-        }
-        setIsPlaying(!isPlaying);
-    };
-
-    const handleAudioEnded = () => {
-        setIsPlaying(false);
-    };
-
-    if (loading) return <div className="text-center py-20 animate-pulse">Loading noble verses...</div>;
+    if (loading) return <div className="flex items-center justify-center min-h-[50vh]"><span className="loading loading-spinner text-primary"></span></div>;
     if (!surah) return <div className="text-center py-20 text-red-500">Failed to load Surah.</div>;
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="max-w-4xl mx-auto space-y-8 pb-32"
-        >
-            {/* Header Info */}
-            <div className="text-center space-y-4 py-8 relative">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-emerald-500/10 blur-3xl rounded-full -z-10"></div>
-                <Link to="/" className="inline-flex items-center text-sm mb-4 px-4 py-2 rounded-full glass hover:bg-white/50 transition-colors text-emerald-700 dark:text-emerald-400">
-                    <ArrowLeft className="w-4 h-4 mr-2" /> Back to Index
-                </Link>
-                <h1 className="text-5xl font-bold font-serif text-slate-800 dark:text-slate-100">{surah.name_simple}</h1>
-                <p className="text-2xl font-arabic mt-2 text-emerald-600 dark:text-emerald-400">{surah.name_arabic}</p>
-                <div className="flex justify-center gap-6 text-sm font-medium text-slate-500 dark:text-slate-400">
-                    <span className="uppercase tracking-widest">{surah.revelation_place}</span>
-                    <span className="text-emerald-300">•</span>
-                    <span>{surah.verses_count} Verses</span>
-                </div>
-            </div>
+        <div className="flex flex-col lg:flex-row min-h-screen bg-[#0a1a10]">
+            {/* Main Content (Verses) */}
+            <div className="flex-1 p-6 lg:p-12 overflow-y-auto">
 
-            {/* Bismillah */}
-            <div className="text-center py-8 glass rounded-3xl mb-8 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/5 rounded-full blur-2xl"></div>
-                <div className="absolute bottom-0 left-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl"></div>
-                <p className="font-arabic text-4xl leading-loose text-slate-800 dark:text-slate-200 relative z-10">
-                    بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ
-                </p>
-            </div>
+                {/* Header Info */}
+                <div className="text-center mb-16 space-y-4">
+                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold tracking-widest uppercase border border-primary/20">
+                        {surah.revelation_place} Surah
+                        <span className="material-symbols-outlined text-sm">verified</span>
+                    </span>
 
-            {/* Ayahs */}
-            <div className="space-y-6">
-                {ayahs.map((ayah, index) => (
-                    <motion.div
-                        key={ayah.verse_key}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        className="glass p-8 rounded-3xl hover:shadow-gold transition-all duration-300 group"
-                    >
-                        <div className="flex justify-between items-center mb-6 border-b border-dashed border-emerald-500/20 pb-4">
-                            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold font-mono border border-emerald-100 dark:border-emerald-800/50">
-                                {ayah.verse_key.split(':')[1]}
+                    <h1 className="font-arabic text-6xl text-white mt-4 mb-2">{surah.name_arabic}</h1>
+                    <p className="text-xl text-slate-400 font-medium">{surah.name_simple} (The Cow)</p>
+
+                    <div className="flex justify-center items-center gap-8 mt-6 border-y border-white/5 py-4 w-full max-w-md mx-auto">
+                        <div className="text-center">
+                            <span className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Verse</span>
+                            <span className="block text-xl font-bold text-white">102 <span className="text-slate-600 text-sm">/ {surah.verses_count}</span></span>
+                        </div>
+                        <div className="w-px h-8 bg-white/10"></div>
+                        <div className="text-center">
+                            <span className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Juz</span>
+                            <span className="block text-xl font-bold text-white">1</span>
+                        </div>
+                        <div className="w-px h-8 bg-white/10"></div>
+                        <div className="text-center">
+                            <span className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Font Size</span>
+                            <div className="flex gap-2">
+                                <span className="text-slate-500 hover:text-white cursor-pointer transition-colors text-sm">A-</span>
+                                <span className="text-primary cursor-pointer font-bold">A+</span>
                             </div>
-                            <div className="text-xs text-slate-400">Verse {ayah.verse_key}</div>
                         </div>
-
-                        <p className="font-arabic text-4xl text-right leading-[2.5] mb-8 text-slate-800 dark:text-slate-100 px-2" style={{ fontFamily: 'Amiri, serif' }}>
-                            {ayah.text_uthmani}
-                        </p>
-
-                        {ayah.translations && (
-                            <div className="text-lg leading-relaxed text-slate-600 dark:text-slate-300 font-serif border-l-4 border-emerald-500/30 pl-6 py-2">
-                                {ayah.translations[0].text.replace(/<[^>]*>/g, '')}
-                            </div>
-                        )}
-
-                        <div className="mt-4 flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
-                            {/* Future: Actions like share/copy could go here */}
-                        </div>
-                    </motion.div>
-                ))}
-            </div>
-
-            {/* Sticky Audio Player */}
-            {audioUrl && (
-                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-lg glass rounded-2xl shadow-2xl border-t border-white/20 p-4 z-50 backdrop-blur-xl bg-white/80 dark:bg-slate-900/80">
-                    <div className="flex items-center justify-between gap-4">
-                        <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Now Playing</p>
-                            <p className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{surah.name_simple} - Mishary Alafasy</p>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                            <button
-                                onClick={togglePlay}
-                                disabled={isLoadingAudio}
-                                className="w-12 h-12 flex items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 text-white shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-105 active:scale-95 transition-all"
-                            >
-                                {isLoadingAudio ? (
-                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                ) : isPlaying ? (
-                                    <Pause className="w-5 h-5 fill-current" />
-                                ) : (
-                                    <Play className="w-5 h-5 fill-current ml-1" />
-                                )}
-                            </button>
-                        </div>
-                        <audio
-                            ref={audioRef}
-                            src={audioUrl}
-                            onEnded={handleAudioEnded}
-                            onError={(e) => console.error("Audio error", e)}
-                        />
                     </div>
                 </div>
-            )}
-        </motion.div>
+
+                {/* Bismillah */}
+                <div className="text-center mb-20 relative">
+                    <p className="font-arabic text-4xl text-emerald-500/80">بسم الله الرحمن الرحيم</p>
+                </div>
+
+                {/* Verses List */}
+                <div className="space-y-16 max-w-3xl mx-auto">
+                    {ayahs.map((ayah, index) => (
+                        <div key={ayah.verse_key} className="group relative">
+                            {/* Verse Number Indicator */}
+                            <div className="absolute -left-12 top-2 hidden lg:flex size-8 bg-primary/10 rounded text-primary text-xs font-bold items-center justify-center border border-primary/20">
+                                {ayah.verse_key.split(':')[1]}
+                            </div>
+
+                            {/* Arabic Text */}
+                            <p className="text-right font-arabic text-4xl md:text-5xl leading-[2.2] text-[#e2e8f0] mb-8" style={{ fontFamily: 'Amiri, serif' }}>
+                                {ayah.text_uthmani}
+                            </p>
+
+                            {/* Translation */}
+                            {ayah.translations && (
+                                <p className="text-lg text-slate-400 font-serif leading-relaxed">
+                                    {ayah.translations[0].text.replace(/<[^>]*>/g, '')}
+                                </p>
+                            )}
+
+                            {/* Action Bar (Hidden by default, shown on hover) */}
+                            <div className="mt-6 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <button className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-white transition-colors">
+                                    <span className="material-symbols-outlined text-lg">play_arrow</span> Play
+                                </button>
+                                <button className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-white transition-colors">
+                                    <span className="material-symbols-outlined text-lg">content_copy</span> Copy
+                                </button>
+                                <button className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-white transition-colors">
+                                    <span className="material-symbols-outlined text-lg">share</span> Share
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Right Sidebar (Tafsir & Notes) */}
+            <aside className="w-full lg:w-[400px] border-l border-white/5 bg-[#0a1a10] flex flex-col h-screen sticky top-0">
+                {/* Tabs */}
+                <div className="flex border-b border-white/5">
+                    <button
+                        onClick={() => setActiveTab('tafsir')}
+                        className={`flex-1 py-4 text-xs font-bold uppercase tracking-widest hover:text-white transition-colors ${activeTab === 'tafsir' ? 'text-primary border-b-2 border-primary' : 'text-slate-500'}`}
+                    >
+                        Tafsir
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('notes')}
+                        className={`flex-1 py-4 text-xs font-bold uppercase tracking-widest hover:text-white transition-colors ${activeTab === 'notes' ? 'text-primary border-b-2 border-primary' : 'text-slate-500'}`}
+                    >
+                        Personal Notes
+                    </button>
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                    {activeTab === 'tafsir' ? (
+                        <>
+                            <div className="flex justify-between items-center mb-2">
+                                <h3 className="font-bold text-white">Ibn Kathir</h3>
+                                <button className="text-xs text-primary font-bold hover:underline">Change Scholar</button>
+                            </div>
+
+                            <p className="text-slate-400 text-sm leading-relaxed">
+                                {mockTafsir.text}
+                            </p>
+
+                            <p className="text-slate-400 text-sm leading-relaxed mt-4">
+                                After Solomon's death, they brought them out and told people: "This is the source of Solomon's kingdom and power." Some people believed them and began practicing it.
+                            </p>
+
+                            {/* Key Insight Box */}
+                            <div className="bg-[#11241a] rounded-xl p-4 border border-white/5 mt-6">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <span className="material-symbols-outlined text-primary text-sm fill-1">lightbulb</span>
+                                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Key Insight</h4>
+                                </div>
+                                <p className="text-xs text-slate-400 leading-relaxed">
+                                    {mockTafsir.insight}
+                                </p>
+                            </div>
+
+                            {/* Word Analysis */}
+                            <div className="mt-8">
+                                <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4">Word Analysis</h4>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="bg-white/5 rounded-lg p-3 text-center hover:bg-white/10 transition-colors cursor-pointer border border-white/5">
+                                        <p className="font-arabic text-xl text-primary mb-1">سِحْر</p>
+                                        <p className="text-[10px] text-slate-500 uppercase font-bold">Magic / Sihr</p>
+                                    </div>
+                                    <div className="bg-white/5 rounded-lg p-3 text-center hover:bg-white/10 transition-colors cursor-pointer border border-white/5">
+                                        <p className="font-arabic text-xl text-primary mb-1">ٱلشَّيَـٰطِين</p>
+                                        <p className="text-[10px] text-slate-500 uppercase font-bold">The Devils</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="text-center py-20 text-slate-500">
+                            <span className="material-symbols-outlined text-4xl mb-2">edit_note</span>
+                            <p className="text-sm">You haven't added any notes for this verse yet.</p>
+                        </div>
+                    )}
+                </div>
+
+                {/* Footer Buttons */}
+                <div className="p-4 border-t border-white/5">
+                    <button className="w-full py-3 rounded-lg border border-white/10 hover:bg-white/5 hover:border-white/20 text-slate-400 hover:text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2">
+                        <span className="material-symbols-outlined text-base">fullscreen</span>
+                        Enable Focus Mode
+                    </button>
+                </div>
+            </aside>
+        </div>
     );
 };
 
