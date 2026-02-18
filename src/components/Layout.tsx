@@ -20,8 +20,8 @@ const Layout: React.FC = () => {
         <Link
             to={to}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive(to)
-                    ? 'bg-primary/10 text-primary font-bold'
-                    : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                ? 'bg-primary/10 text-primary font-bold'
+                : 'text-slate-400 hover:bg-white/5 hover:text-white'
                 } ${collapsed ? 'justify-center px-0' : ''}`}
             title={collapsed ? label : ''}
         >
@@ -118,7 +118,6 @@ const Layout: React.FC = () => {
                                 </div>
                                 <button className="text-slate-400 hover:text-white"><span className="material-symbols-outlined fill-1">bookmark</span></button>
                                 <button className="text-slate-400 hover:text-white"><span className="material-symbols-outlined">settings</span></button>
-                                <button className="size-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs border border-primary/20">AK</button>
                             </div>
                         </div>
                     ) : (
@@ -138,20 +137,9 @@ const Layout: React.FC = () => {
                                     <span className="material-symbols-outlined fill-1">notifications</span>
                                     <span className="absolute top-0 right-0.5 w-2 h-2 rounded-full bg-red-500 border-2 border-[#0a1a10]"></span>
                                 </button>
-
-                                <div className="flex items-center gap-3 pl-6 border-l border-white/5">
-                                    <div className="text-right">
-                                        <h3 className="text-sm font-bold text-white leading-tight">Ahmed Khalid</h3>
-                                        <p className="text-[10px] font-bold text-primary uppercase tracking-wider">Premium Member</p>
-                                    </div>
-                                    <div className="size-10 rounded-full border border-white/10 bg-white/5 p-0.5">
-                                        <img
-                                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0G9lBRzZ9C4KasJyIRb7BCZP927Na54SUPTvU4czWnxisRZJbs_6RTTpR2PbkIvzgdvJt4vRxcZWlgFSHYcc8j-0wk9zMwiYrtciwXQBcCEN6ynFES02aGJ7iGzwGFyx7MMxSL3W-f5rUITedLYaQ1-VPRqGT-kJeEVuKLOYGil1arJLpcZrfvLLa559R3Alb3ME1JSqFbIk4slbuxG0agfgzfRDqG4Pa6DOzMavma_Ay6pzmqcV5hVQWoK820D6v9xtjYsDmWyo"
-                                            alt="User"
-                                            className="w-full h-full rounded-full object-cover"
-                                        />
-                                    </div>
-                                </div>
+                                <Link to="/settings" className="text-slate-400 hover:text-white transition-colors">
+                                    <span className="material-symbols-outlined">settings</span>
+                                </Link>
                             </div>
                         </>
                     )}
@@ -160,12 +148,8 @@ const Layout: React.FC = () => {
                 {/* Mobile Header */}
                 <header className="lg:hidden sticky top-0 z-20 px-4 pt-6 pb-4 flex items-center justify-between bg-[#193320]/90 backdrop-blur-md border-b border-white/5">
                     <div className="flex items-center gap-3">
-                        <div className="size-10 rounded-full border-2 border-primary/30 p-0.5 overflow-hidden">
-                            <img
-                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0G9lBRzZ9C4KasJyIRb7BCZP927Na54SUPTvU4czWnxisRZJbs_6RTTpR2PbkIvzgdvJt4vRxcZWlgFSHYcc8j-0wk9zMwiYrtciwXQBcCEN6ynFES02aGJ7iGzwGFyx7MMxSL3W-f5rUITedLYaQ1-VPRqGT-kJeEVuKLOYGil1arJLpcZrfvLLa559R3Alb3ME1JSqFbIk4slbuxG0agfgzfRDqG4Pa6DOzMavma_Ay6pzmqcV5hVQWoK820D6v9xtjYsDmWyo"
-                                alt="User"
-                                className="w-full h-full object-cover"
-                            />
+                        <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                            <span className="material-symbols-outlined">handshake</span>
                         </div>
                         <div>
                             <h1 className="text-sm font-bold leading-none text-white">Assalamu Alaikum</h1>
