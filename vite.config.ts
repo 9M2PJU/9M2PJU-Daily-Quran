@@ -32,7 +32,7 @@ export default defineConfig({
       }
     })
   ],
-  base: '/9M2PJU-Daily-Quran/',
+
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
