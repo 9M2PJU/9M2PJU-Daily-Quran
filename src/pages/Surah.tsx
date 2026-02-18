@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const SurahPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
-    const { translationId, tafsirId, setTafsirId } = useSettings();
+    const { translationId, tafsirId, setTafsirId, showTranslation } = useSettings();
     const { isPlaying, currentSurah, currentVerseIndex, play, toggle, stop, registerSurah } = useAudio();
     const { incrementProgress } = useProgress();
 
@@ -364,7 +364,7 @@ const SurahPage: React.FC = () => {
                                 </p>
 
                                 {/* Translation */}
-                                {ayah.translations && (
+                                {showTranslation && ayah.translations && (
                                     <p className={`${translationSizeClasses[fontSize]} font-serif leading-relaxed transition-colors duration-500`} style={{ color: isDimmed ? 'rgba(148,163,184,0.3)' : '#e2e8f0' }}>
                                         {ayah.translations[0].text.replace(/<sup[^>]*>.*?<\/sup>/g, '').replace(/<[^>]*>/g, '')}
                                     </p>

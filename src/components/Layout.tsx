@@ -78,7 +78,7 @@ const Layout: React.FC = () => {
                     {!isReadingMode && (
                         <div className="overflow-hidden">
                             <h1 className="text-base font-bold leading-tight whitespace-nowrap">9M2PJU Daily Quran</h1>
-                            <p className="text-[10px] text-slate-500 font-medium tracking-wider uppercase whitespace-nowrap">Spiritual Growth</p>
+                            <p className="text-[10px] text-slate-500 font-medium tracking-wider uppercase whitespace-nowrap">"Guide us to the straight path." — Surah Al-Fatihah 1:6</p>
                         </div>
                     )}
                 </div>
@@ -212,7 +212,7 @@ const Layout: React.FC = () => {
                         <img src="/logo.png" alt="9M2PJU Daily Quran" className="size-10 rounded-full object-cover shadow-md" />
                         <div>
                             <h1 className="text-sm font-bold leading-none text-white">9M2PJU Daily Quran</h1>
-                            <p className="text-xs text-primary font-medium mt-1">Spiritual Growth</p>
+                            <p className="text-xs text-primary font-medium mt-1">"Guide us to the straight path." — Surah Al-Fatihah 1:6</p>
                         </div>
                     </div>
                     <button className="size-10 flex items-center justify-center rounded-full bg-primary/10 text-primary">

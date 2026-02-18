@@ -9,6 +9,8 @@ interface SettingsContextType {
     reciterName: string;
     tafsirId: number;
     setTafsirId: (id: number) => void;
+    showTranslation: boolean;
+    setShowTranslation: (show: boolean) => void;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -81,6 +83,11 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         return saved ? parseInt(saved) : 169;
     });
 
+    const [showTranslation, setShowTranslation] = useState(() => {
+        const saved = localStorage.getItem('daily-quran-show-translation');
+        return saved !== null ? saved === 'true' : true;
+    });
+
     useEffect(() => {
         localStorage.setItem('daily-quran-translation', translationId.toString());
     }, [translationId]);
@@ -93,11 +100,26 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         localStorage.setItem('daily-quran-tafsir', tafsirId.toString());
     }, [tafsirId]);
 
+    useEffect(() => {
+        localStorage.setItem('daily-quran-show-translation', showTranslation.toString());
+    }, [showTranslation]);
+
     const langName = TRANSLATIONS.find(t => t.id === translationId)?.name || 'English';
     const reciterName = RECITERS.find(r => r.id === reciterId)?.name || 'Mishary Rashid Alafasy';
 
     return (
-        <SettingsContext.Provider value={{ translationId, setTranslationId, langName, reciterId, setReciterId, reciterName, tafsirId, setTafsirId }}>
+        <SettingsContext.Provider value={{
+            translationId,
+            setTranslationId,
+            langName,
+            reciterId,
+            setReciterId,
+            reciterName,
+            tafsirId,
+            setTafsirId,
+            showTranslation,
+            setShowTranslation
+        }}>
             {children}
         </SettingsContext.Provider>
     );
