@@ -20,6 +20,12 @@ export interface Ayah {
     }>;
 }
 
+export interface Tafsir {
+    resource_id: number;
+    text: string;
+    resource_name: string;
+}
+
 export const getSurahs = async (): Promise<Surah[]> => {
     try {
         const response = await fetch(`${BASE_URL}/chapters?language=en`);
@@ -87,5 +93,17 @@ export const getSurahAudio = async (surahId: number): Promise<string | null> => 
     } catch (error) {
         console.error('Failed to fetch audio', error);
         return null;
+    }
+};
+
+export const getTafsir = async (surahId: number, tafsirId: number): Promise<Tafsir[]> => {
+    try {
+        const response = await fetch(`${BASE_URL}/tafsirs/${tafsirId}/by_chapter/${surahId}?language=en`);
+        if (!response.ok) throw new Error('Failed to fetch tafsir');
+        const data = await response.json();
+        return data.tafsirs || [];
+    } catch (error) {
+        console.error('getTafsir error:', error);
+        return [];
     }
 };

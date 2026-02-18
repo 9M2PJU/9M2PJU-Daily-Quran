@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { getSurahDetails, getAyahs, type Surah, type Ayah } from '../services/api';
-import { useSettings } from '../contexts/SettingsContext';
+import { getSurahDetails, getAyahs, getTafsir, type Surah, type Ayah, type Tafsir } from '../services/api';
+import { useSettings, TAFSIRS } from '../contexts/SettingsContext';
 import { useAudio } from '../contexts/AudioContext';
 import { useProgress } from '../contexts/ProgressContext';
 import { useBookmarks } from '../contexts/BookmarkContext';
 
 const SurahPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
-    const { translationId } = useSettings();
+    const { translationId, tafsirId, setTafsirId } = useSettings();
     const { isPlaying, currentSurah, currentVerseIndex, play, toggle, stop, registerSurah } = useAudio();
     const { incrementProgress } = useProgress();
 
@@ -18,7 +18,9 @@ const SurahPage: React.FC = () => {
     }, [stop]);
     const [surah, setSurah] = useState<Surah | null>(null);
     const [ayahs, setAyahs] = useState<Ayah[]>([]);
+    const [tafsirs, setTafsirs] = useState<Tafsir[]>([]);
     const [loading, setLoading] = useState(true);
+    const [tafsirLoading, setTafsirLoading] = useState(false);
     const [activeTab, setActiveTab] = useState<'tafsir' | 'notes'>('tafsir');
     const [fontSize, setFontSize] = useState(3); // Scale 1-5, default 3 (maps to text sizes)
     const [focusMode, setFocusMode] = useState(false);
@@ -28,6 +30,7 @@ const SurahPage: React.FC = () => {
     const { isBookmarked, toggleBookmark, getNotesBySurah, saveNote, deleteNote, getNote, isSurahBookmarked, toggleSurahBookmark } = useBookmarks();
     const [noteText, setNoteText] = useState('');
     const [editingNoteVerse, setEditingNoteVerse] = useState<string | null>(null);
+    const [isScholarSelectorOpen, setIsScholarSelectorOpen] = useState(false);
 
     const handleBookmarkSurah = useCallback(() => {
         if (!surah) return;
@@ -65,13 +68,16 @@ const SurahPage: React.FC = () => {
         const fetchData = async () => {
             if (!id) return;
             setLoading(true);
+            setTafsirLoading(true);
             try {
-                const [surahData, ayahsData] = await Promise.all([
+                const [surahData, ayahsData, tafsirsData] = await Promise.all([
                     getSurahDetails(Number(id)),
-                    getAyahs(Number(id), 1, 286, translationId),
+                    getAyahs(Number(id), 1, 604, translationId), // Fetch all verses for the surah
+                    getTafsir(Number(id), tafsirId)
                 ]);
                 setSurah(surahData);
                 setAyahs(ayahsData);
+                setTafsirs(tafsirsData);
                 // Track reading progress (1 page per surah visit)
                 incrementProgress({ id: surahData.id, name: surahData.name_simple });
                 // Register with audio context
@@ -80,13 +86,31 @@ const SurahPage: React.FC = () => {
                 console.error('Error fetching surah data:', error);
             } finally {
                 setLoading(false);
+                setTafsirLoading(false);
             }
         };
         fetchData();
         window.scrollTo(0, 0);
         setFocusMode(false);
         setFocusedVerse(0);
-    }, [id, translationId, incrementProgress]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [id, translationId, incrementProgress, registerSurah]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Update tafsir when scholar changes
+    useEffect(() => {
+        const updateTafsir = async () => {
+            if (!id || loading) return;
+            setTafsirLoading(true);
+            try {
+                const tafsirsData = await getTafsir(Number(id), tafsirId);
+                setTafsirs(tafsirsData);
+            } catch (error) {
+                console.error('Error updating tafsir:', error);
+            } finally {
+                setTafsirLoading(false);
+            }
+        };
+        updateTafsir();
+    }, [id, tafsirId]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handlePlaySurah = useCallback(() => {
         if (!id) return;
@@ -394,44 +418,51 @@ const SurahPage: React.FC = () => {
                     <div className="flex-1 overflow-y-auto p-6 space-y-6">
                         {activeTab === 'tafsir' ? (
                             <>
-                                <div className="flex justify-between items-center mb-2">
-                                    <h3 className="font-bold text-white">Ibn Kathir</h3>
-                                    <button className="text-xs text-primary font-bold hover:underline">Change Scholar</button>
-                                </div>
-
-                                <p className="text-slate-400 text-sm leading-relaxed">
-                                    {mockTafsir.text}
-                                </p>
-
-                                <p className="text-slate-400 text-sm leading-relaxed mt-4">
-                                    After Solomon's death, they brought them out and told people: "This is the source of Solomon's kingdom and power." Some people believed them and began practicing it.
-                                </p>
-
-                                {/* Key Insight Box */}
-                                <div className="bg-[#11241a] rounded-xl p-4 border border-white/5 mt-6">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <span className="material-symbols-outlined text-primary text-sm fill-1">lightbulb</span>
-                                        <h4 className="text-xs font-bold text-white uppercase tracking-wider">Key Insight</h4>
+                                <div className="flex justify-between items-center mb-6">
+                                    <div className="flex flex-col">
+                                        <h3 className="font-bold text-white text-lg">{TAFSIRS.find(s => s.id === tafsirId)?.scholar}</h3>
+                                        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">{TAFSIRS.find(s => s.id === tafsirId)?.name}</p>
                                     </div>
-                                    <p className="text-xs text-slate-400 leading-relaxed">
-                                        {mockTafsir.insight}
-                                    </p>
+                                    <button
+                                        onClick={() => setIsScholarSelectorOpen(true)}
+                                        className="text-xs text-primary font-bold px-3 py-1.5 rounded-full border border-primary/20 hover:bg-primary/5 transition-all"
+                                    >
+                                        Change Scholar
+                                    </button>
                                 </div>
 
-                                {/* Word Analysis */}
-                                <div className="mt-8">
-                                    <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4">Word Analysis</h4>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <div className="bg-white/5 rounded-lg p-3 text-center hover:bg-white/10 transition-colors cursor-pointer border border-white/5">
-                                            <p className="font-arabic text-xl text-primary mb-1">سِحْر</p>
-                                            <p className="text-[10px] text-slate-500 uppercase font-bold">Magic / Sihr</p>
+                                {tafsirLoading ? (
+                                    <div className="flex flex-col items-center justify-center py-20 text-slate-600">
+                                        <span className="material-symbols-outlined animate-spin text-3xl mb-4 text-primary/40">progress_activity</span>
+                                        <p className="text-xs uppercase font-bold tracking-widest">Fetching Exegesis...</p>
+                                    </div>
+                                ) : tafsirs.length > 0 ? (
+                                    <div className="space-y-6">
+                                        <div className="bg-[#11241a] rounded-xl p-4 border border-white/5">
+                                            <p className="text-[10px] font-bold text-primary uppercase tracking-wider mb-2">Verse {ayahs[focusedVerse]?.verse_key}</p>
+                                            <div
+                                                className="text-slate-300 text-sm leading-relaxed tafsir-content"
+                                                dangerouslySetInnerHTML={{ __html: tafsirs.find(t => t.verse_key === ayahs[focusedVerse]?.verse_key)?.text || 'No tafsir available for this verse.' }}
+                                            />
                                         </div>
-                                        <div className="bg-white/5 rounded-lg p-3 text-center hover:bg-white/10 transition-colors cursor-pointer border border-white/5">
-                                            <p className="font-arabic text-xl text-primary mb-1">ٱلشَّيَـٰطِين</p>
-                                            <p className="text-[10px] text-slate-500 uppercase font-bold">The Devils</p>
+
+                                        {/* Quick Insight (Dynamic from text if possible, or static tip) */}
+                                        <div className="bg-primary/5 rounded-xl p-4 border border-primary/10">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <span className="material-symbols-outlined text-primary text-sm fill-1">info</span>
+                                                <h4 className="text-[10px] font-bold text-white uppercase tracking-wider">Note</h4>
+                                            </div>
+                                            <p className="text-[11px] text-slate-400 leading-relaxed italic">
+                                                Tafsir (exegesis) provides depth and context to the words of Allah. Use "Change Scholar" to compare different analytical perspectives.
+                                            </p>
                                         </div>
                                     </div>
-                                </div>
+                                ) : (
+                                    <div className="text-center py-12 text-slate-600">
+                                        <span className="material-symbols-outlined text-4xl mb-2">auto_stories</span>
+                                        <p className="text-sm">No tafsir data found for this surah.</p>
+                                    </div>
+                                )}
                             </>
                         ) : (
                             <div className="space-y-4">
@@ -602,6 +633,62 @@ const SurahPage: React.FC = () => {
                         >
                             <span className="material-symbols-outlined text-base">close</span>
                         </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Scholar Selector Modal */}
+            {isScholarSelectorOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div
+                        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                        onClick={() => setIsScholarSelectorOpen(false)}
+                    />
+                    <div className="relative w-full max-w-md bg-[#0a1a10] border border-white/10 rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+                        <div className="p-6 border-b border-white/5 flex items-center justify-between">
+                            <div>
+                                <h3 className="text-xl font-bold text-white">Select Scholar</h3>
+                                <p className="text-xs text-slate-500">Pick a source for Tafsir/Interpretation</p>
+                            </div>
+                            <button
+                                onClick={() => setIsScholarSelectorOpen(false)}
+                                className="size-10 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+                            >
+                                <span className="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+                        <div className="p-2 overflow-y-auto max-h-[60vh]">
+                            {TAFSIRS.map((s) => (
+                                <button
+                                    key={s.id}
+                                    onClick={() => {
+                                        setTafsirId(s.id);
+                                        setIsScholarSelectorOpen(false);
+                                    }}
+                                    className={`w-full p-4 rounded-2xl flex items-center gap-4 text-left transition-all ${tafsirId === s.id
+                                        ? 'bg-primary/10 border border-primary/20'
+                                        : 'hover:bg-white/5 border border-transparent'
+                                        }`}
+                                >
+                                    <div className={`size-12 rounded-xl flex items-center justify-center shrink-0 ${tafsirId === s.id ? 'bg-primary text-[#0a1a10]' : 'bg-white/5 text-slate-500'
+                                        }`}>
+                                        <span className="material-symbols-outlined">menu_book</span>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className={`font-bold transition-colors ${tafsirId === s.id ? 'text-primary' : 'text-white'}`}>
+                                            {s.scholar}
+                                        </p>
+                                        <p className="text-xs text-slate-500 truncate">{s.name}</p>
+                                    </div>
+                                    {tafsirId === s.id && (
+                                        <span className="material-symbols-outlined text-primary">check_circle</span>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                        <div className="p-6 bg-white/5 text-center">
+                            <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">More scholars coming soon</p>
+                        </div>
                     </div>
                 </div>
             )}

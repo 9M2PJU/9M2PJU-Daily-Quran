@@ -7,6 +7,8 @@ interface SettingsContextType {
     reciterId: string;
     setReciterId: (id: string) => void;
     reciterName: string;
+    tafsirId: number;
+    setTafsirId: (id: number) => void;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -53,6 +55,13 @@ export const RECITERS = [
     { id: 'Maher_AlMuaiqly_128kbps', name: 'Maher Al-Muaiqly' },
 ];
 
+export const TAFSIRS = [
+    { id: 169, name: 'Ibn Kathir (English)', scholar: 'Hafiz Ibn Kathir' },
+    { id: 168, name: 'Ma\'arif al-Qur\'an (English)', scholar: 'Mufti Muhammad Shafi' },
+    { id: 817, name: 'Tazkirul Quran (English)', scholar: 'Maulana Wahiduddin Khan' },
+    { id: 158, name: 'Tafsir Al-Jalalayn (Indonesian)', scholar: 'Jalaluddin al-Mahalli & Jalaluddin as-Suyuti' },
+];
+
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [translationId, setTranslationId] = useState(() => {
         const saved = localStorage.getItem('daily-quran-translation');
@@ -67,6 +76,11 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         }
     });
 
+    const [tafsirId, setTafsirId] = useState(() => {
+        const saved = localStorage.getItem('daily-quran-tafsir');
+        return saved ? parseInt(saved) : 169;
+    });
+
     useEffect(() => {
         localStorage.setItem('daily-quran-translation', translationId.toString());
     }, [translationId]);
@@ -75,11 +89,15 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         localStorage.setItem('daily-quran-reciter', reciterId);
     }, [reciterId]);
 
+    useEffect(() => {
+        localStorage.setItem('daily-quran-tafsir', tafsirId.toString());
+    }, [tafsirId]);
+
     const langName = TRANSLATIONS.find(t => t.id === translationId)?.name || 'English';
     const reciterName = RECITERS.find(r => r.id === reciterId)?.name || 'Mishary Rashid Alafasy';
 
     return (
-        <SettingsContext.Provider value={{ translationId, setTranslationId, langName, reciterId, setReciterId, reciterName }}>
+        <SettingsContext.Provider value={{ translationId, setTranslationId, langName, reciterId, setReciterId, reciterName, tafsirId, setTafsirId }}>
             {children}
         </SettingsContext.Provider>
     );
