@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Home: React.FC = () => {
 
@@ -89,11 +90,11 @@ const Home: React.FC = () => {
                             <span className="material-symbols-outlined text-primary fill-1">bookmark</span>
                             <h2 className="text-lg font-bold text-white">Continue Reading</h2>
                         </div>
-                        <button className="text-xs font-bold text-primary hover:text-white transition-colors">View Library</button>
+                        <Link to="/quran" className="text-xs font-bold text-primary hover:text-white transition-colors">View Library</Link>
                     </div>
 
                     <div className="space-y-3">
-                        <div className="group bg-[#0f2416] rounded-2xl p-4 border border-white/5 hover:border-primary/40 transition-all cursor-pointer flex items-center justify-between">
+                        <Link to="/surah/18" className="group bg-[#0f2416] rounded-2xl p-4 border border-white/5 hover:border-primary/40 transition-all cursor-pointer flex items-center justify-between">
                             <div className="flex items-center gap-4">
                                 <div className="size-12 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-primary font-bold text-lg group-hover:bg-primary group-hover:text-white transition-colors">
                                     18
@@ -106,9 +107,9 @@ const Home: React.FC = () => {
                             <button className="size-10 rounded-full border border-white/10 flex items-center justify-center text-slate-400 hover:bg-primary hover:border-primary hover:text-white transition-all">
                                 <span className="material-symbols-outlined">arrow_forward</span>
                             </button>
-                        </div>
+                        </Link>
 
-                        <div className="group bg-[#0f2416] rounded-2xl p-4 border border-white/5 hover:border-primary/40 transition-all cursor-pointer flex items-center justify-between">
+                        <Link to="/surah/67" className="group bg-[#0f2416] rounded-2xl p-4 border border-white/5 hover:border-primary/40 transition-all cursor-pointer flex items-center justify-between">
                             <div className="flex items-center gap-4">
                                 <div className="size-12 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-primary font-bold text-lg group-hover:bg-primary group-hover:text-white transition-colors">
                                     67
@@ -121,7 +122,7 @@ const Home: React.FC = () => {
                             <button className="size-10 rounded-full border border-white/10 flex items-center justify-center text-slate-400 hover:bg-primary hover:border-primary hover:text-white transition-all">
                                 <span className="material-symbols-outlined">arrow_forward</span>
                             </button>
-                        </div>
+                        </Link>
                     </div>
                 </section>
             </div>
@@ -150,9 +151,9 @@ const Home: React.FC = () => {
 
                     <p className="text-slate-400 text-sm mb-6 px-4">Keep it up! You're only 2 pages away from your daily goal.</p>
 
-                    <button className="w-full py-3.5 bg-primary hover:bg-primary-light text-[#0a1a10] font-bold rounded-xl transition-colors shadow-lg shadow-primary/20">
+                    <Link to="/surah/1" className="block w-full py-3.5 bg-primary hover:bg-primary-light text-[#0a1a10] font-bold rounded-xl transition-colors shadow-lg shadow-primary/20">
                         Start Reading Now
-                    </button>
+                    </Link>
                 </div>
 
                 {/* Quick Access List */}
@@ -168,7 +169,7 @@ const Home: React.FC = () => {
                             { id: 55, name: 'Surah Ar-Rahman', desc: 'The Beneficent' },
                             { id: 56, name: "Surah Al-Waqi'ah", desc: 'The Inevitable' }
                         ].map((s) => (
-                            <div key={s.id} className="flex items-center justify-between group cursor-pointer p-2 rounded-xl hover:bg-white/5 transition-colors">
+                            <Link key={s.id} to={`/surah/${s.id}`} className="flex items-center justify-between group cursor-pointer p-2 rounded-xl hover:bg-white/5 transition-colors">
                                 <div className="flex items-center gap-4">
                                     <div className="size-8 rounded bg-white/5 flex items-center justify-center text-xs font-bold text-slate-400 group-hover:bg-primary group-hover:text-white transition-colors">
                                         {s.id}
@@ -179,7 +180,7 @@ const Home: React.FC = () => {
                                     </div>
                                 </div>
                                 <span className="material-symbols-outlined text-slate-600 text-lg group-hover:text-white transition-colors">chevron_right</span>
-                            </div>
+                            </Link>
                         ))}
                     </div>
                 </div>

@@ -8,10 +8,9 @@ interface SettingsContextType {
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
-export const TRANSLATIONS = [
-    { id: 131, name: 'English (Saheeh International)' },
-    { id: 39, name: 'Malay (Abdul Hameed)' },
-    { id: 33, name: 'Indonesian (Kemenag)' },
+{ id: 131, name: 'English (Saheeh International)' },
+{ id: 39, name: 'Malay (Abdul Hameed)' },
+{ id: 33, name: 'Indonesian (Kemenag)' },
     // Add more as needed
 ];
 
