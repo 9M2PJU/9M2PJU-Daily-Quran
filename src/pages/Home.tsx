@@ -62,26 +62,28 @@ const Home: React.FC = () => {
     }
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 pb-12">
             {/* Hero Section */}
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-600 to-teal-500 p-8 text-white shadow-lg">
-                <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl"></div>
-                <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-yellow-400 opacity-20 rounded-full blur-2xl"></div>
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-700 via-emerald-600 to-teal-600 p-6 md:p-10 text-white shadow-xl">
+                <div className="absolute top-0 right-0 -mt-10 -mr-10 w-48 h-48 md:w-80 md:h-80 bg-white opacity-10 rounded-full blur-3xl mix-blend-overlay"></div>
+                <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-32 h-32 md:w-56 md:h-56 bg-yellow-400 opacity-20 rounded-full blur-3xl mix-blend-overlay"></div>
 
-                <div className="relative z-10">
-                    <h2 className="text-3xl font-bold mb-2">Assalamu Alaikum</h2>
-                    <p className="text-emerald-50 mb-6 max-w-lg">
-                        Connect with the Holy Quran daily. Read, listen, and reflect upon the verses of Allah.
-                    </p>
+                <div className="relative z-10 flex flex-col items-center text-center space-y-4 md:space-y-6">
+                    <div>
+                        <h2 className="text-2xl md:text-4xl font-bold mb-2 tracking-tight">Assalamu Alaikum</h2>
+                        <p className="text-emerald-50 text-sm md:text-lg max-w-lg mx-auto opacity-90 leading-relaxed md:leading-relaxed">
+                            Connect with the Holy Quran daily. Read, listen, and reflect upon the verses of Allah.
+                        </p>
+                    </div>
 
-                    <div className="relative max-w-2xl">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-200" />
+                    <div className="relative w-full max-w-xl">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-100" />
                         <input
                             type="text"
                             placeholder="Search Surah by name or number..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full pl-12 pr-4 py-4 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-emerald-100/70 focus:outline-none focus:bg-white/20 focus:border-white/30 transition-all shadow-inner"
+                            className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-emerald-100/70 focus:outline-none focus:bg-white/15 focus:border-white/40 transition-all shadow-inner text-sm md:text-base"
                         />
                     </div>
                 </div>
@@ -91,7 +93,7 @@ const Home: React.FC = () => {
                 variants={container}
                 initial="hidden"
                 animate="show"
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6"
             >
                 {filteredSurahs.map((surah) => (
                     <motion.div key={surah.id} variants={item}>
