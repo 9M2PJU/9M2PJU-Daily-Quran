@@ -21,9 +21,15 @@ export interface Ayah {
 }
 
 export const getSurahs = async (): Promise<Surah[]> => {
-    const response = await fetch(`${BASE_URL}/chapters?language=en`);
-    const data = await response.json();
-    return data.chapters;
+    try {
+        const response = await fetch(`${BASE_URL}/chapters?language=en`);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        return data.chapters || [];
+    } catch (error) {
+        console.error("getSurahs error:", error);
+        return [];
+    }
 };
 
 export const getSurahDetails = async (id: number): Promise<Surah> => {
