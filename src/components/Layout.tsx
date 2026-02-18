@@ -40,12 +40,10 @@ const Layout: React.FC = () => {
             >
                 {/* Logo */}
                 <div className={`flex items-center gap-3 mb-10 ${isReadingMode ? 'justify-center' : 'px-2'}`}>
-                    <div className="size-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 shrink-0">
-                        <span className="material-symbols-outlined text-[#0a1a10] fill-1">menu_book</span>
-                    </div>
+                    <img src="/logo.png" alt="9M2PJU Daily Quran" className="size-10 rounded-xl shadow-lg shadow-primary/20 shrink-0 object-cover" />
                     {!isReadingMode && (
                         <div className="overflow-hidden">
-                            <h1 className="text-lg font-bold leading-tight whitespace-nowrap">Daily Quran</h1>
+                            <h1 className="text-base font-bold leading-tight whitespace-nowrap">9M2PJU Daily Quran</h1>
                             <p className="text-[10px] text-slate-500 font-medium tracking-wider uppercase whitespace-nowrap">Spiritual Growth</p>
                         </div>
                     )}
@@ -148,12 +146,10 @@ const Layout: React.FC = () => {
                 {/* Mobile Header */}
                 <header className="lg:hidden sticky top-0 z-20 px-4 pt-6 pb-4 flex items-center justify-between bg-[#193320]/90 backdrop-blur-md border-b border-white/5">
                     <div className="flex items-center gap-3">
-                        <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
-                            <span className="material-symbols-outlined">handshake</span>
-                        </div>
+                        <img src="/logo.png" alt="9M2PJU Daily Quran" className="size-10 rounded-full object-cover shadow-md" />
                         <div>
-                            <h1 className="text-sm font-bold leading-none text-white">Assalamu Alaikum</h1>
-                            <p className="text-xs text-primary font-medium mt-1">15 Ramadan</p>
+                            <h1 className="text-sm font-bold leading-none text-white">9M2PJU Daily Quran</h1>
+                            <p className="text-xs text-primary font-medium mt-1">Spiritual Growth</p>
                         </div>
                     </div>
                     <button className="size-10 flex items-center justify-center rounded-full bg-primary/10 text-primary">

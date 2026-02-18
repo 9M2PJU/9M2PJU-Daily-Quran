@@ -4,31 +4,82 @@ interface SettingsContextType {
     translationId: number;
     setTranslationId: (id: number) => void;
     langName: string;
+    reciterId: string;
+    setReciterId: (id: string) => void;
+    reciterName: string;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
 export const TRANSLATIONS = [
-    { id: 131, name: 'English (Saheeh International)' },
+    { id: 20, name: 'English (Sahih International)' },
+    { id: 95, name: 'English (Hilali & Khan)' },
+    { id: 85, name: 'English (Yusuf Ali)' },
+    { id: 84, name: 'English (Maududi)' },
+    { id: 22, name: 'English (Pickthall)' },
     { id: 39, name: 'Malay (Abdul Hameed)' },
     { id: 33, name: 'Indonesian (Kemenag)' },
-    // Add more as needed
+    { id: 77, name: 'Turkish (Diyanet)' },
+    { id: 31, name: 'Urdu (Ahmed Ali)' },
+    { id: 79, name: 'Urdu (Jalandhry)' },
+    { id: 136, name: 'French (Montada Islamic Foundation)' },
+    { id: 83, name: 'Spanish (Isa Garcia)' },
+    { id: 27, name: 'German (Bubenheim & Elyas)' },
+    { id: 45, name: 'Russian (Kuliev)' },
+    { id: 56, name: 'Chinese (Ma Jian)' },
+    { id: 97, name: 'Bengali (Muhiuddin Khan)' },
+    { id: 122, name: 'Hindi (Suhel Farooq Khan)' },
+    { id: 133, name: 'Tamil (Jan Turst Foundation)' },
+    { id: 161, name: 'Thai (King Fahad Complex)' },
+    { id: 106, name: 'Somali (Abduh)' },
+    { id: 101, name: 'Japanese (Saeed Sato)' },
+    { id: 86, name: 'Bosnian (Mlivo)' },
+    { id: 75, name: 'Persian (Ansarian)' },
+    { id: 40, name: 'Swahili (Al-Barwani)' },
+    { id: 78, name: 'Dutch (Sofian Siregar)' },
+    { id: 103, name: 'Korean (Hamid Choi)' },
+];
+
+export const RECITERS = [
+    { id: 'Alafasy_128kbps', name: 'Mishary Rashid Alafasy' },
+    { id: 'Abdul_Basit_Murattal_192kbps', name: 'Abdul Basit (Murattal)' },
+    { id: 'Abdurrahmaan_As-Sudais_192kbps', name: 'Abdurrahman As-Sudais' },
+    { id: 'Saad_Al_Ghamdi_128kbps', name: 'Saad Al-Ghamdi' },
+    { id: 'Abu_Bakr_Ash-Shaatree_128kbps', name: 'Abu Bakr Ash-Shatri' },
+    { id: 'Hani_Rifai_192kbps', name: 'Hani Ar-Rifai' },
+    { id: 'Husary_128kbps', name: 'Mahmoud Khalil Al-Husary' },
+    { id: 'Minshawy_Murattal_128kbps', name: 'Mohamed Siddiq El-Minshawi' },
+    { id: 'Ahmed_ibn_Ali_al-Ajamy_128kbps_ketaballah.net', name: 'Ahmed Al-Ajamy' },
+    { id: 'Maher_AlMuaiqly_128kbps', name: 'Maher Al-Muaiqly' },
 ];
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [translationId, setTranslationId] = useState(() => {
         const saved = localStorage.getItem('daily-quran-translation');
-        return saved ? parseInt(saved) : 131;
+        return saved ? parseInt(saved) : 20;
+    });
+
+    const [reciterId, setReciterId] = useState(() => {
+        try {
+            return localStorage.getItem('daily-quran-reciter') || 'Alafasy_128kbps';
+        } catch {
+            return 'Alafasy_128kbps';
+        }
     });
 
     useEffect(() => {
         localStorage.setItem('daily-quran-translation', translationId.toString());
     }, [translationId]);
 
+    useEffect(() => {
+        localStorage.setItem('daily-quran-reciter', reciterId);
+    }, [reciterId]);
+
     const langName = TRANSLATIONS.find(t => t.id === translationId)?.name || 'English';
+    const reciterName = RECITERS.find(r => r.id === reciterId)?.name || 'Mishary Rashid Alafasy';
 
     return (
-        <SettingsContext.Provider value={{ translationId, setTranslationId, langName }}>
+        <SettingsContext.Provider value={{ translationId, setTranslationId, langName, reciterId, setReciterId, reciterName }}>
             {children}
         </SettingsContext.Provider>
     );

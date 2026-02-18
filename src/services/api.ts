@@ -46,6 +46,38 @@ export const getAyahs = async (surahId: number, page: number = 1, limit: number 
     return data.verses;
 };
 
+// Famous verses pool for VOTD (surah:verse format)
+const VOTD_POOL = [
+    '2:255', '2:286', '3:26', '3:139', '13:28', '14:7', '16:97', '24:35',
+    '33:56', '36:58', '39:53', '40:60', '55:13', '57:4', '59:22', '67:1',
+    '94:5', '94:6', '112:1', '112:2', '112:3', '112:4', '1:1', '1:2',
+    '2:152', '2:186', '3:173', '9:51', '10:62', '21:87', '23:116',
+    '40:44', '48:29', '65:3', '73:8', '93:5', '2:185', '17:82',
+];
+
+export const getRandomAyah = async (translationId: number = 131): Promise<{ ayah: Ayah; surahName: string } | null> => {
+    try {
+        const randomKey = VOTD_POOL[Math.floor(Math.random() * VOTD_POOL.length)];
+        const [surahId, verseNum] = randomKey.split(':').map(Number);
+
+        const [verseRes, surahRes] = await Promise.all([
+            fetch(`${BASE_URL}/verses/by_key/${surahId}:${verseNum}?language=en&words=false&translations=${translationId}&fields=text_uthmani`),
+            fetch(`${BASE_URL}/chapters/${surahId}?language=en`),
+        ]);
+
+        const verseData = await verseRes.json();
+        const surahData = await surahRes.json();
+
+        return {
+            ayah: verseData.verse,
+            surahName: surahData.chapter.name_simple,
+        };
+    } catch (error) {
+        console.error('getRandomAyah error:', error);
+        return null;
+    }
+};
+
 export const getSurahAudio = async (surahId: number): Promise<string | null> => {
     try {
         // Reciter 7 is Mishary Rashid Alafasy
