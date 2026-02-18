@@ -55,7 +55,7 @@ graph TD
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/9M2PJU/daily-quran.git
+   git clone https://github.com/9M2PJU/9M2PJU-Daily-Quran.git
    ```
 2. Install dependencies:
    ```bash
