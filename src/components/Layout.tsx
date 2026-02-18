@@ -1,9 +1,13 @@
-import React, { useEffect } from 'react';
-import { useNavigate, useLocation, Link, Outlet } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate, Link, Outlet } from 'react-router-dom';
+import {
+    useSettings,
+    RECITERS
+} from '../contexts/SettingsContext';
 import { useAudio } from '../contexts/AudioContext';
-import { useSettings, RECITERS } from '../contexts/SettingsContext';
 import { useProgress } from '../contexts/ProgressContext';
 import { useNotifications } from '../contexts/NotificationContext';
+import { motion } from 'framer-motion';
 
 const Layout: React.FC = () => {
     const location = useLocation();
@@ -216,9 +220,16 @@ const Layout: React.FC = () => {
                     </button>
                 </header>
 
-                <div className={`flex-1 overflow-y-auto ${isReadingMode ? 'p-0' : 'p-4 lg:p-8'}`}>
+                <motion.div
+                    key={location.pathname}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
+                    className={`flex-1 overflow-y-auto ${isReadingMode ? 'p-0' : 'p-4 lg:p-8'}`}
+                >
                     <Outlet />
-                </div>
+                </motion.div>
             </main>
 
             {/* Mobile Bottom Navigation Bar (Hide on Reading Mode logic could be added, but keeping for now) */}

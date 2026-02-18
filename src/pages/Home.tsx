@@ -4,6 +4,7 @@ import { getRandomTip } from '../data/tips';
 import { getRandomAyah, type Ayah } from '../services/api';
 import { useSettings } from '../contexts/SettingsContext';
 import { useProgress } from '../contexts/ProgressContext';
+import { motion } from 'framer-motion';
 
 const Home: React.FC = () => {
     const [tipText] = useState(() => getRandomTip());
@@ -73,7 +74,12 @@ const Home: React.FC = () => {
             <div className="lg:col-span-8 space-y-6">
 
                 {/* Verse of the Day Card */}
-                <section className="relative overflow-hidden rounded-3xl bg-[#0f2416] p-8 border border-primary/20 shadow-2xl group">
+                <motion.section
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.6, ease: 'easeOut' }}
+                    className="relative overflow-hidden rounded-3xl bg-[#0f2416] p-8 border border-primary/20 shadow-2xl group"
+                >
                     <div className="absolute top-0 right-0 -mt-20 -mr-20 w-80 h-80 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
 
                     <div className="flex items-center justify-between mb-8 relative z-10">
@@ -117,11 +123,16 @@ const Home: React.FC = () => {
                             <p className="text-slate-500 py-8">Could not load verse. Please try again.</p>
                         )}
                     </div>
-                </section>
+                </motion.section>
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-[#0f2416] rounded-2xl p-5 border border-white/5 hover:border-primary/30 transition-colors group">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="bg-[#0f2416] rounded-2xl p-5 border border-white/5 hover:border-primary/30 transition-colors group"
+                    >
                         <div className="flex items-start justify-between mb-4">
                             <div className="size-10 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-all">
                                 <span className="material-symbols-outlined fill-1">menu_book</span>
@@ -131,9 +142,14 @@ const Home: React.FC = () => {
                             <h3 className="text-3xl font-bold text-white mb-1">{dailyProgress}</h3>
                             <p className="text-xs text-slate-400 font-medium tracking-wide">Pages Read Today</p>
                         </div>
-                    </div>
+                    </motion.div>
 
-                    <div className="bg-[#0f2416] rounded-2xl p-5 border border-white/5 hover:border-primary/30 transition-colors group">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="bg-[#0f2416] rounded-2xl p-5 border border-white/5 hover:border-primary/30 transition-colors group"
+                    >
                         <div className="flex items-start justify-between mb-4">
                             <div className="size-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
                                 <span className="material-symbols-outlined">target</span>
@@ -146,9 +162,14 @@ const Home: React.FC = () => {
                             <h3 className="text-3xl font-bold text-white mb-1">{dailyProgress}/{dailyGoal}</h3>
                             <p className="text-xs text-slate-400 font-medium tracking-wide">Daily Goal</p>
                         </div>
-                    </div>
+                    </motion.div>
 
-                    <div className="bg-[#0f2416] rounded-2xl p-5 border border-white/5 hover:border-primary/30 transition-colors group">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="bg-[#0f2416] rounded-2xl p-5 border border-white/5 hover:border-primary/30 transition-colors group"
+                    >
                         <div className="flex items-start justify-between mb-4">
                             <div className="size-10 rounded-lg bg-yellow-500/10 text-yellow-500 flex items-center justify-center group-hover:bg-yellow-500 group-hover:text-white transition-all">
                                 <span className="material-symbols-outlined fill-1">local_fire_department</span>
@@ -161,7 +182,7 @@ const Home: React.FC = () => {
                             <h3 className="text-3xl font-bold text-white mb-1">{streak} 🔥</h3>
                             <p className="text-xs text-slate-400 font-medium tracking-wide">Current Streak</p>
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
 
                 {/* Continue Reading Section */}
@@ -208,7 +229,12 @@ const Home: React.FC = () => {
             <div className="lg:col-span-4 space-y-6">
 
                 {/* Daily Goal Card with Real Data */}
-                <div className="bg-[#0f2416] rounded-3xl p-6 border border-white/5 text-center">
+                <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="bg-[#0f2416] rounded-3xl p-6 border border-white/5 text-center"
+                >
                     <div className="flex items-center gap-2 mb-6 text-white">
                         <span className="material-symbols-outlined text-primary fill-1">target</span>
                         <h3 className="font-bold">Daily Goal</h3>
@@ -217,7 +243,20 @@ const Home: React.FC = () => {
                     <div className="relative size-48 mx-auto mb-6">
                         <svg className="w-full h-full transform -rotate-90 drop-shadow-2xl">
                             <circle className="text-white/5" cx="96" cy="96" fill="transparent" r="80" stroke="currentColor" strokeWidth="12"></circle>
-                            <circle className="text-primary transition-all duration-700" cx="96" cy="96" fill="transparent" r="80" stroke="currentColor" strokeDasharray={circumference} strokeDashoffset={dashOffset} strokeWidth="12" strokeLinecap="round"></circle>
+                            <motion.circle
+                                initial={{ strokeDashoffset: circumference }}
+                                animate={{ strokeDashoffset: dashOffset }}
+                                transition={{ duration: 1.5, ease: 'easeOut' }}
+                                className="text-primary"
+                                cx="96"
+                                cy="96"
+                                fill="transparent"
+                                r="80"
+                                stroke="currentColor"
+                                strokeDasharray={circumference}
+                                strokeWidth="12"
+                                strokeLinecap="round"
+                            />
                         </svg>
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
                             <span className="text-4xl font-bold text-white">{dailyProgress}/{dailyGoal}</span>
@@ -244,7 +283,7 @@ const Home: React.FC = () => {
                             <span className="text-slate-400">{streak} day streak!</span>
                         </div>
                     )}
-                </div>
+                </motion.div>
 
                 {/* Quick Access List */}
                 <div className="bg-[#0f2416] rounded-3xl p-6 border border-white/5">

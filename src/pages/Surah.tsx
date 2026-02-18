@@ -5,6 +5,7 @@ import { useSettings, TAFSIRS } from '../contexts/SettingsContext';
 import { useAudio } from '../contexts/AudioContext';
 import { useProgress } from '../contexts/ProgressContext';
 import { useBookmarks } from '../contexts/BookmarkContext';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const SurahPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -23,6 +24,13 @@ const SurahPage: React.FC = () => {
     const [tafsirLoading, setTafsirLoading] = useState(false);
     const [activeTab, setActiveTab] = useState<'tafsir' | 'notes'>('tafsir');
     const [fontSize, setFontSize] = useState(3); // Scale 1-5, default 3 (maps to text sizes)
+
+    // Default to smaller font on mobile
+    useEffect(() => {
+        if (window.innerWidth < 768) {
+            setFontSize(0);
+        }
+    }, []);
     const [focusMode, setFocusMode] = useState(false);
     const [focusedVerse, setFocusedVerse] = useState(0); // index into ayahs array
     const [copiedVerse, setCopiedVerse] = useState<string | null>(null);
@@ -218,7 +226,12 @@ const SurahPage: React.FC = () => {
             <div className={`flex-1 p-6 lg:p-12 overflow-y-auto ${focusMode ? 'lg:max-w-4xl lg:mx-auto' : ''}`}>
 
                 {/* Header Info */}
-                <div className="text-center mb-16 space-y-4">
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5, ease: 'easeOut' }}
+                    className="text-center mb-16 space-y-4"
+                >
                     <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold tracking-widest uppercase border border-primary/20">
                         {surah.revelation_place} Surah
                         <span className="material-symbols-outlined text-sm">verified</span>
@@ -234,46 +247,54 @@ const SurahPage: React.FC = () => {
                         </div>
                         <div className="w-px h-8 bg-white/10 hidden md:block"></div>
                         <div className="text-center">
-                            <button
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                                 onClick={handlePlaySurah}
                                 className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${isSurahPlaying ? 'bg-primary text-[#0a1a10]' : 'bg-white/5 text-slate-400 hover:bg-primary/20 hover:text-primary'}`}
                             >
                                 <span className="material-symbols-outlined fill-1">{isSurahPlaying ? 'pause' : 'play_arrow'}</span>
                                 <span className="text-xs font-bold">{isSurahPlaying ? 'Pause' : 'Play'}</span>
-                            </button>
+                            </motion.button>
                         </div>
                         <div className="w-px h-8 bg-white/10 hidden md:block"></div>
                         <div className="text-center">
-                            <button
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                                 onClick={handleBookmarkSurah}
                                 className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${isSurahBookmarked(Number(id)) ? 'bg-primary text-[#0a1a10]' : 'bg-white/5 text-slate-400 hover:bg-primary/20 hover:text-primary'}`}
                             >
                                 <span className={`material-symbols-outlined ${isSurahBookmarked(Number(id)) ? 'fill-1' : ''}`}>bookmark</span>
                                 <span className="text-xs font-bold">{isSurahBookmarked(Number(id)) ? 'Bookmarked' : 'Bookmark'}</span>
-                            </button>
+                            </motion.button>
                         </div>
                         <div className="w-px h-8 bg-white/10 hidden md:block"></div>
                         <div className="text-center">
                             <span className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Font Size</span>
                             <div className="flex gap-2">
-                                <button
+                                <motion.button
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
                                     onClick={() => setFontSize(prev => Math.max(0, prev - 1))}
                                     className={`text-sm px-2 py-0.5 rounded transition-colors ${fontSize === 0 ? 'text-slate-600 cursor-not-allowed' : 'text-slate-400 hover:text-white hover:bg-white/10'}`}
                                     disabled={fontSize === 0}
                                 >
                                     A-
-                                </button>
-                                <button
+                                </motion.button>
+                                <motion.button
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
                                     onClick={() => setFontSize(prev => Math.min(4, prev + 1))}
                                     className={`text-sm px-2 py-0.5 rounded font-bold transition-colors ${fontSize === 4 ? 'text-slate-600 cursor-not-allowed' : 'text-primary hover:bg-primary/10'}`}
                                     disabled={fontSize === 4}
                                 >
                                     A+
-                                </button>
+                                </motion.button>
                             </div>
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Bismillah */}
                 {Number(id) !== 9 && (
@@ -289,9 +310,13 @@ const SurahPage: React.FC = () => {
                         const isDimmed = focusMode && focusedVerse !== index;
                         const isCurrentlyPlaying = isPlaying && currentSurah === Number(id) && currentVerseIndex === index;
                         return (
-                            <div
+                            <motion.div
                                 key={ayah.verse_key}
                                 ref={el => { verseRefs.current[index] = el; }}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true, margin: "-100px" }}
+                                transition={{ duration: 0.5, delay: index % 5 * 0.1 }}
                                 onClick={() => { if (focusMode) { setFocusedVerse(index); } }}
                                 className={`group relative transition-all duration-500 rounded-2xl ${isCurrentlyPlaying
                                     ? 'bg-primary/[0.06] border border-primary/40 p-6 shadow-lg shadow-primary/10'
@@ -383,7 +408,7 @@ const SurahPage: React.FC = () => {
                                         {isBookmarked(ayah.verse_key) ? 'Saved' : 'Bookmark'}
                                     </button>
                                 </div>
-                            </div>
+                            </motion.div>
                         );
                     })}
                 </div>
@@ -632,60 +657,71 @@ const SurahPage: React.FC = () => {
             )}
 
             {/* Scholar Selector Modal */}
-            {isScholarSelectorOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                    <div
-                        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-                        onClick={() => setIsScholarSelectorOpen(false)}
-                    />
-                    <div className="relative w-full max-w-md bg-[#0a1a10] border border-white/10 rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
-                        <div className="p-6 border-b border-white/5 flex items-center justify-between">
-                            <div>
-                                <h3 className="text-xl font-bold text-white">Select Scholar</h3>
-                                <p className="text-xs text-slate-500">Pick a source for Tafsir/Interpretation</p>
-                            </div>
-                            <button
-                                onClick={() => setIsScholarSelectorOpen(false)}
-                                className="size-10 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
-                            >
-                                <span className="material-symbols-outlined">close</span>
-                            </button>
-                        </div>
-                        <div className="p-2 overflow-y-auto max-h-[60vh]">
-                            {TAFSIRS.map((s) => (
+            <AnimatePresence>
+                {isScholarSelectorOpen && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                            onClick={() => setIsScholarSelectorOpen(false)}
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                            className="relative w-full max-w-md bg-[#0a1a10] border border-white/10 rounded-3xl overflow-hidden shadow-2xl"
+                        >
+                            <div className="p-6 border-b border-white/5 flex items-center justify-between">
+                                <div>
+                                    <h3 className="text-xl font-bold text-white">Select Scholar</h3>
+                                    <p className="text-xs text-slate-500">Pick a source for Tafsir/Interpretation</p>
+                                </div>
                                 <button
-                                    key={s.id}
-                                    onClick={() => {
-                                        setTafsirId(s.id);
-                                        setIsScholarSelectorOpen(false);
-                                    }}
-                                    className={`w-full p-4 rounded-2xl flex items-center gap-4 text-left transition-all ${tafsirId === s.id
-                                        ? 'bg-primary/10 border border-primary/20'
-                                        : 'hover:bg-white/5 border border-transparent'
-                                        }`}
+                                    onClick={() => setIsScholarSelectorOpen(false)}
+                                    className="size-10 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
                                 >
-                                    <div className={`size-12 rounded-xl flex items-center justify-center shrink-0 ${tafsirId === s.id ? 'bg-primary text-[#0a1a10]' : 'bg-white/5 text-slate-500'
-                                        }`}>
-                                        <span className="material-symbols-outlined">menu_book</span>
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className={`font-bold transition-colors ${tafsirId === s.id ? 'text-primary' : 'text-white'}`}>
-                                            {s.scholar}
-                                        </p>
-                                        <p className="text-xs text-slate-500 truncate">{s.name}</p>
-                                    </div>
-                                    {tafsirId === s.id && (
-                                        <span className="material-symbols-outlined text-primary">check_circle</span>
-                                    )}
+                                    <span className="material-symbols-outlined">close</span>
                                 </button>
-                            ))}
-                        </div>
-                        <div className="p-6 bg-white/5 text-center">
-                            <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">More scholars coming soon</p>
-                        </div>
+                            </div>
+                            <div className="p-2 overflow-y-auto max-h-[60vh]">
+                                {TAFSIRS.map((s) => (
+                                    <button
+                                        key={s.id}
+                                        onClick={() => {
+                                            setTafsirId(s.id);
+                                            setIsScholarSelectorOpen(false);
+                                        }}
+                                        className={`w-full p-4 rounded-2xl flex items-center gap-4 text-left transition-all ${tafsirId === s.id
+                                            ? 'bg-primary/10 border border-primary/20'
+                                            : 'hover:bg-white/5 border border-transparent'
+                                            }`}
+                                    >
+                                        <div className={`size-12 rounded-xl flex items-center justify-center shrink-0 ${tafsirId === s.id ? 'bg-primary text-[#0a1a10]' : 'bg-white/5 text-slate-500'
+                                            }`}>
+                                            <span className="material-symbols-outlined">menu_book</span>
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className={`font-bold transition-colors ${tafsirId === s.id ? 'text-primary' : 'text-white'}`}>
+                                                {s.scholar}
+                                            </p>
+                                            <p className="text-xs text-slate-500 truncate">{s.name}</p>
+                                        </div>
+                                        {tafsirId === s.id && (
+                                            <span className="material-symbols-outlined text-primary">check_circle</span>
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+                            <div className="p-6 bg-white/5 text-center">
+                                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">More scholars coming soon</p>
+                            </div>
+                        </motion.div>
                     </div>
-                </div>
-            )}
+                )}
+            </AnimatePresence>
         </div>
     );
 };

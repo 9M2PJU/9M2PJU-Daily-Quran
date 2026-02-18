@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useRef, useCallback } from 'react';
+import React, { createContext, useContext, useState, useRef, useCallback, useEffect } from 'react';
 import { useSettings } from './SettingsContext';
 
 interface AudioContextType {
@@ -25,6 +25,44 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const [activeSurahInfo, setActiveSurahInfo] = useState<{ id: number; totalVerses: number; name: string } | null>(null);
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const playStateRef = useRef<{ surahId: number; totalVerses: number; verseIndex: number; stopped: boolean } | null>(null);
+    const wakeLockRef = useRef<any>(null);
+
+    const requestWakeLock = useCallback(async () => {
+        if ('wakeLock' in navigator) {
+            try {
+                wakeLockRef.current = await (navigator as any).wakeLock.request('screen');
+                console.log('Wake Lock is active');
+            } catch (err: any) {
+                console.error(`${err.name}, ${err.message}`);
+            }
+        }
+    }, []);
+
+    const releaseWakeLock = useCallback(async () => {
+        if (wakeLockRef.current) {
+            try {
+                await wakeLockRef.current.release();
+                wakeLockRef.current = null;
+                console.log('Wake Lock released');
+            } catch (err: any) {
+                console.error(`${err.name}, ${err.message}`);
+            }
+        }
+    }, []);
+
+    // Re-request wake lock if app becomes visible again
+    useEffect(() => {
+        const handleVisibilityChange = async () => {
+            if (wakeLockRef.current !== null && document.visibilityState === 'visible') {
+                await requestWakeLock();
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            releaseWakeLock();
+        };
+    }, [requestWakeLock, releaseWakeLock]);
 
     const registerSurah = useCallback((id: number, totalVerses: number, name: string) => {
         setActiveSurahInfo(prev => {
@@ -44,7 +82,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             playStateRef.current.stopped = true;
         }
         setIsPlaying(false);
-    }, []);
+        releaseWakeLock();
+    }, [releaseWakeLock]);
 
     const playVerse = useCallback((surahId: number, verseIndex: number, totalVerses: number) => {
         // If already playing the same verse, do nothing
@@ -83,6 +122,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             } else {
                 setIsPlaying(false);
                 setCurrentVerseIndex(0);
+                releaseWakeLock();
             }
         };
 
@@ -96,14 +136,16 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             }
         };
 
-        audio.play().catch(err => {
+        audio.play().then(() => {
+            requestWakeLock();
+        }).catch(err => {
             // Only log if it's not an abort error (which we expect if we change verses rapidly)
             if (err.name !== 'AbortError') {
                 console.error('Audio play error:', err);
                 setIsPlaying(false);
             }
         });
-    }, [reciterId, isPlaying, currentSurah, currentVerseIndex]);
+    }, [reciterId, isPlaying, currentSurah, currentVerseIndex, requestWakeLock, releaseWakeLock]);
 
     const play = useCallback((surahId: number, totalVerses: number, startIndex = 0) => {
         stopAudio();
@@ -115,7 +157,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             audioRef.current.pause();
         }
         setIsPlaying(false);
-    }, []);
+        releaseWakeLock();
+    }, [releaseWakeLock]);
 
     const toggle = useCallback((surahId: number, totalVerses: number) => {
         const verses = totalVerses > 0 ? totalVerses : (activeSurahInfo?.id === surahId ? activeSurahInfo.totalVerses : 0);
