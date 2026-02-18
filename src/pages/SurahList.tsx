@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { getSurahs, type Surah } from '../services/api';
-import { useBookmarks } from '../contexts/BookmarkContext';
 
 type FilterTab = 'surah' | 'juz';
 
