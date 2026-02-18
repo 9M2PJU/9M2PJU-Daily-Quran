@@ -79,7 +79,6 @@ const SurahPage: React.FC = () => {
     if (!surah) return <div className="text-center py-20 text-red-500">Failed to load Surah.</div>;
 
     return (
-    return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
