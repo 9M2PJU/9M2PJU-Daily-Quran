@@ -80,14 +80,6 @@ graph TD
     end
 ```
 
-### v1.3.1 (Feb 2026)
-- 🆕 **Optional Verse Translations** — Toggle translation visibility for focused Arabic reading
-- 🆕 **Screen Wake Lock** — Prevents screen dimming during audio playback on mobile
-- 🆕 **Real Tafsir Scholar Selector** — Integrated Quran.com API for live exegesis from multiple scholars
-- 🔧 **Tagline Refinement** — Updated to "Guide us to the straight path" (Al-Fatihah 1:6)
-- 🔧 **Surah Layout Fix** — Centered vertical alignment for a more premium reading experience
-- 🔧 **PWA Icons** — Fixed icon consistency for valid installability
-
 ## 🛠️ Built With
 
 - **[React 19](https://reactjs.org/)** — UI Library
@@ -103,9 +95,13 @@ graph TD
 ## 📋 Changelog
 
 ### v1.3.1 (Feb 2026)
+- 🆕 **Optional Verse Translations** — Toggle translation visibility for focused Arabic reading
+- 🆕 **Screen Wake Lock** — Prevents screen dimming during audio playback on mobile
 - 🆕 **Real Tafsir Scholar Selector** — Integrated Quran.com API for live exegesis from multiple scholars
 - 🆕 **Persistent Audio Controls** — Header player now works instantly without manual activation
+- 🔧 **Tagline Refinement** — Updated to "Guide us to the straight path" (Al-Fatihah 1:6)
 - 🔧 **Surah Layout Fix** — Centered vertical alignment for a more premium reading experience
+- 🔧 **PWA Icons** — Fixed icon consistency for valid installability
 - 🔧 **Performance Bump** — Optimized Context rendering with `useMemo` for stable playback
 
 ### v1.2.0
