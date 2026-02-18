@@ -11,6 +11,8 @@ interface AudioContextType {
     stop: () => void;
     playNext: () => void;
     playPrevious: () => void;
+    registerSurah: (surahId: number, totalVerses: number, name: string) => void;
+    activeSurahInfo: { id: number; totalVerses: number; name: string } | null;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -20,8 +22,16 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentSurah, setCurrentSurah] = useState<number | null>(null);
     const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
+    const [activeSurahInfo, setActiveSurahInfo] = useState<{ id: number; totalVerses: number; name: string } | null>(null);
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const playStateRef = useRef<{ surahId: number; totalVerses: number; verseIndex: number; stopped: boolean } | null>(null);
+
+    const registerSurah = useCallback((id: number, totalVerses: number, name: string) => {
+        setActiveSurahInfo(prev => {
+            if (prev?.id === id && prev?.totalVerses === totalVerses) return prev;
+            return { id, totalVerses, name };
+        });
+    }, []);
 
     const stopAudio = useCallback(() => {
         if (audioRef.current) {
@@ -34,10 +44,14 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             playStateRef.current.stopped = true;
         }
         setIsPlaying(false);
-        setCurrentVerseIndex(0);
     }, []);
 
     const playVerse = useCallback((surahId: number, verseIndex: number, totalVerses: number) => {
+        // If already playing the same verse, do nothing
+        if (isPlaying && currentSurah === surahId && currentVerseIndex === verseIndex && audioRef.current && !audioRef.current.paused) {
+            return;
+        }
+
         // Stop any current audio
         if (audioRef.current) {
             audioRef.current.pause();
@@ -65,19 +79,15 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             if (state.stopped) return;
             const nextIndex = verseIndex + 1;
             if (nextIndex < totalVerses) {
-                // Play next verse
                 playVerse(surahId, nextIndex, totalVerses);
             } else {
-                // Finished all verses
                 setIsPlaying(false);
                 setCurrentVerseIndex(0);
             }
         };
 
         audio.onerror = () => {
-            console.error(`Failed to load audio for ${paddedSurah}${paddedVerse}`);
             if (state.stopped) return;
-            // Try to skip to next verse
             const nextIndex = verseIndex + 1;
             if (nextIndex < totalVerses) {
                 playVerse(surahId, nextIndex, totalVerses);
@@ -87,10 +97,13 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         };
 
         audio.play().catch(err => {
-            console.error('Audio play error:', err);
-            setIsPlaying(false);
+            // Only log if it's not an abort error (which we expect if we change verses rapidly)
+            if (err.name !== 'AbortError') {
+                console.error('Audio play error:', err);
+                setIsPlaying(false);
+            }
         });
-    }, [reciterId]);
+    }, [reciterId, isPlaying, currentSurah, currentVerseIndex]);
 
     const play = useCallback((surahId: number, totalVerses: number, startIndex = 0) => {
         stopAudio();
@@ -100,36 +113,58 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const pause = useCallback(() => {
         if (audioRef.current) {
             audioRef.current.pause();
-            setIsPlaying(false);
         }
+        setIsPlaying(false);
     }, []);
 
     const toggle = useCallback((surahId: number, totalVerses: number) => {
+        const verses = totalVerses > 0 ? totalVerses : (activeSurahInfo?.id === surahId ? activeSurahInfo.totalVerses : 0);
+
         if (isPlaying && currentSurah === surahId) {
             pause();
         } else {
-            play(surahId, totalVerses);
+            play(surahId, verses, currentSurah === surahId ? currentVerseIndex : 0);
         }
-    }, [isPlaying, currentSurah, pause, play]);
+    }, [isPlaying, currentSurah, currentVerseIndex, pause, play, activeSurahInfo]);
 
     const playNext = useCallback(() => {
-        if (!playStateRef.current || playStateRef.current.stopped) return;
-        const { surahId, verseIndex, totalVerses } = playStateRef.current;
-        const nextIndex = verseIndex + 1;
-        if (nextIndex < totalVerses) {
-            playVerse(surahId, nextIndex, totalVerses);
+        const surahId = currentSurah || activeSurahInfo?.id;
+        const totalVerses = (currentSurah === activeSurahInfo?.id ? activeSurahInfo?.totalVerses : playStateRef.current?.totalVerses) || activeSurahInfo?.totalVerses || 0;
+
+        if (surahId && totalVerses > 0) {
+            const nextIndex = currentVerseIndex + 1;
+            if (nextIndex < totalVerses) {
+                playVerse(surahId, nextIndex, totalVerses);
+            }
         }
-    }, [playVerse]);
+    }, [playVerse, activeSurahInfo, currentSurah, currentVerseIndex]);
 
     const playPrevious = useCallback(() => {
-        if (!playStateRef.current || playStateRef.current.stopped) return;
-        const { surahId, verseIndex, totalVerses } = playStateRef.current;
-        const prevIndex = Math.max(0, verseIndex - 1);
-        playVerse(surahId, prevIndex, totalVerses);
-    }, [playVerse]);
+        const surahId = currentSurah || activeSurahInfo?.id;
+        const totalVerses = (currentSurah === activeSurahInfo?.id ? activeSurahInfo?.totalVerses : playStateRef.current?.totalVerses) || activeSurahInfo?.totalVerses || 0;
+
+        if (surahId && totalVerses > 0) {
+            const prevIndex = Math.max(0, currentVerseIndex - 1);
+            playVerse(surahId, prevIndex, totalVerses);
+        }
+    }, [playVerse, activeSurahInfo, currentSurah, currentVerseIndex]);
+
+    const contextValue = React.useMemo(() => ({
+        isPlaying,
+        currentSurah,
+        currentVerseIndex,
+        play,
+        pause,
+        toggle,
+        stop: stopAudio,
+        playNext,
+        playPrevious,
+        registerSurah,
+        activeSurahInfo
+    }), [isPlaying, currentSurah, currentVerseIndex, play, pause, toggle, stopAudio, playNext, playPrevious, registerSurah, activeSurahInfo]);
 
     return (
-        <AudioContext.Provider value={{ isPlaying, currentSurah, currentVerseIndex, play, pause, toggle, stop: stopAudio, playNext, playPrevious }}>
+        <AudioContext.Provider value={contextValue}>
             {children}
         </AudioContext.Provider>
     );

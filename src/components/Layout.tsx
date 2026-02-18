@@ -9,7 +9,7 @@ const Layout: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const isReadingMode = location.pathname.startsWith('/surah/');
-    const { isPlaying, toggle, playNext, playPrevious, currentSurah, currentVerseIndex } = useAudio();
+    const { isPlaying, toggle, playNext, playPrevious, currentSurah, currentVerseIndex, activeSurahInfo } = useAudio();
     const { reciterId } = useSettings();
     const { lastReadSurah, streak } = useProgress();
     const { unreadCount } = useNotifications();
@@ -33,7 +33,7 @@ const Layout: React.FC = () => {
     };
 
     const currentReciter = RECITERS.find(r => r.id === reciterId) || RECITERS[0];
-    const surahName = lastReadSurah?.name || 'Quran';
+    const surahName = isPlaying ? (activeSurahInfo?.name || lastReadSurah?.name || 'Quran') : (activeSurahInfo?.name || lastReadSurah?.name || 'Quran');
 
     useEffect(() => {
         if (localStorage.getItem('theme') === 'dark' ||
@@ -128,7 +128,10 @@ const Layout: React.FC = () => {
                                     <span className="material-symbols-outlined">skip_previous</span>
                                 </button>
                                 <button
-                                    onClick={() => currentSurah && toggle(currentSurah, 0)} // totalVerses not strictly needed for toggle if already playing
+                                    onClick={() => {
+                                        const targetId = currentSurah || activeSurahInfo?.id;
+                                        if (targetId) toggle(targetId, 0);
+                                    }}
                                     className="size-10 rounded-full bg-primary text-[#0a1a10] flex items-center justify-center hover:bg-primary-light transition-colors shadow-lg shadow-primary/20"
                                 >
                                     <span className="material-symbols-outlined fill-1">{isPlaying ? 'pause' : 'play_arrow'}</span>

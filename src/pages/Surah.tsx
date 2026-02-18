@@ -9,7 +9,7 @@ import { useBookmarks } from '../contexts/BookmarkContext';
 const SurahPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const { translationId } = useSettings();
-    const { isPlaying, currentSurah, currentVerseIndex, play, toggle, stop } = useAudio();
+    const { isPlaying, currentSurah, currentVerseIndex, play, toggle, stop, registerSurah } = useAudio();
     const { incrementProgress } = useProgress();
 
     // Stop audio when leaving the surah page
@@ -74,6 +74,8 @@ const SurahPage: React.FC = () => {
                 setAyahs(ayahsData);
                 // Track reading progress (1 page per surah visit)
                 incrementProgress({ id: surahData.id, name: surahData.name_simple });
+                // Register with audio context
+                registerSurah(surahData.id, ayahsData.length, surahData.name_simple);
             } catch (error) {
                 console.error('Error fetching surah data:', error);
             } finally {
