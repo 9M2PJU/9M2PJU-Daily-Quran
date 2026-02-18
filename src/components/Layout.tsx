@@ -18,7 +18,7 @@ const Layout: React.FC = () => {
     const { lastReadSurah, streak } = useProgress();
     const { unreadCount } = useNotifications();
 
-    const [searchQuery, setSearchQuery] = React.useState('');
+    const [searchQuery, setSearchQuery] = useState('');
 
     const handleSearch = (e: React.FormEvent | React.KeyboardEvent) => {
         if ('key' in e && e.key !== 'Enter') return;
