@@ -1,6 +1,8 @@
 # 📖 9M2PJU Daily Quran
 
-![Daily Quran Banner](/public/logo.png)
+<p align="center">
+  <img src="/public/logo.png" alt="9M2PJU Daily Quran" width="180" />
+</p>
 
 > A modern, beautiful, and accessible Progressive Web App for reading and listening to the Holy Quran daily.
 
@@ -12,35 +14,66 @@
 
 ## ✨ Features
 
-- **📖 Crystal Clear Text**: High-quality Uthmani script for authentic reading experience.
-- **🎧 Continuous Audio**: Integrated audio player featuring Mishary Rashid Alafasy.
-- **🌍 Multi-Language Support**:
-  - English (Saheeh International)
-  - Malay (Abdul Hameed)
-  - Indonesian (Kemenag)
-- **🌙 Dark Mode**: Beautifully designed dark theme for comfortable night reading.
-- **💾 Progress Saving**: Automatically remembers the last Surah you read.
-- **📱 PWA Ready**: Install on your phone or desktop for an app-like experience.
-- **⚡ Blazing Fast**: Built with Vite and React for instant load times.
+### 📖 Quran Reading
+- **Uthmani Script** — High-quality Arabic text with proper diacritics
+- **27 Translations** — Including English, Malay, Indonesian, Turkish, French, Urdu, Bengali, and more
+- **Font Size Control** — Adjustable A-/A+ for comfortable reading
+- **Focus Mode** — Immersive verse-by-verse reading with dimmed surroundings, auto-scroll, keyboard navigation, and auto-exit after the last verse
+
+### 🎧 Audio Playback
+- **10 World-Class Reciters** — Mishary Alafasy, Abdul Basit, As-Sudais, Saad Al-Ghamdi, Abu Bakr Ash-Shatri, Hani Ar-Rifai, Al-Husary, El-Minshawi, Al-Ajamy, Maher Al-Muaiqly
+- **Full Surah Playback** — Continuous audio with verse highlighting and auto-scroll
+- **Verse-by-Verse Play** — Tap play on any individual verse
+- **Mobile Audio Player** — Floating player bar on mobile screens
+- **Audio Auto-Stop** — Stops playback when navigating away from a surah
+
+### 🔖 Bookmarks & Notes
+- **Verse Bookmarking** — Save any verse with one tap
+- **Personal Notes** — Add private notes to any verse
+- **Bookmarks Page** — Dedicated page to browse all saved verses and notes
+
+### 📊 Progress & Goals
+- **Daily Verse of the Day** — Featured verse on the home page with play and share buttons
+- **Reading Streaks** — Track consecutive days of reading
+- **Daily Goals** — Set and monitor daily reading targets
+- **Activity Page** — Stats dashboard with streak, verses read, bookmarks, notes, and recent activity
+
+### 🕌 Prayer & Islamic Tools
+- **Prayer Times** — GPS-based prayer time calculations with compass
+- **Surah Index** — Browse all 114 surahs with search
+- **Juz Index** — Browse by Juz (para) division
+- **Library** — Curated collections for different reading goals
+
+### 📱 Design & UX
+- **Dark Mode** — Elegant dark green theme designed for night reading
+- **Fully Responsive** — Optimized for mobile, tablet, and desktop
+- **PWA Ready** — Install as a native app on any device
+- **Smooth Animations** — Polished transitions and micro-interactions
 
 ## 🏗️ Architecture
 
 ```mermaid
 graph TD
     User[👤 User] -->|Visits| App[📱 Daily Quran App]
-    App -->|Browses| Home[🏠 Home / Surah Index]
-    App -->|Selects Surah| Reader[📖 Surah Reader]
-    
-    subgraph "Data & State"
+    App -->|Browses| Home[🏠 Home Page]
+    App -->|Reads| Reader[📖 Surah Reader]
+    App -->|Tracks| Activity[📊 Activity]
+    App -->|Saves| Bookmarks[🔖 Bookmarks]
+
+    subgraph "Data & APIs"
         Reader -->|Fetches Text| API[☁️ Quran.com API]
-        Reader -->|Fetches Audio| Audio[🔊 Audio CDN]
-        App -->|Persists| Storage[💾 LocalStorage]
+        Reader -->|Fetches Audio| Audio[🔊 EveryAyah CDN]
+        Home -->|Prayer Times| Prayer[🕌 Aladhan API]
     end
 
-    subgraph "Features"
-        Storage -->|Theme| DarkMode[🌙 Dark Mode]
-        Storage -->|Lang| Lang[🌍 Translation]
-        Storage -->|History| LastRead[🔖 Last Read]
+    subgraph "Local State"
+        App -->|Settings| Settings[⚙️ SettingsContext]
+        App -->|Audio| AudioCtx[🎧 AudioContext]
+        App -->|Progress| Progress[📈 ProgressContext]
+        App -->|Bookmarks| BookmarkCtx[🔖 BookmarkContext]
+        Settings -->|Persists| LS[💾 LocalStorage]
+        Progress -->|Persists| LS
+        BookmarkCtx -->|Persists| LS
     end
 ```
 
@@ -75,11 +108,31 @@ This project is configured to deploy automatically to GitHub Pages using GitHub 
 
 ## 🛠️ Built With
 
-- **[React](https://reactjs.org/)** - UI Library
-- **[Vite](https://vitejs.dev/)** - Build Tool
-- **[Framer Motion](https://www.framer.com/motion/)** - Animations
-- **[Lucide React](https://lucide.dev/)** - Icons
-- **[Quran.com API](https://quran.com/api)** - Data Source
+- **[React 19](https://reactjs.org/)** — UI Library
+- **[Vite](https://vitejs.dev/)** — Build Tool
+- **[TypeScript](https://www.typescriptlang.org/)** — Type Safety
+- **[Tailwind CSS 4](https://tailwindcss.com/)** — Utility-First Styling
+- **[React Router](https://reactrouter.com/)** — Client-Side Routing
+- **[Quran.com API](https://quran.com/api)** — Quran Text & Translations
+- **[EveryAyah.com](https://everyayah.com/)** — Audio Recitations
+- **[Aladhan API](https://aladhan.com/prayer-times-api)** — Prayer Times
+- **[Material Symbols](https://fonts.google.com/icons)** — Icons
+
+## 📋 Changelog
+
+### v2.0.0 (Feb 2026)
+- 🆕 Focus Mode with verse-by-verse navigation, auto-scroll, and auto-exit
+- 🆕 10 Quran reciters with selection in Settings
+- 🆕 Bookmarks & Personal Notes system
+- 🆕 Activity page with reading stats and streaks
+- 🆕 Library page with curated collections
+- 🆕 Mobile floating audio player
+- 🆕 27 translation options (up from 3)
+- 🔧 Streak calculation bug fix
+- 🔧 Mobile-responsive action buttons (always visible)
+- 🔧 Audio auto-stop on page exit
+- 🎨 New brand logo
+- 🎨 Focus mode bright white Arabic text
 
 ## 📄 License
 
