@@ -1,73 +1,92 @@
-# React + TypeScript + Vite
+# 📖 Daily Quran PWA
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![Daily Quran Banner](/public/logo.png)
 
-Currently, two official plugins are available:
+> A modern, beautiful, and accessible Progressive Web App for reading and listening to the Holy Quran daily.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+[![React](https://img.shields.io/badge/React-20232a?style=for-the-badge&logo=react&logoColor=61dafb)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![PWA](https://img.shields.io/badge/PWA-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)](https://web.dev/progressive-web-apps/)
 
-## React Compiler
+## ✨ Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **📖 Crystal Clear Text**: High-quality Uthmani script for authentic reading experience.
+- **🎧 Continuous Audio**: Integrated audio player featuring Mishary Rashid Alafasy.
+- **🌍 Multi-Language Support**:
+  - English (Saheeh International)
+  - Malay (Abdul Hameed)
+  - Indonesian (Kemenag)
+- **🌙 Dark Mode**: Beautifully designed dark theme for comfortable night reading.
+- **💾 Progress Saving**: Automatically remembers the last Surah you read.
+- **📱 PWA Ready**: Install on your phone or desktop for an app-like experience.
+- **⚡ Blazing Fast**: Built with Vite and React for instant load times.
 
-## Expanding the ESLint configuration
+## 🏗️ Architecture
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+```mermaid
+graph TD
+    User[👤 User] -->|Visits| App[📱 Daily Quran App]
+    App -->|Browses| Home[🏠 Home / Surah Index]
+    App -->|Selects Surah| Reader[📖 Surah Reader]
+    
+    subgraph "Data & State"
+        Reader -->|Fetches Text| API[☁️ Quran.com API]
+        Reader -->|Fetches Audio| Audio[🔊 Audio CDN]
+        App -->|Persists| Storage[💾 LocalStorage]
+    end
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+    subgraph "Features"
+        Storage -->|Theme| DarkMode[🌙 Dark Mode]
+        Storage -->|Lang| Lang[🌍 Translation]
+        Storage -->|History| LastRead[🔖 Last Read]
+    end
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🚀 Getting Started
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Prerequisites
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- Node.js (v18 or higher)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/9M2PJU/daily-quran.git
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+## 📦 Deployment
+
+This project is configured to deploy automatically to GitHub Pages using GitHub Actions.
+
+- **Production URL**: [https://quran.hamradio.my](https://quran.hamradio.my)
+- **CI/CD**: `.github/workflows/deploy.yml`
+
+## 🛠️ Built With
+
+- **[React](https://reactjs.org/)** - UI Library
+- **[Vite](https://vitejs.dev/)** - Build Tool
+- **[Framer Motion](https://www.framer.com/motion/)** - Animations
+- **[Lucide React](https://lucide.dev/)** - Icons
+- **[Quran.com API](https://quran.com/api)** - Data Source
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+---
+
+<p align="center">
+  Made with ❤️ by <a href="https://github.com/9M2PJU">9M2PJU</a>
+</p>
