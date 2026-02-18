@@ -80,34 +80,13 @@ graph TD
     end
 ```
 
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js (v18 or higher)
-- npm or yarn
-
-### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/9M2PJU/9M2PJU-Daily-Quran.git
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-## 📦 Deployment
-
-This project is configured to deploy automatically to GitHub Pages using GitHub Actions.
-
-- **Production URL**: [https://quran.hamradio.my](https://quran.hamradio.my)
-- **CI/CD**: `.github/workflows/deploy.yml`
+### v1.3.1 (Feb 2026)
+- 🆕 **Optional Verse Translations** — Toggle translation visibility for focused Arabic reading
+- 🆕 **Screen Wake Lock** — Prevents screen dimming during audio playback on mobile
+- 🆕 **Real Tafsir Scholar Selector** — Integrated Quran.com API for live exegesis from multiple scholars
+- 🔧 **Tagline Refinement** — Updated to "Guide us to the straight path" (Al-Fatihah 1:6)
+- 🔧 **Surah Layout Fix** — Centered vertical alignment for a more premium reading experience
+- 🔧 **PWA Icons** — Fixed icon consistency for valid installability
 
 ## 🛠️ Built With
 
