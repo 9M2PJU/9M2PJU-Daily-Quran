@@ -112,7 +112,7 @@ graph TD
 
 ## 📄 License
 
-This project is open source and available under the [MIT License](LICENSE).
+This project is open source and available under the [GNU Affero General Public License v3.0](LICENSE).
 
 ---
 
