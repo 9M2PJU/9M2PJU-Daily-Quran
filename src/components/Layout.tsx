@@ -32,7 +32,7 @@ const Layout: React.FC = () => {
                     <Link to="/" className="flex items-center gap-3 group">
                         <div className="relative">
                             <div className="absolute inset-0 bg-emerald-500 blur-lg opacity-20 group-hover:opacity-40 transition-opacity rounded-full"></div>
-                            <img src="/logo.png" alt="9M2PJU Daily Quran Logo" className="w-10 h-10 relative z-10 transition-transform group-hover:scale-110 drop-shadow-md" />
+                            <img src="/logo.png" alt="9M2PJU Daily Quran Logo" className="h-12 w-auto relative z-10 transition-transform group-hover:scale-110 drop-shadow-md object-contain" />
                         </div>
                         <h1 className="text-xl font-bold tracking-tight text-gradient">
                             9M2PJU Daily Quran
