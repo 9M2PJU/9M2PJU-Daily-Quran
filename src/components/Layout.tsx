@@ -38,7 +38,7 @@ const Layout: React.FC = () => {
                     <Link to="/" className="flex items-center gap-2 group">
                         <img src="/logo.png" alt="9M2PJU Daily Quran Logo" className="w-8 h-8 transition-transform group-hover:scale-105" />
                         <h1 className="text-xl font-bold tracking-tight" style={{ color: 'var(--color-primary)' }}>
-                            Daily Quran
+                            9M2PJU Daily Quran
                         </h1>
                     </Link>
 
