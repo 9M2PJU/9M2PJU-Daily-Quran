@@ -1,4 +1,4 @@
-# 📖 Daily Quran PWA
+# 📖 9M2PJU Daily Quran
 
 ![Daily Quran Banner](/public/logo.png)
 

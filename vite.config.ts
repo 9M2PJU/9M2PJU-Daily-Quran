@@ -11,8 +11,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
-        name: 'Daily Quran',
-        short_name: 'DailyQuran',
+        name: '9M2PJU Daily Quran',
+        short_name: '9M2PJU Quran',
         description: 'Read the Quran daily with a beautiful, clean interface.',
         theme_color: '#047857',
         background_color: '#ffffff',
