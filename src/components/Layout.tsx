@@ -78,7 +78,7 @@ const Layout: React.FC = () => {
                     {!isReadingMode && (
                         <div className="overflow-hidden">
                             <h1 className="text-base font-bold leading-tight whitespace-nowrap">9M2PJU Daily Quran</h1>
-                            <p className="text-[10px] text-slate-500 font-medium tracking-wider uppercase whitespace-nowrap">"Guide us to the straight path." — Surah Al-Fatihah 1:6</p>
+                            <p className="text-[10px] text-slate-500 font-medium tracking-wider uppercase leading-snug">"Guide us to the straight path." — Surah Al-Fatihah 1:6</p>
                         </div>
                     )}
                 </div>
