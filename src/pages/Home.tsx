@@ -62,19 +62,29 @@ const Home: React.FC = () => {
     }
 
     return (
-        <div className="space-y-6">
-            <div className="relative max-w-md mx-auto md:mx-0">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                    type="text"
-                    placeholder="Search Surah by name or number..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 rounded-lg border focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all dark:bg-gray-800 dark:border-gray-700"
-                    style={{
-                        backgroundColor: 'var(--color-surface)',
-                    }}
-                />
+        <div className="space-y-8">
+            {/* Hero Section */}
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-600 to-teal-500 p-8 text-white shadow-lg">
+                <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl"></div>
+                <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-yellow-400 opacity-20 rounded-full blur-2xl"></div>
+
+                <div className="relative z-10">
+                    <h2 className="text-3xl font-bold mb-2">Assalamu Alaikum</h2>
+                    <p className="text-emerald-50 mb-6 max-w-lg">
+                        Connect with the Holy Quran daily. Read, listen, and reflect upon the verses of Allah.
+                    </p>
+
+                    <div className="relative max-w-2xl">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-200" />
+                        <input
+                            type="text"
+                            placeholder="Search Surah by name or number..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="w-full pl-12 pr-4 py-4 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-emerald-100/70 focus:outline-none focus:bg-white/20 focus:border-white/30 transition-all shadow-inner"
+                        />
+                    </div>
+                </div>
             </div>
 
             <motion.div

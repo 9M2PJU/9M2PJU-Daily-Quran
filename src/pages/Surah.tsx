@@ -79,6 +79,7 @@ const SurahPage: React.FC = () => {
     if (!surah) return <div className="text-center py-20 text-red-500">Failed to load Surah.</div>;
 
     return (
+    return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -86,22 +87,25 @@ const SurahPage: React.FC = () => {
             className="max-w-4xl mx-auto space-y-8 pb-32"
         >
             {/* Header Info */}
-            <div className="text-center space-y-2 border-b pb-6 dark:border-gray-700">
-                <Link to="/" className="inline-flex items-center text-sm mb-4 hover:underline text-emerald-600">
-                    <ArrowLeft className="w-4 h-4 mr-1" /> Back to Index
+            <div className="text-center space-y-4 py-8 relative">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-emerald-500/10 blur-3xl rounded-full -z-10"></div>
+                <Link to="/" className="inline-flex items-center text-sm mb-4 px-4 py-2 rounded-full glass hover:bg-white/50 transition-colors text-emerald-700 dark:text-emerald-400">
+                    <ArrowLeft className="w-4 h-4 mr-2" /> Back to Index
                 </Link>
-                <h1 className="text-4xl font-bold font-serif" style={{ color: 'var(--color-primary)' }}>{surah.name_simple}</h1>
-                <p className="text-xl font-arabic mt-2" style={{ color: 'var(--color-gold-dark)' }}>{surah.name_arabic}</p>
-                <div className="flex justify-center gap-4 text-sm text-gray-500">
-                    <span>{surah.revelation_place.toUpperCase()}</span>
-                    <span>•</span>
+                <h1 className="text-5xl font-bold font-serif text-slate-800 dark:text-slate-100">{surah.name_simple}</h1>
+                <p className="text-2xl font-arabic mt-2 text-emerald-600 dark:text-emerald-400">{surah.name_arabic}</p>
+                <div className="flex justify-center gap-6 text-sm font-medium text-slate-500 dark:text-slate-400">
+                    <span className="uppercase tracking-widest">{surah.revelation_place}</span>
+                    <span className="text-emerald-300">•</span>
                     <span>{surah.verses_count} Verses</span>
                 </div>
             </div>
 
             {/* Bismillah */}
-            <div className="text-center py-6">
-                <p className="font-arabic text-3xl" style={{ color: 'var(--color-text)' }}>
+            <div className="text-center py-8 glass rounded-3xl mb-8 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/5 rounded-full blur-2xl"></div>
+                <div className="absolute bottom-0 left-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl"></div>
+                <p className="font-arabic text-4xl leading-loose text-slate-800 dark:text-slate-200 relative z-10">
                     بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ
                 </p>
             </div>
@@ -111,63 +115,65 @@ const SurahPage: React.FC = () => {
                 {ayahs.map((ayah, index) => (
                     <motion.div
                         key={ayah.verse_key}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.05 }}
-                        className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow dark:border dark:border-gray-700"
+                        className="glass p-8 rounded-3xl hover:shadow-gold transition-all duration-300 group"
                     >
-                        <div className="flex justify-between items-start mb-4 border-b border-dashed pb-4 dark:border-gray-700">
-                            <span className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-100 text-xs px-2 py-1 rounded-full font-mono">
-                                {ayah.verse_key}
-                            </span>
+                        <div className="flex justify-between items-center mb-6 border-b border-dashed border-emerald-500/20 pb-4">
+                            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold font-mono border border-emerald-100 dark:border-emerald-800/50">
+                                {ayah.verse_key.split(':')[1]}
+                            </div>
+                            <div className="text-xs text-slate-400">Verse {ayah.verse_key}</div>
                         </div>
 
-                        <p className="font-arabic text-3xl text-right leading-[2.5] mb-6" style={{ color: 'var(--color-text)' }}>
+                        <p className="font-arabic text-4xl text-right leading-[2.5] mb-8 text-slate-800 dark:text-slate-100 px-2" style={{ fontFamily: 'Amiri, serif' }}>
                             {ayah.text_uthmani}
                         </p>
 
                         {ayah.translations && (
-                            <p className="text-lg leading-relaxed text-gray-700 dark:text-gray-300 font-serif">
+                            <div className="text-lg leading-relaxed text-slate-600 dark:text-slate-300 font-serif border-l-4 border-emerald-500/30 pl-6 py-2">
                                 {ayah.translations[0].text.replace(/<[^>]*>/g, '')}
-                            </p>
+                            </div>
                         )}
+
+                        <div className="mt-4 flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                            {/* Future: Actions like share/copy could go here */}
+                        </div>
                     </motion.div>
                 ))}
             </div>
 
             {/* Sticky Audio Player */}
             {audioUrl && (
-                <div className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-t dark:border-gray-700 p-4 shadow-lg z-50">
-                    <div className="max-w-4xl mx-auto flex items-center justify-between transition-all duration-300">
-                        <div className="hidden md:block">
-                            <p className="text-sm font-semibold" style={{ color: 'var(--color-primary)' }}>Now Reciting</p>
-                            <p className="text-xs text-gray-500">Mishary Rashid Alafasy</p>
+                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-lg glass rounded-2xl shadow-2xl border-t border-white/20 p-4 z-50 backdrop-blur-xl bg-white/80 dark:bg-slate-900/80">
+                    <div className="flex items-center justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Now Playing</p>
+                            <p className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{surah.name_simple} - Mishary Alafasy</p>
                         </div>
 
-                        <div className="flex items-center gap-4 flex-1 md:flex-none justify-center">
+                        <div className="flex items-center gap-3">
                             <button
                                 onClick={togglePlay}
                                 disabled={isLoadingAudio}
-                                className="w-14 h-14 flex items-center justify-center rounded-full text-white shadow-lg transform active:scale-95 transition-all hover:scale-105"
-                                style={{ backgroundColor: 'var(--color-primary)' }}
+                                className="w-12 h-12 flex items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 text-white shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-105 active:scale-95 transition-all"
                             >
                                 {isLoadingAudio ? (
-                                    <Loader2 className="w-6 h-6 animate-spin" />
+                                    <Loader2 className="w-5 h-5 animate-spin" />
                                 ) : isPlaying ? (
-                                    <Pause className="w-6 h-6 fill-current" />
+                                    <Pause className="w-5 h-5 fill-current" />
                                 ) : (
-                                    <Play className="w-6 h-6 fill-current ml-1" />
+                                    <Play className="w-5 h-5 fill-current ml-1" />
                                 )}
                             </button>
-                            <audio
-                                ref={audioRef}
-                                src={audioUrl}
-                                onEnded={handleAudioEnded}
-                                onError={(e) => console.error("Audio error", e)}
-                            />
                         </div>
-
-                        <div className="hidden md:block w-32"></div>
+                        <audio
+                            ref={audioRef}
+                            src={audioUrl}
+                            onEnded={handleAudioEnded}
+                            onError={(e) => console.error("Audio error", e)}
+                        />
                     </div>
                 </div>
             )}
