@@ -17,11 +17,13 @@
 ### 📖 Quran Reading
 - **Uthmani Script** — High-quality Arabic text with proper diacritics
 - **27 Translations** — Including English, Malay, Indonesian, Turkish, French, Urdu, Bengali, and more
+- **Real Tafsir Integration** — Toggle between multiple scholarly commentaries (Ibn Kathir, Ma'arif al-Qur'an, Tazkirul Quran, Al-Jalalayn) with real-time verse synchronization
 - **Font Size Control** — Adjustable A-/A+ for comfortable reading
 - **Focus Mode** — Immersive verse-by-verse reading with dimmed surroundings, auto-scroll, keyboard navigation, and auto-exit after the last verse
 
 ### 🎧 Audio Playback
 - **10 World-Class Reciters** — Mishary Alafasy, Abdul Basit, As-Sudais, Saad Al-Ghamdi, Abu Bakr Ash-Shatri, Hani Ar-Rifai, Al-Husary, El-Minshawi, Al-Ajamy, Maher Al-Muaiqly
+- **Precision Audio Controls** — Full playback control (Play/Pause, Next, Previous) directly from the persistent header
 - **Full Surah Playback** — Continuous audio with verse highlighting and auto-scroll
 - **Verse-by-Verse Play** — Tap play on any individual verse
 - **Mobile Audio Player** — Floating player bar on mobile screens
@@ -46,6 +48,7 @@
 
 ### 📱 Design & UX
 - **Dark Mode** — Elegant dark green theme designed for night reading
+- **Vertically Centered Layout** — Symmetrical and distraction-free reading column
 - **Fully Responsive** — Optimized for mobile, tablet, and desktop
 - **PWA Ready** — Install as a native app on any device
 - **Smooth Animations** — Polished transitions and micro-interactions
@@ -120,19 +123,17 @@ This project is configured to deploy automatically to GitHub Pages using GitHub 
 
 ## 📋 Changelog
 
-### v2.0.0 (Feb 2026)
-- 🆕 Focus Mode with verse-by-verse navigation, auto-scroll, and auto-exit
+### v1.3.1 (Feb 2026)
+- 🆕 **Real Tafsir Scholar Selector** — Integrated Quran.com API for live exegesis from multiple scholars
+- 🆕 **Persistent Audio Controls** — Header player now works instantly without manual activation
+- 🔧 **Surah Layout Fix** — Centered vertical alignment for a more premium reading experience
+- 🔧 **Performance Bump** — Optimized Context rendering with `useMemo` for stable playback
+
+### v1.2.0
+- 🆕 Focus Mode with verse-by-verse navigation and auto-scroll
 - 🆕 10 Quran reciters with selection in Settings
 - 🆕 Bookmarks & Personal Notes system
-- 🆕 Activity page with reading stats and streaks
-- 🆕 Library page with curated collections
-- 🆕 Mobile floating audio player
-- 🆕 27 translation options (up from 3)
-- 🔧 Streak calculation bug fix
-- 🔧 Mobile-responsive action buttons (always visible)
 - 🔧 Audio auto-stop on page exit
-- 🎨 New brand logo
-- 🎨 Focus mode bright white Arabic text
 
 ## 📄 License
 
