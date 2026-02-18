@@ -41,12 +41,6 @@ const SurahPage: React.FC = () => {
         });
     }, [surah, toggleSurahBookmark]);
 
-    // Mock Data for Sidebar functionality validation
-    const mockTafsir = {
-        scholar: "Ibn Kathir",
-        text: "Regarding the statement of Allah, \"And they followed what the devils had recited...\", Ibn Jarir said that this means the devils used to write magic and talismans and bury them under the throne of Solomon.",
-        insight: "Allah clarifies that magic is a trial and disbelief. Those who seek it trade their share in the Hereafter for a miserable gain."
-    };
 
     const fontSizeClasses = [
         'text-2xl md:text-3xl leading-[1.8]',

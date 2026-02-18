@@ -24,6 +24,7 @@ export interface Tafsir {
     resource_id: number;
     text: string;
     resource_name: string;
+    verse_key: string;
 }
 
 export const getSurahs = async (): Promise<Surah[]> => {
