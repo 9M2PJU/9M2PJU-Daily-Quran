@@ -489,14 +489,17 @@ const SurahPage: React.FC = () => {
                                                 translationText: ayah.translations?.[0]?.text.replace(/<sup[^>]*>.*?<\/sup>/g, '').replace(/<[^>]*>/g, '') || '',
                                             });
 
-                                            // If adding a bookmark, open the notes sidebar automatically
                                             if (!currentlyBookmarked) {
-                                                setFocusedVerse(index);
-                                                scrollToFocusedVerse(index);
-                                                setActiveTab('notes');
+                                                // If adding bookmark, open inline note editor
                                                 setEditingNoteVerse(ayah.verse_key);
                                                 const existing = getNote(ayah.verse_key);
                                                 setNoteText(existing?.text || '');
+                                            } else {
+                                                // If removing bookmark, ensure note editor is closed
+                                                if (editingNoteVerse === ayah.verse_key) {
+                                                    setEditingNoteVerse(null);
+                                                    setNoteText('');
+                                                }
                                             }
                                         }}
                                         className={`flex items-center gap-2 text-xs font-bold transition-colors ${isBookmarked(ayah.verse_key) ? 'text-primary' : 'text-slate-500 hover:text-white'}`}
@@ -504,7 +507,92 @@ const SurahPage: React.FC = () => {
                                         <span className="material-symbols-outlined text-lg fill-1">{isBookmarked(ayah.verse_key) ? 'bookmark' : 'bookmark_border'}</span>
                                         {isBookmarked(ayah.verse_key) ? 'Saved' : 'Bookmark'}
                                     </button>
+
+                                    {/* Edit Note Button (Visible only if bookmarked) */}
+                                    {isBookmarked(ayah.verse_key) && (
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (editingNoteVerse === ayah.verse_key) {
+                                                    setEditingNoteVerse(null);
+                                                } else {
+                                                    setEditingNoteVerse(ayah.verse_key);
+                                                    const existing = getNote(ayah.verse_key);
+                                                    setNoteText(existing?.text || '');
+                                                }
+                                            }}
+                                            className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-white transition-colors ml-2"
+                                            title="Add/Edit Note"
+                                        >
+                                            <span className="material-symbols-outlined text-lg">edit_note</span>
+                                        </button>
+                                    )}
                                 </div>
+
+                                {/* Inline Personal Note Editor */}
+                                {editingNoteVerse === ayah.verse_key && (
+                                    <div
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="mt-4 bg-[#11241a] border border-white/10 rounded-xl p-4 animate-fadeIn"
+                                    >
+                                        <p className="text-xs text-primary font-bold mb-2">Personal Note</p>
+                                        <textarea
+                                            value={noteText}
+                                            onChange={(e) => setNoteText(e.target.value)}
+                                            placeholder="Write your reflection..."
+                                            className="w-full bg-black/20 border border-white/10 rounded-lg py-3 px-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-primary/50 min-h-[80px] resize-y mb-3"
+                                            autoFocus
+                                        />
+                                        <div className="flex gap-2 justify-end">
+                                            <button
+                                                onClick={() => { setEditingNoteVerse(null); setNoteText(''); }}
+                                                className="py-1.5 px-3 rounded-lg border border-white/10 text-slate-400 text-xs font-bold uppercase tracking-wider hover:bg-white/5 transition-colors"
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    if (noteText.trim()) {
+                                                        saveNote({
+                                                            verseKey: ayah.verse_key,
+                                                            surahId: Number(id),
+                                                            surahName: surah?.name_simple || '',
+                                                            text: noteText.trim(),
+                                                        });
+                                                        // Ensure bookmark exists (redundant if triggered by bookmark, but safe)
+                                                        if (!isBookmarked(ayah.verse_key)) {
+                                                            toggleBookmark({
+                                                                verseKey: ayah.verse_key,
+                                                                surahId: Number(id),
+                                                                surahName: surah?.name_simple || '',
+                                                                arabicText: ayah.text_uthmani,
+                                                                translationText: ayah.translations?.[0]?.text.replace(/<sup[^>]*>.*?<\/sup>/g, '').replace(/<[^>]*>/g, '') || '',
+                                                            });
+                                                        }
+                                                    }
+                                                    setEditingNoteVerse(null);
+                                                    setNoteText('');
+                                                }}
+                                                className="py-1.5 px-4 rounded-lg bg-primary text-[#0a1a10] text-xs font-bold uppercase tracking-wider hover:bg-primary-light transition-colors"
+                                            >
+                                                Save
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Display Saved Note Inline (Optional but helpful) */}
+                                {isBookmarked(ayah.verse_key) && getNote(ayah.verse_key) && editingNoteVerse !== ayah.verse_key && (
+                                    <div className="mt-4 pt-3 border-t border-white/5">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className="material-symbols-outlined text-yellow-500 text-xs">sticky_note_2</span>
+                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Your Note</span>
+                                        </div>
+                                        <p className="text-sm text-slate-300 italic pl-5 border-l-2 border-white/10">
+                                            "{getNote(ayah.verse_key)?.text}"
+                                        </p>
+                                    </div>
+                                )}
                             </motion.div>
                         );
                     })}
