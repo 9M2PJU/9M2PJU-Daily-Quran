@@ -1,131 +1,16 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useGeolocation } from '../hooks/useGeolocation';
 
 const PrayerTimes: React.FC = () => {
     const { latitude, longitude, error, loading: geoLoading } = useGeolocation();
     const [prayerTimes, setPrayerTimes] = useState<any>(null);
     const [qiblaDirection, setQiblaDirection] = useState<number>(0);
-    const [heading, setHeading] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
-    const [permissionGranted, setPermissionGranted] = useState<boolean>(false);
-    const [showPermissionBtn, setShowPermissionBtn] = useState<boolean>(false);
-    const [sensorStatus, setSensorStatus] = useState<'waiting' | 'active' | 'unavailable'>('waiting');
-    const [qiblaView, setQiblaView] = useState<'compass' | 'bearing'>('compass');
-    const sensorTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const headingReceivedRef = useRef(false);
-
-    useEffect(() => {
-        // Check if iOS 13+ permission is needed
-        if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
-            setShowPermissionBtn(true);
-        } else {
-            setPermissionGranted(true);
-        }
-    }, []);
-
-    // Compass sensor logic with robust fallback
-    useEffect(() => {
-        if (!permissionGranted) return;
-
-        headingReceivedRef.current = false;
-        setSensorStatus('waiting');
-
-        const updateHeading = (compassHeading: number) => {
-            if (!headingReceivedRef.current) {
-                headingReceivedRef.current = true;
-                setSensorStatus('active');
-                if (sensorTimeoutRef.current) {
-                    clearTimeout(sensorTimeoutRef.current);
-                    sensorTimeoutRef.current = null;
-                }
-            }
-            setHeading(compassHeading);
-        };
-
-        // Handler for standard deviceorientation (works on iOS + most Android)
-        const handleOrientation = (e: any) => {
-            // iOS provides webkitCompassHeading (compass heading in degrees from North)
-            if (e.webkitCompassHeading !== undefined && e.webkitCompassHeading !== null) {
-                updateHeading(e.webkitCompassHeading);
-                return;
-            }
-            // Android: alpha is available
-            if (e.alpha !== null && e.alpha !== undefined) {
-                // On Android Chrome, deviceorientation provides alpha relative to arbitrary direction
-                // unless `absolute` is true. We handle it as best we can.
-                // `absolute` means alpha is relative to North
-                if (e.absolute || !('ondeviceorientationabsolute' in window)) {
-                    // If absolute flag is set, or if absolute event doesn't exist (so this is our best bet)
-                    updateHeading((360 - e.alpha) % 360);
-                }
-                // If not absolute and deviceorientationabsolute exists, skip this
-                // (let the absolute handler provide accurate data)
-            }
-        };
-
-        // Handler for deviceorientationabsolute (Android Chrome preferred)
-        const handleAbsoluteOrientation = (e: any) => {
-            if (e.alpha !== null && e.alpha !== undefined) {
-                updateHeading((360 - e.alpha) % 360);
-            }
-        };
-
-        // Register listeners
-        // Always try absolute first (more accurate on Android)
-        const hasAbsolute = 'ondeviceorientationabsolute' in window;
-        if (hasAbsolute) {
-            (window as any).addEventListener('deviceorientationabsolute', handleAbsoluteOrientation, true);
-        }
-        // Always also register standard orientation (covers iOS + Android fallback)
-        (window as any).addEventListener('deviceorientation', handleOrientation, true);
-
-        // Set a timeout: if no heading data after 5 seconds, mark sensor as unavailable
-        sensorTimeoutRef.current = setTimeout(() => {
-            if (!headingReceivedRef.current) {
-                setSensorStatus('unavailable');
-                // Switch to bearing view automatically
-                setQiblaView('bearing');
-            }
-        }, 5000);
-
-        return () => {
-            if (hasAbsolute) {
-                (window as any).removeEventListener('deviceorientationabsolute', handleAbsoluteOrientation, true);
-            }
-            (window as any).removeEventListener('deviceorientation', handleOrientation, true);
-            if (sensorTimeoutRef.current) {
-                clearTimeout(sensorTimeoutRef.current);
-            }
-        };
-    }, [permissionGranted]);
-
-    const requestCompassPermission = useCallback(async () => {
-        if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
-            try {
-                const response = await (DeviceOrientationEvent as any).requestPermission();
-                if (response === 'granted') {
-                    setPermissionGranted(true);
-                    setShowPermissionBtn(false);
-                } else {
-                    alert('Permission denied. Compass will not work.');
-                    setSensorStatus('unavailable');
-                    setQiblaView('bearing');
-                }
-            } catch (e) {
-                console.error(e);
-                setPermissionGranted(true);
-            }
-        } else {
-            setPermissionGranted(true);
-            setShowPermissionBtn(false);
-        }
-    }, []);
 
     useEffect(() => {
         if (latitude && longitude) {
             const fetchData = async () => {
                 try {
-                    // Fetch Prayer Times
                     const date = new Date();
                     // Method 17: JAKIM (Malaysia)
                     const timesRes = await fetch(`https://api.aladhan.com/v1/timings/${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}?latitude=${latitude}&longitude=${longitude}&method=17`);
@@ -144,15 +29,40 @@ const PrayerTimes: React.FC = () => {
             };
             fetchData();
         } else if (!geoLoading && !latitude) {
-            setLoading(false); // Location access denied or Error
+            setLoading(false);
         }
     }, [latitude, longitude, geoLoading]);
 
+    // Convert decimal degrees to DMS string
+    const toDMS = (deg: number) => {
+        const d = Math.floor(Math.abs(deg));
+        const m = Math.floor((Math.abs(deg) - d) * 60);
+        const s = Math.round(((Math.abs(deg) - d) * 60 - m) * 60);
+        return `${d}° ${m}' ${s}"`;
+    };
+
+    // Get cardinal direction from degrees
+    const getCardinal = (deg: number) => {
+        const dirs = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+        return dirs[Math.round(deg / 22.5) % 16];
+    };
+
+    const getCardinalFull = (deg: number) => {
+        if (deg >= 337.5 || deg < 22.5) return 'North';
+        if (deg >= 22.5 && deg < 67.5) return 'Northeast';
+        if (deg >= 67.5 && deg < 112.5) return 'East';
+        if (deg >= 112.5 && deg < 157.5) return 'Southeast';
+        if (deg >= 157.5 && deg < 202.5) return 'South';
+        if (deg >= 202.5 && deg < 247.5) return 'Southwest';
+        if (deg >= 247.5 && deg < 292.5) return 'West';
+        return 'Northwest';
+    };
+
     if (geoLoading || loading) {
         return (
-            <div className="h-full flex items-center justify-center text-white">
+            <div className="min-h-[50vh] flex items-center justify-center text-white">
                 <div className="text-center">
-                    <span className="material-symbols-outlined text-4xl animate-spin mb-4 text-primary">progress_activity</span>
+                    <span className="material-symbols-outlined text-4xl animate-spin mb-4 text-primary block">progress_activity</span>
                     <p>Locating & Fetching Times...</p>
                 </div>
             </div>
@@ -161,11 +71,17 @@ const PrayerTimes: React.FC = () => {
 
     if (error || !prayerTimes) {
         return (
-            <div className="h-full flex items-center justify-center text-white">
+            <div className="min-h-[50vh] flex items-center justify-center text-white">
                 <div className="text-center max-w-md p-6 bg-white/5 rounded-3xl border border-white/5">
-                    <span className="material-symbols-outlined text-4xl text-slate-400 mb-4">location_off</span>
+                    <span className="material-symbols-outlined text-4xl text-slate-400 mb-4 block">location_off</span>
                     <h2 className="text-xl font-bold mb-2">Location Required</h2>
-                    <p className="text-slate-400 mb-6">Please enable location access to calculate accurate prayer times and Qibla direction for your area.</p>
+                    <p className="text-slate-400 mb-4">Please enable location access to calculate accurate prayer times and Qibla direction for your area.</p>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="px-6 py-2 bg-primary/20 text-primary rounded-full text-sm font-bold border border-primary/30 hover:bg-primary/30 transition-all"
+                    >
+                        Retry
+                    </button>
                 </div>
             </div>
         );
@@ -174,179 +90,98 @@ const PrayerTimes: React.FC = () => {
     const { timings, date, meta } = prayerTimes;
     const hijri = date.hijri;
 
-    // Compass Rotation Logic
-    const dialRotation = heading !== null ? -heading : 0;
-    const qiblaNeedleRotation = qiblaDirection; // Relative to the dial's N
+    // Kaaba coordinates
+    const kaabaLat = 21.4225;
+    const kaabaLng = 39.8262;
 
-    // Check alignment (within ±5 degrees) - accounting for wrap-around
-    const isAligned = heading !== null && Math.abs((heading - qiblaDirection + 540) % 360 - 180) < 5;
-
-    // Haptic feedback on alignment
-    React.useEffect(() => {
-        if (isAligned && navigator.vibrate) {
-            navigator.vibrate(50);
-        }
-    }, [isAligned]);
-
-    // Convert decimal degrees to DMS string
-    const toDMS = (deg: number) => {
-        const d = Math.floor(deg);
-        const m = Math.floor((deg - d) * 60);
-        const s = Math.round(((deg - d) * 60 - m) * 60);
-        return `${d}° ${m}' ${s}"`;
-    };
+    // Calculate distance to Kaaba (Haversine formula)
+    const toRad = (n: number) => (n * Math.PI) / 180;
+    const R = 6371; // Earth's radius in km
+    const dLat = toRad(kaabaLat - (latitude || 0));
+    const dLon = toRad(kaabaLng - (longitude || 0));
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(latitude || 0)) * Math.cos(toRad(kaabaLat)) * Math.sin(dLon / 2) ** 2;
+    const distanceKm = Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
 
     return (
-        <div className="h-full flex flex-col lg:flex-row lg:items-start lg:gap-12 lg:p-8 pb-20 lg:pb-0">
+        <div className="flex flex-col lg:flex-row lg:items-start lg:gap-12 lg:p-8 pb-20 lg:pb-0">
             {/* Pattern Overlay */}
             <div className="absolute inset-0 islamic-pattern pointer-events-none -z-10 opacity-50"></div>
 
-            {/* Left Column: Header & Qibla */}
-            <div className="flex flex-col items-center mb-6 lg:mb-0 lg:w-1/3 lg:sticky lg:top-24">
+            {/* Left Column: Qibla Bearing */}
+            <div className="flex flex-col items-center mb-8 lg:mb-0 lg:w-1/3 lg:sticky lg:top-24">
                 <div className="hidden lg:flex flex-col items-center text-center mb-8">
                     <h2 className="text-2xl font-bold text-white mb-1">{meta.timezone}</h2>
                     <p className="text-sm text-slate-400 font-medium uppercase tracking-widest">{hijri.day} {hijri.month.en} {hijri.year} AH</p>
                 </div>
 
-                {/* View Toggle */}
-                <div className="flex gap-1 bg-white/5 rounded-full p-1 mb-4">
-                    <button
-                        onClick={() => setQiblaView('compass')}
-                        className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${qiblaView === 'compass' ? 'bg-primary text-[#0a1a10]' : 'text-slate-400 hover:text-white'}`}
-                    >
-                        Compass
-                    </button>
-                    <button
-                        onClick={() => setQiblaView('bearing')}
-                        className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${qiblaView === 'bearing' ? 'bg-primary text-[#0a1a10]' : 'text-slate-400 hover:text-white'}`}
-                    >
-                        Bearing
-                    </button>
-                </div>
-
-                {qiblaView === 'compass' ? (
-                    <>
-                        {/* Qibla Compass */}
-                        <div className="relative w-56 h-56 lg:w-72 lg:h-72 flex items-center justify-center mb-6 lg:mb-10 transition-all duration-500">
-                            <div className={`absolute inset-0 rounded-full border-4 transition-colors duration-500 ${isAligned ? 'border-emerald-500/50 shadow-[0_0_30px_rgba(16,185,129,0.3)]' : 'border-slate-200 dark:border-white/5 opacity-50'}`}></div>
-                            <div className="absolute inset-4 rounded-full border border-slate-100 dark:border-white/5"></div>
-
-                            {/* Compass Container - Rotates with device heading */}
-                            <div
-                                className="absolute inset-0 transition-transform duration-300 ease-out"
-                                style={{ transform: `rotate(${dialRotation}deg)` }}
-                            >
-                                {/* Dial Markings */}
-                                <div className="absolute inset-0 rounded-full compass-dial opacity-20"></div>
-                                <span className="absolute top-4 left-1/2 -translate-x-1/2 text-xs font-bold text-red-500">N</span>
-                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500">E</span>
-                                <span className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs font-bold text-slate-500">S</span>
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500">W</span>
-
-                                {/* Qibla Needle/Icon - Fixed specific angle on the dial */}
-                                <div
-                                    className="absolute inset-0 flex items-center justify-center transition-transform duration-500 ease-out"
-                                    style={{ transform: `rotate(${qiblaNeedleRotation}deg)` }}
-                                >
-                                    {/* Direction Arrow */}
-                                    <div className="absolute top-6 flex flex-col items-center">
-                                        <div className={`w-4 h-16 bg-gradient-to-t rounded-full blur-[1px] absolute -top-2 transition-colors duration-500 ${isAligned ? 'from-emerald-500/20 to-emerald-500' : 'from-primary/20 to-primary'}`}></div>
-                                        <span
-                                            className={`material-symbols-outlined text-4xl transition-all duration-500 ${isAligned ? 'text-emerald-500 drop-shadow-[0_0_20px_rgba(16,185,129,0.8)] scale-110' : 'text-primary drop-shadow-[0_0_15px_rgba(34,197,94,0.6)]'}`}
-                                            style={{ fontVariationSettings: "'FILL' 1" }}
-                                        >
-                                            navigation
-                                        </span>
-                                        <span className={`text-[10px] font-bold tracking-widest uppercase mt-1 drop-shadow-md transition-colors duration-500 ${isAligned ? 'text-emerald-500' : 'text-primary'}`}>
-                                            {isAligned ? 'FACING QIBLA' : 'QIBLA'}
-                                        </span>
-                                    </div>
-                                </div>
+                {/* Qibla Bearing Card */}
+                <div className="w-full max-w-xs">
+                    <div className="bg-gradient-to-b from-[#11241a] to-[#0d1f15] border border-white/10 rounded-3xl p-6 text-center shadow-2xl shadow-primary/5">
+                        {/* Kaaba Icon */}
+                        <div className="mb-4">
+                            <div className="w-16 h-16 mx-auto bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20 mb-3">
+                                <span className="text-3xl">🕋</span>
                             </div>
+                            <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-bold">Qibla Direction</p>
+                        </div>
 
-                            {/* Center Info (Static relative to screen) */}
-                            <div className={`relative z-20 flex flex-col items-center text-center backdrop-blur-sm p-4 rounded-full w-24 h-24 flex items-center justify-center border shadow-xl transition-all duration-500 ${isAligned ? 'bg-emerald-900/80 border-emerald-500/50' : 'bg-[#0a1a10]/80 border-white/10'}`}>
-                                <span className={`text-[10px] font-bold tracking-tighter uppercase transition-colors duration-500 ${isAligned ? 'text-emerald-400' : 'text-slate-500'}`}>Qibla</span>
-                                <span className="text-xl font-bold mt-0 text-white">{Math.round(qiblaDirection)}°</span>
+                        {/* Main Bearing */}
+                        <div className="mb-5">
+                            <div className="flex items-baseline justify-center gap-1">
+                                <span className="text-6xl font-bold text-white tracking-tight">{Math.round(qiblaDirection)}</span>
+                                <span className="text-2xl text-primary font-bold">°</span>
+                            </div>
+                            <div className="flex items-center justify-center gap-2 mt-2">
+                                <span className="material-symbols-outlined text-primary text-base" style={{ fontVariationSettings: "'FILL' 1", transform: `rotate(${qiblaDirection}deg)` }}>
+                                    navigation
+                                </span>
+                                <span className="text-sm text-primary font-bold uppercase tracking-wider">
+                                    {getCardinalFull(qiblaDirection)}
+                                </span>
                             </div>
                         </div>
 
-                        {/* Sensor Status */}
-                        {sensorStatus === 'waiting' && (
-                            <p className="text-xs text-yellow-500 animate-pulse mb-4 flex items-center gap-2">
-                                <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
-                                Waiting for compass sensor...
-                            </p>
-                        )}
-                        {sensorStatus === 'unavailable' && (
-                            <div className="text-center mb-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3 max-w-xs">
-                                <p className="text-xs text-yellow-500 font-bold mb-1">
-                                    <span className="material-symbols-outlined text-sm align-text-bottom mr-1">warning</span>
-                                    Compass sensor not available
-                                </p>
-                                <p className="text-[10px] text-slate-400">Your device may not support compass in the browser. Use "Bearing" view for manual compass direction.</p>
+                        {/* Details */}
+                        <div className="bg-black/30 rounded-2xl p-4 border border-white/5 space-y-3 text-left">
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="text-slate-500 flex items-center gap-1.5">
+                                    <span className="material-symbols-outlined text-xs">straighten</span>
+                                    Bearing
+                                </span>
+                                <span className="text-white font-mono font-bold">{toDMS(qiblaDirection)} {getCardinal(qiblaDirection)}</span>
                             </div>
-                        )}
-                        {sensorStatus === 'active' && heading !== null && (
-                            <p className="text-xs text-slate-500 mb-4">
-                                Device heading: {Math.round(heading)}°
-                            </p>
-                        )}
-                    </>
-                ) : (
-                    /* Bearing View: Simple numeric compass bearing (no sensor needed) */
-                    <div className="flex flex-col items-center mb-6 lg:mb-10">
-                        <div className="bg-[#11241a] border border-white/10 rounded-2xl p-8 text-center max-w-xs w-full">
-                            <div className="mb-6">
-                                <span className="material-symbols-outlined text-5xl text-primary mb-2 block" style={{ fontVariationSettings: "'FILL' 1" }}>🕋</span>
-                                <p className="text-xs text-slate-500 uppercase tracking-widest font-bold">Direction to Mecca</p>
+                            <div className="h-px bg-white/5"></div>
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="text-slate-500 flex items-center gap-1.5">
+                                    <span className="material-symbols-outlined text-xs">social_distance</span>
+                                    Distance
+                                </span>
+                                <span className="text-white font-mono font-bold">{distanceKm.toLocaleString()} km</span>
                             </div>
-
-                            <div className="mb-6">
-                                <span className="text-5xl font-bold text-white">{Math.round(qiblaDirection)}°</span>
-                                <p className="text-sm text-primary font-bold mt-1">
-                                    {qiblaDirection >= 337.5 || qiblaDirection < 22.5 ? 'North' :
-                                        qiblaDirection >= 22.5 && qiblaDirection < 67.5 ? 'Northeast' :
-                                            qiblaDirection >= 67.5 && qiblaDirection < 112.5 ? 'East' :
-                                                qiblaDirection >= 112.5 && qiblaDirection < 157.5 ? 'Southeast' :
-                                                    qiblaDirection >= 157.5 && qiblaDirection < 202.5 ? 'South' :
-                                                        qiblaDirection >= 202.5 && qiblaDirection < 247.5 ? 'Southwest' :
-                                                            qiblaDirection >= 247.5 && qiblaDirection < 292.5 ? 'West' :
-                                                                'Northwest'}
-                                </p>
+                            <div className="h-px bg-white/5"></div>
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="text-slate-500 flex items-center gap-1.5">
+                                    <span className="material-symbols-outlined text-xs">my_location</span>
+                                    Your Loc
+                                </span>
+                                <span className="text-white font-mono font-bold text-[11px]">{latitude?.toFixed(4)}°, {longitude?.toFixed(4)}°</span>
                             </div>
-
-                            <div className="bg-black/20 rounded-xl p-4 border border-white/5 space-y-2 text-left">
-                                <div className="flex justify-between text-xs">
-                                    <span className="text-slate-500">Bearing</span>
-                                    <span className="text-white font-mono font-bold">{toDMS(qiblaDirection)}</span>
-                                </div>
-                                <div className="flex justify-between text-xs">
-                                    <span className="text-slate-500">Your Location</span>
-                                    <span className="text-white font-mono font-bold">{latitude?.toFixed(4)}°, {longitude?.toFixed(4)}°</span>
-                                </div>
-                                <div className="flex justify-between text-xs">
-                                    <span className="text-slate-500">Kaaba</span>
-                                    <span className="text-white font-mono font-bold">21.4225°, 39.8262°</span>
-                                </div>
+                            <div className="h-px bg-white/5"></div>
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="text-slate-500 flex items-center gap-1.5">
+                                    <span className="material-symbols-outlined text-xs">location_on</span>
+                                    Kaaba
+                                </span>
+                                <span className="text-white font-mono font-bold text-[11px]">{kaabaLat}°, {kaabaLng}°</span>
                             </div>
-
-                            <p className="text-[10px] text-slate-500 mt-4 leading-relaxed">
-                                Use a physical compass or compass app and face <strong className="text-white">{Math.round(qiblaDirection)}°</strong> from North.
-                            </p>
                         </div>
+
+                        {/* Instruction */}
+                        <p className="text-[10px] text-slate-500 mt-4 leading-relaxed px-2">
+                            Face <strong className="text-primary">{Math.round(qiblaDirection)}° {getCardinalFull(qiblaDirection)}</strong> from North using any compass app on your phone.
+                        </p>
                     </div>
-                )}
-
-                {showPermissionBtn && !permissionGranted && (
-                    <button
-                        onClick={requestCompassPermission}
-                        className="mb-6 px-4 py-2 bg-primary/20 text-primary rounded-full text-xs font-bold uppercase tracking-wider border border-primary/20 hover:bg-primary/30 transition-all flex items-center gap-2"
-                    >
-                        <span className="material-symbols-outlined text-sm">explore</span>
-                        Enable Compass
-                    </button>
-                )}
+                </div>
             </div>
 
             {/* Right Column: Prayer Times List */}
@@ -369,7 +204,6 @@ const PrayerTimes: React.FC = () => {
 
                 <div className="text-center pt-4">
                     <p className="text-xs text-slate-500">Calculation Method: {meta.method.name}</p>
-                    {sensorStatus === 'active' && heading !== null && <p className="text-[10px] text-slate-600 mt-1">Compass Accuracy: ±5°</p>}
                 </div>
             </div>
         </div>
