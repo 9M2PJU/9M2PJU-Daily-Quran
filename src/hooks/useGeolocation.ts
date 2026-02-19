@@ -32,6 +32,11 @@ export const useGeolocation = () => {
             },
             (error) => {
                 setState(prev => ({ ...prev, error: error.message, loading: false }));
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 300000, // Cache location for 5 minutes
             }
         );
     }, []);
