@@ -233,6 +233,40 @@ const SurahPage: React.FC = () => {
         }
     }, [focusMode, isPlaying, currentSurah, id, currentVerseIndex, scrollToFocusedVerse, ayahs.length, focusedVerse]);
 
+    // Sidebar Scroll Sync: Update focusedVerse based on scroll position (when not in Focus Mode)
+    useEffect(() => {
+        if (focusMode || loading || ayahs.length === 0) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                // Find the entry with the highest intersection ratio
+                const visibleEntry = entries.reduce((prev, current) => {
+                    return (prev.intersectionRatio > current.intersectionRatio) ? prev : current;
+                });
+
+                if (visibleEntry.isIntersecting && visibleEntry.intersectionRatio > 0.3) {
+                    const index = Number(visibleEntry.target.getAttribute('data-index'));
+                    if (!isNaN(index)) {
+                        setFocusedVerse(index);
+                    }
+                }
+            },
+            {
+                root: null,
+                rootMargin: '-20% 0px -50% 0px', // Trigger when verse is in the top-middle of the screen
+                threshold: [0.3, 0.5, 0.7]
+            }
+        );
+
+        verseRefs.current.forEach((el) => {
+            if (el) observer.observe(el);
+        });
+
+        return () => {
+            observer.disconnect();
+        };
+    }, [focusMode, loading, ayahs.length]);
+
     if (loading) return <div className="flex items-center justify-center min-h-[50vh]"><span className="material-symbols-outlined text-4xl animate-spin text-primary">progress_activity</span></div>;
     if (!surah) return <div className="text-center py-20 text-red-500">Failed to load Surah.</div>;
 
@@ -331,6 +365,7 @@ const SurahPage: React.FC = () => {
                             <motion.div
                                 key={ayah.verse_key}
                                 ref={el => { verseRefs.current[index] = el; }}
+                                data-index={index}
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true, margin: "-100px" }}
