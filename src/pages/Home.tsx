@@ -331,9 +331,9 @@ const Home: React.FC = () => {
                             { id: 18, name: 'Surah Al-Kahf', desc: 'Read every Friday' },
                             { id: 55, name: 'Surah Ar-Rahman', desc: 'The Beneficent' },
                             { id: 56, name: "Surah Al-Waqi'ah", desc: 'Protection from poverty' },
-                            { id: 2, name: 'Ayatul Kursi (2:255)', desc: 'Greatest verse of the Quran' }
+                            { id: 2, name: 'Ayatul Kursi', desc: 'Greatest verse (2:255)', path: '/surah/2#verse-2:255' }
                         ].map((s) => (
-                            <Link key={s.id} to={`/surah/${s.id}`} className="flex items-center justify-between group cursor-pointer p-2 rounded-xl hover:bg-white/5 transition-colors">
+                            <Link key={s.name} to={s.path || `/surah/${s.id}`} className="flex items-center justify-between group cursor-pointer p-2 rounded-xl hover:bg-white/5 transition-colors">
                                 <div className="flex items-center gap-4">
                                     <div className="size-8 rounded bg-white/5 flex items-center justify-center text-xs font-bold text-slate-400 group-hover:bg-primary group-hover:text-white transition-colors">{s.id}</div>
                                     <div className="overflow-hidden">
