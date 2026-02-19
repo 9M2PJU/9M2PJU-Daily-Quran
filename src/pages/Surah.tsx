@@ -204,7 +204,7 @@ const SurahPage: React.FC = () => {
         verseRefs.current[currentVerseIndex]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, [currentVerseIndex, isPlaying, currentSurah, id]);
 
-    // Deep Linking: Scroll to verse from hash on load
+    // Deep Linking: Scroll to verse from hash on load AND Open Notes
     useEffect(() => {
         if (ayahs.length > 0 && location.hash) {
             const verseKey = location.hash.replace('#verse-', '');
@@ -213,12 +213,45 @@ const SurahPage: React.FC = () => {
                 // Small delay to ensure refs are populated and layout is settled
                 setTimeout(() => {
                     scrollToFocusedVerse(index);
-                    // Optional: flash the verse or set focus
                     setFocusedVerse(index);
+
+                    // Auto-open notes if it's a verse link (likely from Bookmarks/Notes)
+                    // We can assume if user deep links to a verse, seeing the note is helpful.
+                    // Or strictly only if coming from Notes page? The user request implies "if i open note... it will open note".
+                    // Since all our deep links form bookmarks/activity use this hash, let's open it.
+                    setActiveTab('notes');
+                    setEditingNoteVerse(verseKey);
+                    const saved = getNote(verseKey);
+                    setNoteText(saved?.text || '');
+
                 }, 500);
             }
         }
-    }, [ayahs, location.hash, scrollToFocusedVerse]);
+    }, [ayahs, location.hash, scrollToFocusedVerse, getNote]);
+
+    // Sidebar Scroll Sync for Notes
+    useEffect(() => {
+        if (activeTab !== 'notes' || ayahs.length === 0) return;
+
+        const currentAyah = ayahs[focusedVerse];
+        if (!currentAyah) return;
+
+        // Check for dirty state (unsaved changes)
+        if (editingNoteVerse) {
+            const saved = getNote(editingNoteVerse);
+            const originalText = saved?.text || '';
+            // If text has changed, DO NOT auto-switch
+            if (noteText.trim() !== originalText.trim()) {
+                return;
+            }
+        }
+
+        // Sync if we are on a different verse
+        if (currentAyah.verse_key !== editingNoteVerse) {
+            setEditingNoteVerse(currentAyah.verse_key);
+            setNoteText(getNote(currentAyah.verse_key)?.text || '');
+        }
+    }, [focusedVerse, activeTab, ayahs, editingNoteVerse, noteText, getNote]);
 
     // Auto-scroll focus mode with audio playback + auto-exit after last verse
     useEffect(() => {
