@@ -4,6 +4,7 @@ import {
     useSettings,
     RECITERS
 } from '../contexts/SettingsContext';
+import { getSurahs, type Surah } from '../services/api';
 import { useAudio } from '../contexts/AudioContext';
 import { useProgress } from '../contexts/ProgressContext';
 import { useNotifications } from '../contexts/NotificationContext';
@@ -19,6 +20,11 @@ const Layout: React.FC = () => {
     const { unreadCount } = useNotifications();
 
     const [searchQuery, setSearchQuery] = useState('');
+    const [surahs, setSurahs] = useState<Surah[]>([]);
+
+    useEffect(() => {
+        getSurahs().then(setSurahs).catch(console.error);
+    }, []);
 
     const handleSearch = (e: React.FormEvent | React.KeyboardEvent) => {
         if ('key' in e && e.key !== 'Enter') return;
@@ -163,16 +169,26 @@ const Layout: React.FC = () => {
 
                             {/* Search & Actions */}
                             <div className="flex items-center gap-4">
-                                <form onSubmit={handleSearch} className="w-64 relative">
-                                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-lg">search</span>
-                                    <input
-                                        type="text"
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        placeholder="Search Surah Number..."
-                                        className="w-full bg-[#11241a] border border-white/5 rounded-full py-2 pl-10 pr-4 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-primary/50"
-                                    />
-                                </form>
+                                <div className="w-64 relative">
+                                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-lg pointer-events-none">search</span>
+                                    <select
+                                        onChange={(e) => {
+                                            if (e.target.value) {
+                                                navigate(`/surah/${e.target.value}`);
+                                            }
+                                        }}
+                                        value={currentSurah || ''}
+                                        className="w-full bg-[#11241a] border border-white/5 rounded-full py-2 pl-10 pr-8 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-primary/50 appearance-none cursor-pointer"
+                                    >
+                                        <option value="" disabled>Jump to Surah...</option>
+                                        {surahs.map(surah => (
+                                            <option key={surah.id} value={surah.id} className="bg-[#0a1a10] text-white">
+                                                {surah.id}. {surah.name_simple} ({surah.translated_name.name})
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm pointer-events-none">expand_more</span>
+                                </div>
                                 <button className="text-slate-400 hover:text-white"><span className="material-symbols-outlined fill-1">bookmark</span></button>
                                 <Link to="/settings" className="text-slate-400 hover:text-white"><span className="material-symbols-outlined">settings</span></Link>
                             </div>
