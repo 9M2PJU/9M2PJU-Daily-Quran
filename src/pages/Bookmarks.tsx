@@ -15,105 +15,85 @@ const BookmarksPage: React.FC = () => {
                 <p className="text-slate-400 text-sm">Your saved verses and personal reflections.</p>
             </div>
 
-            {/* Bookmarked Verses */}
+            {/* Saved Verses & Notes */}
             <section className="mb-10">
                 <div className="flex items-center gap-2 mb-4">
                     <span className="material-symbols-outlined text-primary fill-1">bookmark</span>
-                    <h2 className="text-lg font-bold text-white">Bookmarked Verses</h2>
+                    <h2 className="text-lg font-bold text-white">Saved Verses</h2>
                     <span className="ml-auto text-xs font-bold text-slate-500">{bookmarks.length} saved</span>
                 </div>
 
                 {sortedBookmarks.length === 0 ? (
                     <div className="bg-[#0f2416] rounded-2xl border border-white/5 p-12 text-center">
                         <span className="material-symbols-outlined text-4xl text-slate-600 mb-3 block">bookmark_border</span>
-                        <p className="text-slate-500 text-sm mb-1">No bookmarks yet</p>
-                        <p className="text-slate-600 text-xs">Tap the bookmark icon on any verse to save it here.</p>
+                        <p className="text-slate-500 text-sm mb-1">No saved verses yet</p>
+                        <p className="text-slate-600 text-xs">Tap the bookmark icon or add a note to a verse to save it here.</p>
                     </div>
                 ) : (
                     <div className="space-y-3">
-                        {sortedBookmarks.map((bm) => (
-                            <div key={bm.verseKey} className="group bg-[#0f2416] rounded-2xl border border-white/5 hover:border-primary/20 transition-all overflow-hidden">
-                                <div className="p-5">
-                                    <div className="flex items-start justify-between mb-3">
-                                        <div className="flex items-center gap-3">
-                                            <Link
-                                                to={`/surah/${bm.surahId}#verse-${bm.verseKey}`}
-                                                className="text-xs font-bold text-primary hover:text-primary-light transition-colors"
-                                            >
-                                                {bm.surahName} [{bm.verseKey}]
-                                            </Link>
-                                            <span className="text-[10px] text-slate-600">
-                                                {new Date(bm.timestamp).toLocaleDateString()}
-                                            </span>
+                        {sortedBookmarks.map((bm) => {
+                            const note = getNote(bm.verseKey);
+                            return (
+                                <div key={bm.verseKey} className="group bg-[#0f2416] rounded-2xl border border-white/5 hover:border-primary/20 transition-all overflow-hidden">
+                                    <div className="p-5">
+                                        <div className="flex items-start justify-between mb-3">
+                                            <div className="flex items-center gap-3">
+                                                <Link
+                                                    to={`/surah/${bm.surahId}#verse-${bm.verseKey}`}
+                                                    className="text-xs font-bold text-primary hover:text-primary-light transition-colors"
+                                                >
+                                                    {bm.surahName} [{bm.verseKey}]
+                                                </Link>
+                                                <span className="text-[10px] text-slate-600">
+                                                    {new Date(bm.timestamp).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                {note && (
+                                                    <span className="text-[10px] font-bold text-yellow-500 bg-yellow-500/10 px-2 py-0.5 rounded-full">
+                                                        Has Note
+                                                    </span>
+                                                )}
+                                                <button
+                                                    onClick={() => removeBookmark(bm.verseKey)}
+                                                    className="opacity-0 group-hover:opacity-100 text-slate-600 hover:text-red-400 transition-all"
+                                                    title="Remove bookmark"
+                                                >
+                                                    <span className="material-symbols-outlined text-lg">close</span>
+                                                </button>
+                                            </div>
                                         </div>
-                                        <button
-                                            onClick={() => removeBookmark(bm.verseKey)}
-                                            className="opacity-0 group-hover:opacity-100 text-slate-600 hover:text-red-400 transition-all"
-                                            title="Remove bookmark"
-                                        >
-                                            <span className="material-symbols-outlined text-lg">close</span>
-                                        </button>
-                                    </div>
-                                    <p className="font-arabic text-xl text-[#e2e8f0] text-right leading-[2] mb-3" dir="rtl">
-                                        {bm.arabicText}
-                                    </p>
-                                    {bm.translationText && (
-                                        <p className="text-slate-400 text-sm font-serif leading-relaxed">
-                                            {bm.translationText}
+                                        <p className="font-arabic text-xl text-[#e2e8f0] text-right leading-[2] mb-3" dir="rtl">
+                                            {bm.arabicText}
                                         </p>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </section>
+                                        {bm.translationText && (
+                                            <p className="text-slate-400 text-sm font-serif leading-relaxed mb-4">
+                                                {bm.translationText}
+                                            </p>
+                                        )}
 
-            {/* Personal Notes */}
-            <section>
-                <div className="flex items-center gap-2 mb-4">
-                    <span className="material-symbols-outlined text-yellow-500 fill-1">edit_note</span>
-                    <h2 className="text-lg font-bold text-white">Personal Notes</h2>
-                    <span className="ml-auto text-xs font-bold text-slate-500">{notes.length} notes</span>
-                </div>
-
-                {sortedNotes.length === 0 ? (
-                    <div className="bg-[#0f2416] rounded-2xl border border-white/5 p-12 text-center">
-                        <span className="material-symbols-outlined text-4xl text-slate-600 mb-3 block">note_add</span>
-                        <p className="text-slate-500 text-sm mb-1">No notes yet</p>
-                        <p className="text-slate-600 text-xs">Add personal notes while reading any surah from the Notes tab.</p>
-                    </div>
-                ) : (
-                    <div className="space-y-3">
-                        {sortedNotes.map((note) => (
-                            <div key={note.verseKey} className="group bg-[#0f2416] rounded-2xl border border-white/5 hover:border-yellow-500/20 transition-all overflow-hidden">
-                                <div className="p-5">
-                                    <div className="flex items-start justify-between mb-3">
-                                        <div className="flex items-center gap-3">
-                                            <Link
-                                                to={`/surah/${note.surahId}#verse-${note.verseKey}`}
-                                                className="text-xs font-bold text-yellow-500 hover:text-yellow-400 transition-colors"
-                                            >
-                                                {note.surahName} [{note.verseKey}]
-                                            </Link>
-                                            <span className="text-[10px] text-slate-600">
-                                                {new Date(note.timestamp).toLocaleDateString()}
-                                            </span>
-                                        </div>
-                                        <button
-                                            onClick={() => deleteNote(note.verseKey)}
-                                            className="opacity-0 group-hover:opacity-100 text-slate-600 hover:text-red-400 transition-all"
-                                            title="Delete note"
-                                        >
-                                            <span className="material-symbols-outlined text-lg">close</span>
-                                        </button>
+                                        {/* Embedded Note */}
+                                        {note && (
+                                            <div className="mt-4 pt-4 border-t border-white/5">
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <span className="material-symbols-outlined text-yellow-500 text-sm">edit_note</span>
+                                                    <span className="text-xs font-bold text-slate-300">Personal Note</span>
+                                                    <Link
+                                                        to={`/surah/${bm.surahId}#verse-${bm.verseKey}`}
+                                                        className="ml-auto text-[10px] text-primary hover:underline flex items-center gap-1"
+                                                    >
+                                                        Edit <span className="material-symbols-outlined text-[10px]">arrow_forward</span>
+                                                    </Link>
+                                                </div>
+                                                <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap bg-black/20 p-3 rounded-lg border border-white/5">
+                                                    {note.text}
+                                                </p>
+                                            </div>
+                                        )}
                                     </div>
-                                    <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">
-                                        {note.text}
-                                    </p>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 )}
             </section>

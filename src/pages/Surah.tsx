@@ -615,6 +615,21 @@ const SurahPage: React.FC = () => {
                                                                 surahName: surah?.name_simple || '',
                                                                 text: noteText.trim(),
                                                             });
+
+                                                            // Auto-bookmark if not already saved (to capture Arabic/Translation for the merged view)
+                                                            if (!isBookmarked(editingNoteVerse)) {
+                                                                const verseData = ayahs.find(a => a.verse_key === editingNoteVerse);
+                                                                if (verseData) {
+                                                                    toggleBookmark({
+                                                                        verseKey: editingNoteVerse,
+                                                                        surahId: Number(id),
+                                                                        surahName: surah?.name_simple || '',
+                                                                        arabicText: verseData.text_uthmani,
+                                                                        translationText: verseData.translations?.[0]?.text.replace(/<sup[^>]*>.*?<\/sup>/g, '').replace(/<[^>]*>/g, '') || '',
+                                                                    });
+                                                                }
+                                                            }
+
                                                             setNoteText('');
                                                             setEditingNoteVerse(null);
                                                         }
