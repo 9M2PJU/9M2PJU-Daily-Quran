@@ -41,14 +41,14 @@ const PrayerTimes: React.FC = () => {
         if ('ondeviceorientationabsolute' in window) {
             (window as any).addEventListener('deviceorientationabsolute', handleOrientation);
         } else {
-            window.addEventListener('deviceorientation', handleOrientation as any);
+            (window as any).addEventListener('deviceorientation', handleOrientation);
         }
 
         return () => {
             if ('ondeviceorientationabsolute' in window) {
                 (window as any).removeEventListener('deviceorientationabsolute', handleOrientation);
             } else {
-                window.removeEventListener('deviceorientation', handleOrientation as any);
+                (window as any).removeEventListener('deviceorientation', handleOrientation);
             }
         };
     }, [permissionGranted]);
