@@ -111,7 +111,7 @@ const Settings: React.FC = () => {
                 </p>
 
                 <div className="text-xs text-slate-500 font-mono">
-                    Version 1.3.1 • Data provided by Quran.com API • Audio by everyayah.com
+                    Version 2.1.0 • Quran data by Quran.com API • Audio by everyayah.com • Prayer times by waktusolat.app (JAKIM)
                 </div>
             </section>
         </div>
