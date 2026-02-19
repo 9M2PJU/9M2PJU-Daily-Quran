@@ -225,25 +225,33 @@ const Layout: React.FC = () => {
                 {/* Mobile Header */}
                 <header className="lg:hidden sticky top-0 z-20 px-4 pt-6 pb-4 flex items-center justify-between bg-[#193320]/90 backdrop-blur-md border-b border-white/5">
                     {isReadingMode ? (
-                        <div className="w-full relative">
-                            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-lg pointer-events-none">search</span>
-                            <select
-                                onChange={(e) => {
-                                    if (e.target.value) {
-                                        navigate(`/surah/${e.target.value}`);
-                                    }
-                                }}
-                                value={currentSurah || ''}
-                                className="w-full bg-[#11241a] border border-white/5 rounded-full py-2.5 pl-10 pr-8 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-primary/50 appearance-none cursor-pointer"
-                            >
-                                <option value="" disabled>Jump to Surah...</option>
-                                {surahs.map(surah => (
-                                    <option key={surah.id} value={surah.id} className="bg-[#0a1a10] text-white">
-                                        {surah.id}. {surah.name_simple} ({surah.translated_name.name})
-                                    </option>
-                                ))}
-                            </select>
-                            <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm pointer-events-none">expand_more</span>
+                        <div className="flex items-center gap-3 w-full">
+                            <div className="relative flex-1">
+                                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-lg pointer-events-none">search</span>
+                                <select
+                                    onChange={(e) => {
+                                        if (e.target.value) {
+                                            navigate(`/surah/${e.target.value}`);
+                                        }
+                                    }}
+                                    value={currentSurah || ''}
+                                    className="w-full bg-[#11241a] border border-white/5 rounded-full py-2.5 pl-10 pr-8 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-primary/50 appearance-none cursor-pointer"
+                                >
+                                    <option value="" disabled>Jump to Surah...</option>
+                                    {surahs.map(surah => (
+                                        <option key={surah.id} value={surah.id} className="bg-[#0a1a10] text-white">
+                                            {surah.id}. {surah.name_simple} ({surah.translated_name.name})
+                                        </option>
+                                    ))}
+                                </select>
+                                <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm pointer-events-none">expand_more</span>
+                            </div>
+                            <Link to="/notifications" className="size-10 flex items-center justify-center rounded-full bg-primary/10 text-primary relative shrink-0">
+                                <span className="material-symbols-outlined">notifications</span>
+                                {unreadCount > 0 && (
+                                    <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500 border-2 border-[#193320]"></span>
+                                )}
+                            </Link>
                         </div>
                     ) : (
                         <>
@@ -254,9 +262,12 @@ const Layout: React.FC = () => {
                                     <p className="text-xs text-primary font-medium mt-1">"Guide us to the straight path." — Surah Al-Fatihah 1:6</p>
                                 </div>
                             </div>
-                            <button className="size-10 flex items-center justify-center rounded-full bg-primary/10 text-primary">
+                            <Link to="/notifications" className="size-10 flex items-center justify-center rounded-full bg-primary/10 text-primary relative">
                                 <span className="material-symbols-outlined">notifications</span>
-                            </button>
+                                {unreadCount > 0 && (
+                                    <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500 border-2 border-[#193320]"></span>
+                                )}
+                            </Link>
                         </>
                     )}
                 </header>
