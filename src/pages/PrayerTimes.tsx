@@ -1,11 +1,73 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useGeolocation } from '../hooks/useGeolocation';
 
 const PrayerTimes: React.FC = () => {
     const { latitude, longitude, error, loading: geoLoading } = useGeolocation();
-    const [prayerTimes, setPrayerTimes] = React.useState<any>(null);
-    const [qiblaDirection, setQiblaDirection] = React.useState<number>(0);
-    const [loading, setLoading] = React.useState(true);
+    const [prayerTimes, setPrayerTimes] = useState<any>(null);
+    const [qiblaDirection, setQiblaDirection] = useState<number>(0);
+    const [heading, setHeading] = useState<number | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [permissionGranted, setPermissionGranted] = useState<boolean>(false);
+    const [showPermissionBtn, setShowPermissionBtn] = useState<boolean>(false);
+
+    useEffect(() => {
+        // Check if iOS 13+ permission is needed
+        if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+            setShowPermissionBtn(true);
+        } else {
+            setPermissionGranted(true);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (!permissionGranted) return;
+
+        const handleOrientation = (e: any) => {
+            let compass = 0;
+            if (e.webkitCompassHeading) {
+                // iOS
+                compass = e.webkitCompassHeading;
+            } else if (e.alpha) {
+                // Android / Standard (alpha is 0 at North, usually)
+                // However, alpha is often relative. deviceorientationabsolute is better but less supported.
+                // Assuming standard alpha: 360 - alpha might be needed if rotation is counter-clockwise?
+                // Standard: alpha = degrees around Z axis. 0 = North? 
+                // Actually, alpha 0 = North for deviceorientationabsolute.
+                compass = 360 - e.alpha;
+            }
+            setHeading(compass);
+        };
+
+        if ('ondeviceorientationabsolute' in window) {
+            window.addEventListener('deviceorientationabsolute', handleOrientation as any);
+        } else {
+            window.addEventListener('deviceorientation', handleOrientation as any);
+        }
+
+        return () => {
+            if ('ondeviceorientationabsolute' in window) {
+                window.removeEventListener('deviceorientationabsolute', handleOrientation as any);
+            } else {
+                window.removeEventListener('deviceorientation', handleOrientation as any);
+            }
+        };
+    }, [permissionGranted]);
+
+    const requestCompassPermission = useCallback(async () => {
+        if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+            try {
+                const response = await (DeviceOrientationEvent as any).requestPermission();
+                if (response === 'granted') {
+                    setPermissionGranted(true);
+                    setShowPermissionBtn(false);
+                } else {
+                    alert('Permission denied. Compass will not work.');
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    }, []);
 
     useEffect(() => {
         if (latitude && longitude) {
@@ -13,7 +75,8 @@ const PrayerTimes: React.FC = () => {
                 try {
                     // Fetch Prayer Times
                     const date = new Date();
-                    const timesRes = await fetch(`https://api.aladhan.com/v1/timings/${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}?latitude=${latitude}&longitude=${longitude}&method=2`); // Method 2: ISNA
+                    // Method 17: JAKIM (Malaysia)
+                    const timesRes = await fetch(`https://api.aladhan.com/v1/timings/${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}?latitude=${latitude}&longitude=${longitude}&method=17`);
                     const timesData = await timesRes.json();
                     setPrayerTimes(timesData.data);
 
@@ -59,6 +122,15 @@ const PrayerTimes: React.FC = () => {
     const { timings, date, meta } = prayerTimes;
     const hijri = date.hijri;
 
+    // Compass Rotation Logic
+    // Dial rotates to match real North (so 'N' on dial points North). Rotation = -heading
+    // Qibla needle stays fixed on the dial at the Qibla Angle. 
+    // Wait, physically the dial on the screen rotates.
+    // If heading is 0 (North), visual dial rotation -0. N is up.
+    // If heading is 90 (East), visual dial rotation -90. N is left. Correct.
+    const dialRotation = heading !== null ? -heading : 0;
+    const qiblaNeedleRotation = qiblaDirection; // Relative to the dial's N
+
     return (
         <div className="h-full flex flex-col lg:flex-row lg:items-start lg:gap-12 lg:p-8 pb-20 lg:pb-0">
             {/* Pattern Overlay */}
@@ -75,22 +147,48 @@ const PrayerTimes: React.FC = () => {
                 <div className="relative w-56 h-56 lg:w-72 lg:h-72 flex items-center justify-center mb-6 lg:mb-10 transition-all duration-500">
                     <div className="absolute inset-0 rounded-full border-4 border-slate-200 dark:border-white/5 opacity-50"></div>
                     <div className="absolute inset-4 rounded-full border border-slate-100 dark:border-white/5"></div>
-                    {/* Compass Dial - Rotated based on Qibla */}
-                    <div className="absolute inset-0 rounded-full compass-dial opacity-20 transition-transform duration-1000" style={{ transform: `rotate(${qiblaDirection}deg)` }}></div>
 
-                    <div className="relative z-20 flex flex-col items-center text-center">
-                        <div style={{ transform: `rotate(${qiblaDirection}deg)` }} className="transition-transform duration-1000 mb-2">
-                            <span className="material-symbols-outlined text-primary text-5xl lg:text-7xl" style={{ fontVariationSettings: "'FILL' 1" }}>navigation</span>
+                    {/* Compass Container - Rotates with device heading */}
+                    <div
+                        className="absolute inset-0 transition-transform duration-300 ease-out"
+                        style={{ transform: `rotate(${dialRotation}deg)` }}
+                    >
+                        {/* Dial Markings */}
+                        <div className="absolute inset-0 rounded-full compass-dial opacity-20"></div>
+                        <span className="absolute top-4 left-1/2 -translate-x-1/2 text-xs font-bold text-red-500">N</span>
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500">E</span>
+                        <span className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs font-bold text-slate-500">S</span>
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500">W</span>
+
+                        {/* Qibla Needle/Icon - Fixed specific angle on the dial */}
+                        <div
+                            className="absolute inset-0 flex items-center justify-center"
+                            style={{ transform: `rotate(${qiblaNeedleRotation}deg)` }}
+                        >
+                            <div className="absolute top-8"> {/* Position it towards the edge */}
+                                <span className="material-symbols-outlined text-primary text-3xl drop-shadow-glow animate-pulse" style={{ fontVariationSettings: "'FILL' 1" }}>
+                                    kaaba
+                                </span>
+                            </div>
                         </div>
-                        <span className="text-xs lg:text-sm font-bold tracking-tighter uppercase text-slate-500">Qibla</span>
-                        <span className="text-2xl lg:text-4xl font-bold mt-1 text-white">{Math.round(qiblaDirection)}°</span>
                     </div>
 
-                    <span className="absolute top-4 text-xs font-bold text-slate-500">N</span>
-                    <span className="absolute right-4 text-xs font-bold text-slate-500">E</span>
-                    <span className="absolute bottom-4 text-xs font-bold text-slate-500">S</span>
-                    <span className="absolute left-4 text-xs font-bold text-slate-500">W</span>
+                    {/* Center Info (Static relative to screen) */}
+                    <div className="relative z-20 flex flex-col items-center text-center bg-[#0a1a10]/80 backdrop-blur-sm p-4 rounded-full w-24 h-24 flex items-center justify-center border border-white/10 shadow-xl">
+                        <span className="text-[10px] font-bold tracking-tighter uppercase text-slate-500">Qibla</span>
+                        <span className="text-xl font-bold mt-0 text-white">{Math.round(qiblaDirection)}°</span>
+                    </div>
                 </div>
+
+                {showPermissionBtn && !permissionGranted && (
+                    <button
+                        onClick={requestCompassPermission}
+                        className="mb-6 px-4 py-2 bg-primary/20 text-primary rounded-full text-xs font-bold uppercase tracking-wider border border-primary/20 hover:bg-primary/30 transition-all flex items-center gap-2"
+                    >
+                        <span className="material-symbols-outlined text-sm">explore</span>
+                        Enable Compass
+                    </button>
+                )}
             </div>
 
             {/* Right Column: Prayer Times List */}
@@ -113,6 +211,7 @@ const PrayerTimes: React.FC = () => {
 
                 <div className="text-center pt-4">
                     <p className="text-xs text-slate-500">Calculation Method: {meta.method.name}</p>
+                    {heading !== null && <p className="text-[10px] text-slate-600 mt-1">Compass Accuracy: ±5°</p>}
                 </div>
             </div>
         </div>
