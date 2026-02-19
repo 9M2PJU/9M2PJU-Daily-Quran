@@ -95,6 +95,7 @@ const Layout: React.FC = () => {
                     <SidebarItem to="/library" icon="auto_stories" label="Library" collapsed={isReadingMode} />
                     <SidebarItem to="/quran" icon="format_list_bulleted" label="Surah Index" collapsed={isReadingMode} />
                     <SidebarItem to="/bookmarks" icon="bookmark" label="Bookmarks" collapsed={isReadingMode} />
+                    <SidebarItem to="/prayer-times" icon="explore" label="Prayer Times & Qibla" collapsed={isReadingMode} />
                     <SidebarItem to="/activity" icon="history" label="Recent Activity" collapsed={isReadingMode} />
                 </nav>
 
