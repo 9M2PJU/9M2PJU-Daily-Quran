@@ -6,6 +6,7 @@ interface ProgressContextType {
     streak: number;
     lastReadSurah: { id: number; name: string } | null;
     readHistory: { id: number; name: string; timestamp: number }[];
+    dailyHistory: { date: string; progress: number; goalMet: boolean }[];
     incrementProgress: (surah?: { id: number; name: string }) => void;
     setDailyGoal: (goal: number) => void;
 }
@@ -42,6 +43,12 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const [readHistory, setReadHistory] = useState<{ id: number; name: string; timestamp: number }[]>(() => {
         try {
             const saved = localStorage.getItem('readHistory');
+            return saved ? JSON.parse(saved) : [];
+        } catch { return []; }
+    });
+    const [dailyHistory, setDailyHistory] = useState<{ date: string; progress: number; goalMet: boolean }[]>(() => {
+        try {
+            const saved = localStorage.getItem('dailyHistory');
             return saved ? JSON.parse(saved) : [];
         } catch { return []; }
     });
@@ -85,6 +92,17 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                     localStorage.setItem('streak', '0');
                 }
             }
+
+            // Ensure dailyHistory has today's entry
+            setDailyHistory(prev => {
+                const todayEntry = prev.find(d => d.date === today);
+                if (!todayEntry) {
+                    const newHistory = [...prev, { date: today, progress: 0, goalMet: false }];
+                    localStorage.setItem('dailyHistory', JSON.stringify(newHistory.slice(-30))); // Keep last 30 days
+                    return newHistory.slice(-30);
+                }
+                return prev;
+            });
         } catch (e) {
             console.error("ProgressContext checkDate error:", e);
         }
@@ -100,6 +118,23 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             const newProgress = prev + 1;
             localStorage.setItem('dailyProgress', newProgress.toString());
             localStorage.setItem('lastReadDate', getTodayStr());
+
+            // Update daily history
+            setDailyHistory(history => {
+                const today = getTodayStr();
+                const todayIndex = history.findIndex(h => h.date === today);
+                let newHistory = [...history];
+
+                if (todayIndex >= 0) {
+                    newHistory[todayIndex] = { ...newHistory[todayIndex], progress: newProgress, goalMet: newProgress >= dailyGoal };
+                } else {
+                    newHistory.push({ date: today, progress: newProgress, goalMet: newProgress >= dailyGoal });
+                }
+
+                localStorage.setItem('dailyHistory', JSON.stringify(newHistory.slice(-30)));
+                return newHistory.slice(-30);
+            });
+
             return newProgress;
         });
 
@@ -124,7 +159,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 return updated;
             });
         }
-    }, []);
+    }, [dailyGoal]);
 
     // Handle streak update when goal is met (separate from increment to avoid closure issues)
     useEffect(() => {
@@ -136,11 +171,24 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 localStorage.setItem('streak', newStreak.toString());
                 return newStreak;
             });
+
+            // Update goalMet in history
+            setDailyHistory(history => {
+                const today = getTodayStr();
+                const todayIndex = history.findIndex(h => h.date === today);
+                if (todayIndex >= 0) {
+                    const newHistory = [...history];
+                    newHistory[todayIndex] = { ...newHistory[todayIndex], goalMet: true };
+                    localStorage.setItem('dailyHistory', JSON.stringify(newHistory));
+                    return newHistory;
+                }
+                return history;
+            });
         }
     }, [dailyProgress, dailyGoal, goalMetToday]);
 
     return (
-        <ProgressContext.Provider value={{ dailyGoal, dailyProgress, streak, lastReadSurah, readHistory, incrementProgress, setDailyGoal }}>
+        <ProgressContext.Provider value={{ dailyGoal, dailyProgress, streak, lastReadSurah, readHistory, dailyHistory, incrementProgress, setDailyGoal }}>
             {children}
         </ProgressContext.Provider>
     );

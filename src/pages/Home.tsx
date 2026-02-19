@@ -9,7 +9,7 @@ import { motion } from 'framer-motion';
 const Home: React.FC = () => {
     const [tipText] = useState(() => getRandomTip());
     const { translationId } = useSettings();
-    const { dailyGoal, dailyProgress, streak } = useProgress();
+    const { dailyGoal, dailyProgress, streak, readHistory } = useProgress();
 
     // --- Verse of the Day (random on every reload) ---
     const [votd, setVotd] = useState<{ ayah: Ayah; surahName: string } | null>(null);
@@ -185,42 +185,69 @@ const Home: React.FC = () => {
                     </motion.div>
                 </div>
 
-                {/* Continue Reading Section */}
+                {/* Continue Reading / Suggested Section */}
                 <section>
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
-                            <span className="material-symbols-outlined text-primary fill-1">bookmark</span>
-                            <h2 className="text-lg font-bold text-white">Continue Reading</h2>
+                            <span className="material-symbols-outlined text-primary fill-1">
+                                {readHistory.length > 0 ? 'history' : 'lightbulb'}
+                            </span>
+                            <h2 className="text-lg font-bold text-white">
+                                {readHistory.length > 0 ? 'Continue Reading' : 'Suggested Reading'}
+                            </h2>
                         </div>
                         <Link to="/quran" className="text-xs font-bold text-primary hover:text-white transition-colors">View All</Link>
                     </div>
 
                     <div className="space-y-3">
-                        <Link to="/surah/36" className="group bg-[#0f2416] rounded-2xl p-4 border border-white/5 hover:border-primary/40 transition-all cursor-pointer flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <div className="size-12 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-primary font-bold text-lg group-hover:bg-primary group-hover:text-white transition-colors">36</div>
-                                <div>
-                                    <h3 className="font-bold text-white text-base group-hover:text-primary transition-colors">Surah Yaseen</h3>
-                                    <p className="text-slate-500 text-xs">Heart of the Quran</p>
-                                </div>
-                            </div>
-                            <span className="size-10 rounded-full border border-white/10 flex items-center justify-center text-slate-400 hover:bg-primary hover:border-primary hover:text-white transition-all">
-                                <span className="material-symbols-outlined">arrow_forward</span>
-                            </span>
-                        </Link>
+                        {readHistory.length > 0 ? (
+                            readHistory.slice(0, 3).map((historyItem) => (
+                                <Link key={historyItem.timestamp} to={`/surah/${historyItem.id}`} className="group bg-[#0f2416] rounded-2xl p-4 border border-white/5 hover:border-primary/40 transition-all cursor-pointer flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div className="size-12 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-primary font-bold text-lg group-hover:bg-primary group-hover:text-white transition-colors">
+                                            {historyItem.id}
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold text-white text-base group-hover:text-primary transition-colors">Surah {historyItem.name}</h3>
+                                            <p className="text-slate-500 text-xs">
+                                                Last read: {new Date(historyItem.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <span className="size-10 rounded-full border border-white/10 flex items-center justify-center text-slate-400 hover:bg-primary hover:border-primary hover:text-white transition-all">
+                                        <span className="material-symbols-outlined">resume</span>
+                                    </span>
+                                </Link>
+                            ))
+                        ) : (
+                            <>
+                                <Link to="/surah/36" className="group bg-[#0f2416] rounded-2xl p-4 border border-white/5 hover:border-primary/40 transition-all cursor-pointer flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div className="size-12 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-primary font-bold text-lg group-hover:bg-primary group-hover:text-white transition-colors">36</div>
+                                        <div>
+                                            <h3 className="font-bold text-white text-base group-hover:text-primary transition-colors">Surah Yaseen</h3>
+                                            <p className="text-slate-500 text-xs">Heart of the Quran</p>
+                                        </div>
+                                    </div>
+                                    <span className="size-10 rounded-full border border-white/10 flex items-center justify-center text-slate-400 hover:bg-primary hover:border-primary hover:text-white transition-all">
+                                        <span className="material-symbols-outlined">arrow_forward</span>
+                                    </span>
+                                </Link>
 
-                        <Link to="/surah/67" className="group bg-[#0f2416] rounded-2xl p-4 border border-white/5 hover:border-primary/40 transition-all cursor-pointer flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <div className="size-12 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-primary font-bold text-lg group-hover:bg-primary group-hover:text-white transition-colors">67</div>
-                                <div>
-                                    <h3 className="font-bold text-white text-base group-hover:text-primary transition-colors">Surah Al-Mulk</h3>
-                                    <p className="text-slate-500 text-xs">Protection from the grave</p>
-                                </div>
-                            </div>
-                            <span className="size-10 rounded-full border border-white/10 flex items-center justify-center text-slate-400 hover:bg-primary hover:border-primary hover:text-white transition-all">
-                                <span className="material-symbols-outlined">arrow_forward</span>
-                            </span>
-                        </Link>
+                                <Link to="/surah/67" className="group bg-[#0f2416] rounded-2xl p-4 border border-white/5 hover:border-primary/40 transition-all cursor-pointer flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div className="size-12 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-primary font-bold text-lg group-hover:bg-primary group-hover:text-white transition-colors">67</div>
+                                        <div>
+                                            <h3 className="font-bold text-white text-base group-hover:text-primary transition-colors">Surah Al-Mulk</h3>
+                                            <p className="text-slate-500 text-xs">Protection from the grave</p>
+                                        </div>
+                                    </div>
+                                    <span className="size-10 rounded-full border border-white/10 flex items-center justify-center text-slate-400 hover:bg-primary hover:border-primary hover:text-white transition-all">
+                                        <span className="material-symbols-outlined">arrow_forward</span>
+                                    </span>
+                                </Link>
+                            </>
+                        )}
                     </div>
                 </section>
             </div>

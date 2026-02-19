@@ -4,7 +4,7 @@ import { useProgress } from '../contexts/ProgressContext';
 import { useBookmarks } from '../contexts/BookmarkContext';
 
 const ActivityPage: React.FC = () => {
-    const { dailyProgress, dailyGoal, streak, readHistory } = useProgress();
+    const { dailyProgress, dailyGoal, streak, readHistory, dailyHistory } = useProgress();
     const { bookmarks, notes } = useBookmarks();
 
     const recentBookmarks = [...bookmarks].sort((a, b) => b.timestamp - a.timestamp).slice(0, 10);
@@ -60,15 +60,23 @@ const ActivityPage: React.FC = () => {
 
                 <div className="flex justify-between items-end gap-2 relative z-10">
                     {Array.from({ length: 7 }).map((_, i) => {
-                        const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                        const today = new Date().getDay(); // 0 is Sun, 1 is Mon
-                        const index = (today - (6 - i) + 7) % 7;
-                        const label = dayNames[index];
+                        const date = new Date();
+                        date.setDate(date.getDate() - (6 - i));
+                        const dateStr = date.toDateString();
+                        const dayName = date.toLocaleDateString(undefined, { weekday: 'short' });
+
+                        const historyEntry = dailyHistory.find(h => h.date === dateStr);
                         const isToday = i === 6;
-                        const isCompleted = isToday ? dailyProgress >= dailyGoal : (i < 6 && i > 2); // Mocked history for demo
+                        const isCompleted = historyEntry ? historyEntry.goalMet : false;
+                        const progress = historyEntry ? historyEntry.progress : 0;
 
                         return (
-                            <div key={i} className="flex flex-col items-center gap-3 flex-1">
+                            <div key={i} className="flex flex-col items-center gap-3 flex-1 group relative">
+                                {/* Tooltip for exact count */}
+                                <div className="absolute -top-8 bg-black/80 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20">
+                                    {progress} pages
+                                </div>
+
                                 <div
                                     className={`w-full aspect-square rounded-xl flex items-center justify-center transition-all duration-500 ${isCompleted
                                         ? 'bg-primary/20 border border-primary/30 text-primary shadow-lg shadow-primary/10'
@@ -84,7 +92,7 @@ const ActivityPage: React.FC = () => {
                                     )}
                                 </div>
                                 <span className={`text-[10px] font-bold uppercase tracking-wider ${isToday ? 'text-primary' : 'text-slate-500'}`}>
-                                    {isToday ? 'Today' : label}
+                                    {isToday ? 'Today' : dayName}
                                 </span>
                             </div>
                         );
