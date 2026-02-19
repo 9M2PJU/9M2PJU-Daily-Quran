@@ -13,7 +13,13 @@
   }
 
   body {
-    @apply bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-sans antialiased min-h-screen;
+    @apply bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-sans antialiased min-h-screen select-none;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Allow text selection in inputs and textareas */
+  input, textarea {
+    @apply select-text;
   }
 }
 

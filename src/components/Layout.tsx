@@ -255,14 +255,14 @@ const Layout: React.FC = () => {
                         </div>
                     ) : (
                         <>
-                            <div className="flex items-center gap-3">
-                                <img src="/logo.png" alt="9M2PJU Daily Quran" className="size-10 rounded-full object-cover shadow-md" />
-                                <div>
-                                    <h1 className="text-sm font-bold leading-none text-white">9M2PJU Daily Quran</h1>
-                                    <p className="text-xs text-primary font-medium mt-1">"Guide us to the straight path." — Surah Al-Fatihah 1:6</p>
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                                <img src="/logo.png" alt="9M2PJU Daily Quran" className="size-10 rounded-full object-cover shadow-md shrink-0" />
+                                <div className="min-w-0">
+                                    <h1 className="text-sm font-bold leading-none text-white truncate">9M2PJU Daily Quran</h1>
+                                    <p className="text-xs text-primary font-medium mt-1 truncate">"Guide us to the straight path."</p>
                                 </div>
                             </div>
-                            <Link to="/notifications" className="size-10 flex items-center justify-center rounded-full bg-primary/10 text-primary relative">
+                            <Link to="/notifications" className="size-10 flex items-center justify-center rounded-full bg-primary/10 text-primary relative shrink-0 ml-3">
                                 <span className="material-symbols-outlined">notifications</span>
                                 {unreadCount > 0 && (
                                     <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500 border-2 border-[#193320]"></span>
