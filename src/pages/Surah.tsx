@@ -126,6 +126,22 @@ const SurahPage: React.FC = () => {
         verseRefs.current[currentVerseIndex]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, [currentVerseIndex, isPlaying, currentSurah, id]);
 
+    // Deep Linking: Scroll to verse from hash on load
+    useEffect(() => {
+        if (ayahs.length > 0 && location.hash) {
+            const verseKey = location.hash.replace('#verse-', '');
+            const index = ayahs.findIndex(a => a.verse_key === verseKey);
+            if (index !== -1) {
+                // Small delay to ensure refs are populated and layout is settled
+                setTimeout(() => {
+                    scrollToFocusedVerse(index);
+                    // Optional: flash the verse or set focus
+                    setFocusedVerse(index);
+                }, 500);
+            }
+        }
+    }, [ayahs, location.hash, scrollToFocusedVerse]);
+
     const handleCopyVerse = useCallback(async (ayah: Ayah) => {
         const text = `${ayah.text_uthmani}\n\n${ayah.translations?.[0]?.text.replace(/<sup[^>]*>.*?<\/sup>/g, '').replace(/<[^>]*>/g, '') || ''}\n\n— ${surah?.name_simple} [${ayah.verse_key}]`;
         try {
@@ -491,9 +507,16 @@ const SurahPage: React.FC = () => {
                                     <select
                                         value={editingNoteVerse || ''}
                                         onChange={(e) => {
-                                            setEditingNoteVerse(e.target.value || null);
-                                            const existing = getNote(e.target.value);
+                                            const vKey = e.target.value;
+                                            setEditingNoteVerse(vKey || null);
+                                            const existing = getNote(vKey);
                                             setNoteText(existing?.text || '');
+
+                                            // Scroll to selected verse
+                                            if (vKey) {
+                                                const index = ayahs.findIndex(a => a.verse_key === vKey);
+                                                if (index !== -1) scrollToFocusedVerse(index);
+                                            }
                                         }}
                                         className="w-full bg-[#11241a] border border-white/10 rounded-lg py-2 px-3 text-sm text-white mb-2 focus:outline-none focus:border-primary/50"
                                     >
@@ -551,7 +574,13 @@ const SurahPage: React.FC = () => {
                                                         <span className="text-[10px] font-bold text-primary uppercase tracking-wider">Verse {note.verseKey}</span>
                                                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                             <button
-                                                                onClick={() => { setEditingNoteVerse(note.verseKey); setNoteText(note.text); }}
+                                                                onClick={() => {
+                                                                    setEditingNoteVerse(note.verseKey);
+                                                                    setNoteText(note.text);
+                                                                    // Scroll to verse
+                                                                    const index = ayahs.findIndex(a => a.verse_key === note.verseKey);
+                                                                    if (index !== -1) scrollToFocusedVerse(index);
+                                                                }}
                                                                 className="text-slate-500 hover:text-white transition-colors"
                                                             >
                                                                 <span className="material-symbols-outlined text-sm">edit</span>

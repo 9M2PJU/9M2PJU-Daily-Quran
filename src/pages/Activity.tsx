@@ -160,7 +160,7 @@ const ActivityPage: React.FC = () => {
                         {recentBookmarks.map((bm) => (
                             <Link
                                 key={bm.verseKey}
-                                to={`/surah/${bm.surahId}`}
+                                to={`/surah/${bm.surahId}#verse-${bm.verseKey}`}
                                 className="flex items-start gap-4 p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-all group"
                             >
                                 <div className="size-10 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
@@ -197,7 +197,7 @@ const ActivityPage: React.FC = () => {
                         {recentNotes.map((note) => (
                             <Link
                                 key={note.verseKey}
-                                to={`/surah/${note.surahId}`}
+                                to={`/surah/${note.surahId}#verse-${note.verseKey}`}
                                 className="block p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-all"
                             >
                                 <div className="flex items-center gap-2 mb-2">

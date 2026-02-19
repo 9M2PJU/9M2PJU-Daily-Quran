@@ -37,7 +37,7 @@ const BookmarksPage: React.FC = () => {
                                     <div className="flex items-start justify-between mb-3">
                                         <div className="flex items-center gap-3">
                                             <Link
-                                                to={`/surah/${bm.surahId}`}
+                                                to={`/surah/${bm.surahId}#verse-${bm.verseKey}`}
                                                 className="text-xs font-bold text-primary hover:text-primary-light transition-colors"
                                             >
                                                 {bm.surahName} [{bm.verseKey}]
@@ -91,7 +91,7 @@ const BookmarksPage: React.FC = () => {
                                     <div className="flex items-start justify-between mb-3">
                                         <div className="flex items-center gap-3">
                                             <Link
-                                                to={`/surah/${note.surahId}`}
+                                                to={`/surah/${note.surahId}#verse-${note.verseKey}`}
                                                 className="text-xs font-bold text-yellow-500 hover:text-yellow-400 transition-colors"
                                             >
                                                 {note.surahName} [{note.verseKey}]
