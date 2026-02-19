@@ -6,33 +6,39 @@
 
 > A modern, beautiful, and accessible Progressive Web App for reading and listening to the Holy Quran daily.
 
-[![React](https://img.shields.io/badge/React-20232a?style=for-the-badge&logo=react&logoColor=61dafb)](https://reactjs.org/)
+**🌐 Live:** [quran.hamradio.my](https://quran.hamradio.my)
+
+[![React](https://img.shields.io/badge/React_19-20232a?style=for-the-badge&logo=react&logoColor=61dafb)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Vite](https://img.shields.io/badge/Vite_7-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS_4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![PWA](https://img.shields.io/badge/PWA-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)](https://web.dev/progressive-web-apps/)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue?style=for-the-badge)](LICENSE)
+
+---
 
 ## ✨ Features
 
 ### 📖 Quran Reading
 - **Uthmani Script** — High-quality Arabic text with proper diacritics
-- **27 Translations** — Including English, Malay, Indonesian, Turkish, French, Urdu, Bengali, and more
-- **Real Tafsir Integration** — Toggle between multiple scholarly commentaries (Ibn Kathir, Ma'arif al-Qur'an, Tazkirul Quran, Al-Jalalayn) with real-time verse synchronization
+- **27 Translations** — English, Malay, Indonesian, Turkish, French, Urdu, Bengali, and more
+- **Real Tafsir Integration** — Toggle scholarly commentaries (Ibn Kathir, Ma'arif al-Qur'an, Tazkirul Quran, Al-Jalalayn) with real-time verse sync
 - **Font Size Control** — Adjustable A-/A+ for comfortable reading
 - **Focus Mode** — Immersive verse-by-verse reading with dimmed surroundings, auto-scroll, keyboard navigation, and auto-exit after the last verse
 
 ### 🎧 Audio Playback
 - **10 World-Class Reciters** — Mishary Alafasy, Abdul Basit, As-Sudais, Saad Al-Ghamdi, Abu Bakr Ash-Shatri, Hani Ar-Rifai, Al-Husary, El-Minshawi, Al-Ajamy, Maher Al-Muaiqly
-- **Precision Audio Controls** — Full playback control (Play/Pause, Next, Previous) directly from the persistent header
+- **Persistent Audio Controls** — Play/Pause, Next, Previous from the header bar
 - **Full Surah Playback** — Continuous audio with verse highlighting and auto-scroll
 - **Verse-by-Verse Play** — Tap play on any individual verse
 - **Mobile Audio Player** — Floating player bar on mobile screens
-- **Audio Auto-Stop** — Stops playback when navigating away from a surah
+- **Audio Auto-Stop** — Stops playback when navigating away
 
 ### 🔖 Bookmarks & Notes
 - **Verse Bookmarking** — Save any verse with one tap
-- **Personal Notes** — Add private notes to any verse
+- **Inline Personal Notes** — Add/edit notes directly in the verse card when bookmarking
 - **Bookmarks Page** — Dedicated page to browse all saved verses and notes
+- **Edit Note Button** — Quick access to edit existing notes without unbookmarking
 
 ### 📊 Progress & Goals
 - **Daily Verse of the Day** — Featured verse on the home page with play and share buttons
@@ -41,17 +47,20 @@
 - **Activity Page** — Stats dashboard with streak, verses read, bookmarks, notes, and recent activity
 
 ### 🕌 Prayer & Islamic Tools
-- **Prayer Times** — GPS-based prayer time calculations with compass
+- **Prayer Times** — GPS-based prayer time calculations (JAKIM method for Malaysia)
+- **Qibla Direction** — GPS-based bearing to Kaaba with distance, cardinal direction, and DMS coordinates
 - **Surah Index** — Browse all 114 surahs with search
 - **Juz Index** — Browse by Juz (para) division
 - **Library** — Curated collections for different reading goals
 
 ### 📱 Design & UX
 - **Dark Mode** — Elegant dark green theme designed for night reading
-- **Vertically Centered Layout** — Symmetrical and distraction-free reading column
-- **Fully Responsive** — Optimized for mobile, tablet, and desktop
+- **Fully Responsive** — Optimized for mobile, tablet, and desktop with dedicated navigation for each
 - **PWA Ready** — Install as a native app on any device
-- **Smooth Animations** — Polished transitions and micro-interactions
+- **Smooth Animations** — Polished transitions and micro-interactions via Framer Motion
+- **Screen Wake Lock** — Prevents screen dimming during audio playback
+
+---
 
 ## 🏗️ Architecture
 
@@ -62,11 +71,12 @@ graph TD
     App -->|Reads| Reader[📖 Surah Reader]
     App -->|Tracks| Activity[📊 Activity]
     App -->|Saves| Bookmarks[🔖 Bookmarks]
+    App -->|Prays| Prayer[🕌 Prayer Times]
 
     subgraph "Data & APIs"
         Reader -->|Fetches Text| API[☁️ Quran.com API]
         Reader -->|Fetches Audio| Audio[🔊 EveryAyah CDN]
-        Home -->|Prayer Times| Prayer[🕌 Aladhan API]
+        Prayer -->|Prayer Times & Qibla| Aladhan[🕋 Aladhan API]
     end
 
     subgraph "Local State"
@@ -80,35 +90,52 @@ graph TD
     end
 ```
 
+---
+
 ## 🛠️ Built With
 
-- **[React 19](https://reactjs.org/)** — UI Library
-- **[Vite](https://vitejs.dev/)** — Build Tool
-- **[TypeScript](https://www.typescriptlang.org/)** — Type Safety
-- **[Tailwind CSS 4](https://tailwindcss.com/)** — Utility-First Styling
-- **[React Router](https://reactrouter.com/)** — Client-Side Routing
-- **[Quran.com API](https://quran.com/api)** — Quran Text & Translations
-- **[EveryAyah.com](https://everyayah.com/)** — Audio Recitations
-- **[Aladhan API](https://aladhan.com/prayer-times-api)** — Prayer Times
-- **[Material Symbols](https://fonts.google.com/icons)** — Icons
+| Technology | Purpose |
+|---|---|
+| [React 19](https://reactjs.org/) | UI Library |
+| [Vite 7](https://vitejs.dev/) | Build Tool |
+| [TypeScript 5.9](https://www.typescriptlang.org/) | Type Safety |
+| [Tailwind CSS 4](https://tailwindcss.com/) | Utility-First Styling |
+| [React Router 7](https://reactrouter.com/) | Client-Side Routing |
+| [Framer Motion](https://www.framer.com/motion/) | Animations |
+| [Quran.com API](https://quran.com/api) | Quran Text & Translations |
+| [EveryAyah.com](https://everyayah.com/) | Audio Recitations |
+| [Aladhan API](https://aladhan.com/prayer-times-api) | Prayer Times & Qibla |
+| [Material Symbols](https://fonts.google.com/icons) | Icons |
+
+---
+
+## 🚀 Quick Start
+
+```bash
+# Clone the repository
+git clone https://github.com/9M2PJU/9M2PJU-Daily-Quran.git
+cd 9M2PJU-Daily-Quran
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Deploy to GitHub Pages
+npm run deploy
+```
+
+---
 
 ## 📋 Changelog
 
-### v1.3.1 (Feb 2026)
-- 🆕 **Optional Verse Translations** — Toggle translation visibility for focused Arabic reading
-- 🆕 **Screen Wake Lock** — Prevents screen dimming during audio playback on mobile
-- 🆕 **Real Tafsir Scholar Selector** — Integrated Quran.com API for live exegesis from multiple scholars
-- 🆕 **Persistent Audio Controls** — Header player now works instantly without manual activation
-- 🔧 **Tagline Refinement** — Updated to "Guide us to the straight path" (Al-Fatihah 1:6)
-- 🔧 **Surah Layout Fix** — Centered vertical alignment for a more premium reading experience
-- 🔧 **PWA Icons** — Fixed icon consistency for valid installability
-- 🔧 **Performance Bump** — Optimized Context rendering with `useMemo` for stable playback
+See [CHANGELOG.md](CHANGELOG.md) for the full release history.
 
-### v1.2.0
-- 🆕 Focus Mode with verse-by-verse navigation and auto-scroll
-- 🆕 10 Quran reciters with selection in Settings
-- 🆕 Bookmarks & Personal Notes system
-- 🔧 Audio auto-stop on page exit
+---
 
 ## 📄 License
 
@@ -117,5 +144,6 @@ This project is open source and available under the [GNU Affero General Public L
 ---
 
 <p align="center">
-  Made with ❤️ by <a href="https://github.com/9M2PJU">9M2PJU</a>
+  Made with ❤️ by <a href="https://github.com/9M2PJU">9M2PJU</a><br/>
+  <em>"Guide us to the straight path." — Surah Al-Fatihah 1:6</em>
 </p>
