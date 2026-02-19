@@ -1,28 +1,47 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useGeolocation } from '../hooks/useGeolocation';
+
+interface PrayerDay {
+    day: number;
+    hijri: string;
+    fajr: number;
+    syuruk: number;
+    dhuhr: number;
+    asr: number;
+    maghrib: number;
+    isha: number;
+}
+
+interface WaktuSolatResponse {
+    zone: string;
+    year: number;
+    month: string;
+    month_number: number;
+    last_updated: string | null;
+    prayers: PrayerDay[];
+}
+
+const HIJRI_MONTHS = [
+    'Muharram', 'Safar', 'Rabi\' al-Awwal', 'Rabi\' al-Thani',
+    'Jumada al-Ula', 'Jumada al-Thani', 'Rajab', 'Sha\'ban',
+    'Ramadan', 'Shawwal', 'Dhu al-Qi\'dah', 'Dhu al-Hijjah',
+];
 
 const PrayerTimes: React.FC = () => {
     const { latitude, longitude, error, loading: geoLoading } = useGeolocation();
-    const [prayerTimes, setPrayerTimes] = useState<any>(null);
-    const [qiblaDirection, setQiblaDirection] = useState<number>(0);
+    const [apiData, setApiData] = useState<WaktuSolatResponse | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (latitude && longitude) {
             const fetchData = async () => {
                 try {
-                    const date = new Date();
-                    // Method 17: JAKIM (Malaysia)
-                    const timesRes = await fetch(`https://api.aladhan.com/v1/timings/${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}?latitude=${latitude}&longitude=${longitude}&method=17`);
-                    const timesData = await timesRes.json();
-                    setPrayerTimes(timesData.data);
-
-                    // Fetch Qibla Direction
-                    const qiblaRes = await fetch(`https://api.aladhan.com/v1/qibla/${latitude}/${longitude}`);
-                    const qiblaData = await qiblaRes.json();
-                    setQiblaDirection(qiblaData.data.direction);
+                    const res = await fetch(`https://api.waktusolat.app/v2/solat/gps/${latitude}/${longitude}`);
+                    if (!res.ok) throw new Error('Failed to fetch prayer times');
+                    const data: WaktuSolatResponse = await res.json();
+                    setApiData(data);
                 } catch (err) {
-                    console.error("Failed to fetch API data", err);
+                    console.error('Failed to fetch prayer times', err);
                 } finally {
                     setLoading(false);
                 }
@@ -32,6 +51,19 @@ const PrayerTimes: React.FC = () => {
             setLoading(false);
         }
     }, [latitude, longitude, geoLoading]);
+
+    // Format Unix timestamp to HH:mm
+    const formatTime = (ts: number) => {
+        const d = new Date(ts * 1000);
+        return d.toLocaleTimeString('en-MY', { hour: '2-digit', minute: '2-digit', hour12: true });
+    };
+
+    // Parse hijri date string "YYYY-MM-DD" to readable format
+    const formatHijri = (hijriStr: string) => {
+        const [year, month, day] = hijriStr.split('-').map(Number);
+        const monthName = HIJRI_MONTHS[month - 1] || `Month ${month}`;
+        return { day, monthName, year };
+    };
 
     // Convert decimal degrees to DMS string
     const toDMS = (deg: number) => {
@@ -58,6 +90,39 @@ const PrayerTimes: React.FC = () => {
         return 'Northwest';
     };
 
+    // Kaaba coordinates
+    const kaabaLat = 21.4225;
+    const kaabaLng = 39.8262;
+
+    // Calculate Qibla direction locally
+    const qiblaDirection = useMemo(() => {
+        if (!latitude || !longitude) return 0;
+        const toRad = (n: number) => (n * Math.PI) / 180;
+        const toDeg = (n: number) => (n * 180) / Math.PI;
+        const phiK = toRad(kaabaLat);
+        const lambdaK = toRad(kaabaLng);
+        const phi = toRad(latitude);
+        const lambda = toRad(longitude);
+        const bearing = toDeg(
+            Math.atan2(
+                Math.sin(lambdaK - lambda),
+                Math.cos(phi) * Math.tan(phiK) - Math.sin(phi) * Math.cos(lambdaK - lambda)
+            )
+        );
+        return (bearing + 360) % 360;
+    }, [latitude, longitude]);
+
+    // Calculate distance to Kaaba (Haversine formula)
+    const distanceKm = useMemo(() => {
+        if (!latitude || !longitude) return 0;
+        const toRad = (n: number) => (n * Math.PI) / 180;
+        const R = 6371;
+        const dLat = toRad(kaabaLat - latitude);
+        const dLon = toRad(kaabaLng - longitude);
+        const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(latitude)) * Math.cos(toRad(kaabaLat)) * Math.sin(dLon / 2) ** 2;
+        return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+    }, [latitude, longitude]);
+
     if (geoLoading || loading) {
         return (
             <div className="min-h-[50vh] flex items-center justify-center text-white">
@@ -69,7 +134,7 @@ const PrayerTimes: React.FC = () => {
         );
     }
 
-    if (error || !prayerTimes) {
+    if (error || !apiData) {
         return (
             <div className="min-h-[50vh] flex items-center justify-center text-white">
                 <div className="text-center max-w-md p-6 bg-white/5 rounded-3xl border border-white/5">
@@ -87,20 +152,19 @@ const PrayerTimes: React.FC = () => {
         );
     }
 
-    const { timings, date, meta } = prayerTimes;
-    const hijri = date.hijri;
+    // Find today's prayer entry
+    const today = new Date().getDate();
+    const todayPrayer = apiData.prayers.find(p => p.day === today) || apiData.prayers[0];
+    const hijri = formatHijri(todayPrayer.hijri);
 
-    // Kaaba coordinates
-    const kaabaLat = 21.4225;
-    const kaabaLng = 39.8262;
-
-    // Calculate distance to Kaaba (Haversine formula)
-    const toRad = (n: number) => (n * Math.PI) / 180;
-    const R = 6371; // Earth's radius in km
-    const dLat = toRad(kaabaLat - (latitude || 0));
-    const dLon = toRad(kaabaLng - (longitude || 0));
-    const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(latitude || 0)) * Math.cos(toRad(kaabaLat)) * Math.sin(dLon / 2) ** 2;
-    const distanceKm = Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+    const prayerList: { name: string; key: keyof PrayerDay; icon: string }[] = [
+        { name: 'Fajr', key: 'fajr', icon: 'wb_twilight' },
+        { name: 'Syuruk', key: 'syuruk', icon: 'wb_sunny' },
+        { name: 'Dhuhr', key: 'dhuhr', icon: 'wb_sunny' },
+        { name: 'Asr', key: 'asr', icon: 'wb_sunny' },
+        { name: 'Maghrib', key: 'maghrib', icon: 'wb_twilight' },
+        { name: 'Isha', key: 'isha', icon: 'bedtime' },
+    ];
 
     return (
         <div className="flex flex-col lg:flex-row lg:items-start lg:gap-12 lg:p-8 pb-20 lg:pb-0">
@@ -110,8 +174,8 @@ const PrayerTimes: React.FC = () => {
             {/* Left Column: Qibla Bearing */}
             <div className="flex flex-col items-center mb-8 lg:mb-0 lg:w-1/3 lg:sticky lg:top-24">
                 <div className="hidden lg:flex flex-col items-center text-center mb-8">
-                    <h2 className="text-2xl font-bold text-white mb-1">{meta.timezone}</h2>
-                    <p className="text-sm text-slate-400 font-medium uppercase tracking-widest">{hijri.day} {hijri.month.en} {hijri.year} AH</p>
+                    <h2 className="text-2xl font-bold text-white mb-1">Zone {apiData.zone}</h2>
+                    <p className="text-sm text-slate-400 font-medium uppercase tracking-widest">{hijri.day} {hijri.monthName} {hijri.year} AH</p>
                 </div>
 
                 {/* Qibla Bearing Card */}
@@ -188,22 +252,23 @@ const PrayerTimes: React.FC = () => {
             <div className="flex-1 w-full space-y-3 lg:space-y-4">
                 <h3 className="hidden lg:block text-xl font-bold text-white mb-6">Prayer Schedule</h3>
 
-                {['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].map((prayer) => (
-                    <div key={prayer} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:border-primary/20 transition-colors group">
+                {prayerList.map(({ name, key, icon }) => (
+                    <div key={name} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:border-primary/20 transition-colors group">
                         <div className="flex items-center gap-4">
                             <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">
-                                {prayer === 'Fajr' ? 'wb_twilight' : prayer === 'Maghrib' ? 'wb_twilight' : prayer === 'Isha' ? 'bedtime' : 'wb_sunny'}
+                                {icon}
                             </span>
                             <div>
-                                <p className="text-sm font-medium text-slate-400 group-hover:text-slate-300 transition-colors">{prayer}</p>
-                                <p className="text-lg font-bold text-white">{timings[prayer]}</p>
+                                <p className="text-sm font-medium text-slate-400 group-hover:text-slate-300 transition-colors">{name}</p>
+                                <p className="text-lg font-bold text-white">{formatTime(todayPrayer[key] as number)}</p>
                             </div>
                         </div>
                     </div>
                 ))}
 
-                <div className="text-center pt-4">
-                    <p className="text-xs text-slate-500">Calculation Method: {meta.method.name}</p>
+                <div className="text-center pt-4 space-y-1">
+                    <p className="text-xs text-slate-500">Zone: {apiData.zone} · JAKIM</p>
+                    <p className="text-xs text-slate-500">{hijri.day} {hijri.monthName} {hijri.year} AH</p>
                 </div>
             </div>
         </div>
