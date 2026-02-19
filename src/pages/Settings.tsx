@@ -1,5 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSettings, TRANSLATIONS, RECITERS } from '../contexts/SettingsContext';
+
+interface BeforeInstallPromptEvent extends Event {
+    prompt(): Promise<void>;
+    userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
 
 const Settings: React.FC = () => {
     const {
@@ -11,6 +16,42 @@ const Settings: React.FC = () => {
         setShowTranslation
     } = useSettings();
 
+    // PWA Install prompt
+    const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+    const [isInstalled, setIsInstalled] = useState(false);
+
+    useEffect(() => {
+        // Check if already installed
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            setIsInstalled(true);
+            return;
+        }
+
+        const handler = (e: Event) => {
+            e.preventDefault();
+            setInstallPrompt(e as BeforeInstallPromptEvent);
+        };
+
+        window.addEventListener('beforeinstallprompt', handler);
+
+        window.addEventListener('appinstalled', () => {
+            setIsInstalled(true);
+            setInstallPrompt(null);
+        });
+
+        return () => window.removeEventListener('beforeinstallprompt', handler);
+    }, []);
+
+    const handleInstall = async () => {
+        if (!installPrompt) return;
+        await installPrompt.prompt();
+        const { outcome } = await installPrompt.userChoice;
+        if (outcome === 'accepted') {
+            setIsInstalled(true);
+        }
+        setInstallPrompt(null);
+    };
+
     return (
         <div className="max-w-4xl mx-auto pb-20 lg:pb-0">
             {/* Header */}
@@ -18,6 +59,36 @@ const Settings: React.FC = () => {
                 <h1 className="text-3xl font-bold text-white mb-2">Settings</h1>
                 <p className="text-slate-400">Customize your reading experience.</p>
             </div>
+
+            {/* Install App */}
+            <section className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-3xl p-6 border border-primary/20 mb-6">
+                <div className="flex items-center gap-3 mb-4">
+                    <span className="material-symbols-outlined text-primary fill-1">install_mobile</span>
+                    <h2 className="text-xl font-bold text-white">Install App</h2>
+                </div>
+
+                {isInstalled ? (
+                    <div className="flex items-center gap-3">
+                        <span className="material-symbols-outlined text-primary fill-1">check_circle</span>
+                        <p className="text-slate-300 text-sm">App is installed! You can open it from your home screen.</p>
+                    </div>
+                ) : installPrompt ? (
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                        <p className="text-slate-300 text-sm flex-1">Install 9M2PJU Daily Quran on your device for offline access and a native app experience.</p>
+                        <button
+                            onClick={handleInstall}
+                            className="px-6 py-2.5 bg-primary text-[#0a1a10] font-bold rounded-xl hover:bg-primary-light transition-colors shadow-lg shadow-primary/20 flex items-center gap-2 shrink-0"
+                        >
+                            <span className="material-symbols-outlined text-lg">download</span>
+                            Install Now
+                        </button>
+                    </div>
+                ) : (
+                    <p className="text-slate-400 text-sm">
+                        To install, open this app in <strong className="text-white">Chrome</strong> or <strong className="text-white">Edge</strong> on your device and look for the install option in the browser menu, or use the address bar install icon.
+                    </p>
+                )}
+            </section>
 
             {/* Reciter Settings */}
             <section className="bg-[#0f2416] rounded-3xl p-6 border border-white/5 mb-6">

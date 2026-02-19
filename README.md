@@ -47,8 +47,10 @@
 - **Activity Page** — Stats dashboard with streak, verses read, bookmarks, notes, and recent activity
 
 ### 🕌 Prayer & Islamic Tools
-- **Prayer Times** — GPS-based prayer time calculations (JAKIM method for Malaysia)
-- **Qibla Direction** — GPS-based bearing to Kaaba with distance, cardinal direction, and DMS coordinates
+- **Prayer Times** — GPS-based prayer times via [waktusolat.app](https://waktusolat.app) (JAKIM method for Malaysia)
+- **Syuruk (Sunrise)** — Displayed alongside the 5 daily prayers
+- **Qibla Direction** — Locally calculated bearing to Kaaba with distance, cardinal direction, and DMS coordinates
+- **Zone Auto-Detection** — Automatically detects your JAKIM zone from GPS coordinates
 - **Surah Index** — Browse all 114 surahs with search
 - **Juz Index** — Browse by Juz (para) division
 - **Library** — Curated collections for different reading goals
@@ -56,9 +58,15 @@
 ### 📱 Design & UX
 - **Dark Mode** — Elegant dark green theme designed for night reading
 - **Fully Responsive** — Optimized for mobile, tablet, and desktop with dedicated navigation for each
-- **PWA Ready** — Install as a native app on any device
+- **PWA Install Button** — One-tap install from the Settings page, works as a native app on any device
 - **Smooth Animations** — Polished transitions and micro-interactions via Framer Motion
 - **Screen Wake Lock** — Prevents screen dimming during audio playback
+
+### ⚡ Performance
+- **Lazy-Loaded Routes** — Code-split pages for smaller initial bundle
+- **LocalStorage Caching** — Prayer times and geolocation cached for instant repeat visits
+- **Background Prefetch** — Prayer data fetched silently from the Home page
+- **Skeleton Loading** — Layout-matching placeholders instead of spinners
 
 ---
 
@@ -76,7 +84,7 @@ graph TD
     subgraph "Data & APIs"
         Reader -->|Fetches Text| API[☁️ Quran.com API]
         Reader -->|Fetches Audio| Audio[🔊 EveryAyah CDN]
-        Prayer -->|Prayer Times & Qibla| Aladhan[🕋 Aladhan API]
+        Prayer -->|Prayer Times| WaktuSolat[🕋 waktusolat.app]
     end
 
     subgraph "Local State"
@@ -87,6 +95,7 @@ graph TD
         Settings -->|Persists| LS[💾 LocalStorage]
         Progress -->|Persists| LS
         BookmarkCtx -->|Persists| LS
+        Prayer -->|Caches| LS
     end
 ```
 
@@ -104,7 +113,7 @@ graph TD
 | [Framer Motion](https://www.framer.com/motion/) | Animations |
 | [Quran.com API](https://quran.com/api) | Quran Text & Translations |
 | [EveryAyah.com](https://everyayah.com/) | Audio Recitations |
-| [Aladhan API](https://aladhan.com/prayer-times-api) | Prayer Times & Qibla |
+| [waktusolat.app](https://api.waktusolat.app) | Prayer Times (JAKIM) |
 | [Material Symbols](https://fonts.google.com/icons) | Icons |
 
 ---
