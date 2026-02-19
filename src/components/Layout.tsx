@@ -282,6 +282,18 @@ const Layout: React.FC = () => {
                     className={`flex-1 overflow-y-auto ${isReadingMode ? 'p-0' : 'p-4 pb-24 lg:p-8 lg:pb-8'}`}
                 >
                     <Outlet />
+
+                    {/* Footer */}
+                    {!isReadingMode && (
+                        <footer className="text-center py-6 mt-8 border-t border-white/5">
+                            <p className="text-xs text-slate-500">
+                                Made with <span className="text-red-400">❤️</span> by{' '}
+                                <a href="https://hamradio.my" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-white transition-colors font-medium">
+                                    9M2PJU
+                                </a>
+                            </p>
+                        </footer>
+                    )}
                 </motion.div>
             </main>
 
