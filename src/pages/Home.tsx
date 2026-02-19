@@ -326,9 +326,11 @@ const Home: React.FC = () => {
                     </div>
                     <div className="space-y-4">
                         {[
-                            { id: 36, name: 'Surah Yaseen', desc: 'Heart of Quran' },
+                            { id: 36, name: 'Surah Yaseen', desc: 'Heart of the Quran' },
+                            { id: 67, name: 'Surah Al-Mulk', desc: 'Protection from the grave' },
+                            { id: 18, name: 'Surah Al-Kahf', desc: 'Read every Friday' },
                             { id: 55, name: 'Surah Ar-Rahman', desc: 'The Beneficent' },
-                            { id: 56, name: "Surah Al-Waqi'ah", desc: 'The Inevitable' }
+                            { id: 56, name: "Surah Al-Waqi'ah", desc: 'Protection from poverty' }
                         ].map((s) => (
                             <Link key={s.id} to={`/surah/${s.id}`} className="flex items-center justify-between group cursor-pointer p-2 rounded-xl hover:bg-white/5 transition-colors">
                                 <div className="flex items-center gap-4">
