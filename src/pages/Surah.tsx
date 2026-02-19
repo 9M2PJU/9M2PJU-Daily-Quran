@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { getSurahDetails, getAyahs, getTafsir, type Surah, type Ayah, type Tafsir } from '../services/api';
 import { useSettings, TAFSIRS } from '../contexts/SettingsContext';
 import { useAudio } from '../contexts/AudioContext';
@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const SurahPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
+    const location = useLocation();
     const { translationId, tafsirId, setTafsirId, showTranslation } = useSettings();
     const { isPlaying, currentSurah, currentVerseIndex, play, toggle, stop, registerSurah } = useAudio();
     const { incrementProgress } = useProgress();
@@ -204,7 +205,7 @@ const SurahPage: React.FC = () => {
         verseRefs.current[currentVerseIndex]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, [currentVerseIndex, isPlaying, currentSurah, id]);
 
-    // Deep Linking: Scroll to verse from hash on load AND Open Notes
+    // Deep Linking: Scroll to verse from hash on load
     useEffect(() => {
         if (ayahs.length > 0 && location.hash) {
             const verseKey = location.hash.replace('#verse-', '');
@@ -215,19 +216,18 @@ const SurahPage: React.FC = () => {
                     scrollToFocusedVerse(index);
                     setFocusedVerse(index);
 
-                    // Auto-open notes if it's a verse link (likely from Bookmarks/Notes)
-                    // We can assume if user deep links to a verse, seeing the note is helpful.
-                    // Or strictly only if coming from Notes page? The user request implies "if i open note... it will open note".
-                    // Since all our deep links form bookmarks/activity use this hash, let's open it.
-                    setActiveTab('notes');
-                    setEditingNoteVerse(verseKey);
-                    const saved = getNote(verseKey);
-                    setNoteText(saved?.text || '');
-
+                    // Auto-open notes only if coming from bookmarks/activity (not Quick Access)
+                    const fromBookmarks = document.referrer.includes('/bookmarks') || document.referrer.includes('/activity');
+                    if (fromBookmarks) {
+                        setActiveTab('notes');
+                        setEditingNoteVerse(verseKey);
+                        const saved = getNote(verseKey);
+                        setNoteText(saved?.text || '');
+                    }
                 }, 500);
             }
         }
-    }, [ayahs, location.hash, scrollToFocusedVerse, getNote]);
+    }, [ayahs, location.hash, scrollToFocusedVerse, getNote]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Sidebar Scroll Sync for Notes
     useEffect(() => {
