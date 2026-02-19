@@ -480,6 +480,8 @@ const SurahPage: React.FC = () => {
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
+                                            setFocusedVerse(index);
+                                            scrollToFocusedVerse(index);
                                             setActiveTab('notes');
                                             setEditingNoteVerse(ayah.verse_key);
                                             const existing = getNote(ayah.verse_key);
@@ -602,7 +604,6 @@ const SurahPage: React.FC = () => {
                                                 onChange={(e) => setNoteText(e.target.value)}
                                                 placeholder="Write your reflection or note..."
                                                 className="w-full bg-black/20 border border-white/10 rounded-lg py-3 px-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-primary/50 min-h-[120px] resize-y mb-3"
-                                                autoFocus
                                             />
                                             <div className="flex gap-2">
                                                 <button
