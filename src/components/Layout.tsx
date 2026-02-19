@@ -278,7 +278,7 @@ const Layout: React.FC = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.3, ease: 'easeOut' }}
-                    className={`flex-1 overflow-y-auto ${isReadingMode ? 'p-0' : 'p-4 lg:p-8'}`}
+                    className={`flex-1 overflow-y-auto ${isReadingMode ? 'p-0' : 'p-4 pb-24 lg:p-8 lg:pb-8'}`}
                 >
                     <Outlet />
                 </motion.div>
