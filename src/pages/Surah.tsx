@@ -412,6 +412,18 @@ const SurahPage: React.FC = () => {
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
+                                            setActiveTab('notes');
+                                            setEditingNoteVerse(ayah.verse_key);
+                                            const existing = getNote(ayah.verse_key);
+                                            setNoteText(existing?.text || '');
+                                        }}
+                                        className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-white transition-colors"
+                                    >
+                                        <span className="material-symbols-outlined text-lg">edit_note</span> Add Note
+                                    </button>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
                                             toggleBookmark({
                                                 verseKey: ayah.verse_key,
                                                 surahId: Number(id),
@@ -503,39 +515,28 @@ const SurahPage: React.FC = () => {
                             </>
                         ) : (
                             <div className="space-y-4">
-                                {/* Add Note for Current Verse */}
+                                {/* Add/Edit Note Form */}
                                 <div>
-                                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">Add a Note</label>
-                                    <select
-                                        value={editingNoteVerse || ''}
-                                        onChange={(e) => {
-                                            const vKey = e.target.value;
-                                            setEditingNoteVerse(vKey || null);
-                                            const existing = getNote(vKey);
-                                            setNoteText(existing?.text || '');
+                                    <div className="flex justify-between items-center mb-4">
+                                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
+                                            {editingNoteVerse ? `Note for Verse ${editingNoteVerse}` : 'Personal Notes'}
+                                        </label>
+                                        {!editingNoteVerse && (
+                                            <p className="text-[10px] text-slate-500 italic">Select "Add Note" on a verse to write.</p>
+                                        )}
+                                    </div>
 
-                                            // Scroll to selected verse
-                                            if (vKey) {
-                                                const index = ayahs.findIndex(a => a.verse_key === vKey);
-                                                if (index !== -1) scrollToFocusedVerse(index);
-                                            }
-                                        }}
-                                        className="w-full bg-[#11241a] border border-white/10 rounded-lg py-2 px-3 text-sm text-white mb-2 focus:outline-none focus:border-primary/50"
-                                    >
-                                        <option value="">Select a verse...</option>
-                                        {ayahs.map((a) => (
-                                            <option key={a.verse_key} value={a.verse_key}>{a.verse_key}</option>
-                                        ))}
-                                    </select>
-                                    {editingNoteVerse && (
-                                        <>
+                                    {editingNoteVerse ? (
+                                        <div className="bg-[#11241a] border border-white/10 rounded-xl p-4">
+                                            <p className="text-xs text-primary font-bold mb-2">Writing note for {editingNoteVerse}</p>
                                             <textarea
                                                 value={noteText}
                                                 onChange={(e) => setNoteText(e.target.value)}
                                                 placeholder="Write your reflection or note..."
-                                                className="w-full bg-[#11241a] border border-white/10 rounded-lg py-3 px-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-primary/50 min-h-[100px] resize-y"
+                                                className="w-full bg-black/20 border border-white/10 rounded-lg py-3 px-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-primary/50 min-h-[120px] resize-y mb-3"
+                                                autoFocus
                                             />
-                                            <div className="flex gap-2 mt-2">
+                                            <div className="flex gap-2">
                                                 <button
                                                     onClick={() => {
                                                         if (noteText.trim() && editingNoteVerse) {
@@ -561,7 +562,12 @@ const SurahPage: React.FC = () => {
                                                     Cancel
                                                 </button>
                                             </div>
-                                        </>
+                                        </div>
+                                    ) : (
+                                        <div className="bg-white/5 rounded-xl p-6 text-center border border-white/5 border-dashed">
+                                            <span className="material-symbols-outlined text-3xl text-slate-600 mb-2">edit_note</span>
+                                            <p className="text-xs text-slate-500">Tap "Add Note" on any verse to start writing a personal reflection.</p>
+                                        </div>
                                     )}
                                 </div>
 
