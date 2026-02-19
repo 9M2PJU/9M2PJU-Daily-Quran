@@ -120,27 +120,7 @@ const SurahPage: React.FC = () => {
         toggle(surahId, ayahs.length);
     }, [id, ayahs.length, toggle]);
 
-    // Auto-scroll to the currently playing verse
-    useEffect(() => {
-        if (!isPlaying || currentSurah !== Number(id)) return;
-        verseRefs.current[currentVerseIndex]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, [currentVerseIndex, isPlaying, currentSurah, id]);
 
-    // Deep Linking: Scroll to verse from hash on load
-    useEffect(() => {
-        if (ayahs.length > 0 && location.hash) {
-            const verseKey = location.hash.replace('#verse-', '');
-            const index = ayahs.findIndex(a => a.verse_key === verseKey);
-            if (index !== -1) {
-                // Small delay to ensure refs are populated and layout is settled
-                setTimeout(() => {
-                    scrollToFocusedVerse(index);
-                    // Optional: flash the verse or set focus
-                    setFocusedVerse(index);
-                }, 500);
-            }
-        }
-    }, [ayahs, location.hash, scrollToFocusedVerse]);
 
     const handleCopyVerse = useCallback(async (ayah: Ayah) => {
         const text = `${ayah.text_uthmani}\n\n${ayah.translations?.[0]?.text.replace(/<sup[^>]*>.*?<\/sup>/g, '').replace(/<[^>]*>/g, '') || ''}\n\n— ${surah?.name_simple} [${ayah.verse_key}]`;
@@ -217,6 +197,28 @@ const SurahPage: React.FC = () => {
         window.addEventListener('keydown', handler);
         return () => window.removeEventListener('keydown', handler);
     }, [focusMode, goToNextVerse, goToPrevVerse]);
+
+    // Auto-scroll to the currently playing verse
+    useEffect(() => {
+        if (!isPlaying || currentSurah !== Number(id)) return;
+        verseRefs.current[currentVerseIndex]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, [currentVerseIndex, isPlaying, currentSurah, id]);
+
+    // Deep Linking: Scroll to verse from hash on load
+    useEffect(() => {
+        if (ayahs.length > 0 && location.hash) {
+            const verseKey = location.hash.replace('#verse-', '');
+            const index = ayahs.findIndex(a => a.verse_key === verseKey);
+            if (index !== -1) {
+                // Small delay to ensure refs are populated and layout is settled
+                setTimeout(() => {
+                    scrollToFocusedVerse(index);
+                    // Optional: flash the verse or set focus
+                    setFocusedVerse(index);
+                }, 500);
+            }
+        }
+    }, [ayahs, location.hash, scrollToFocusedVerse]);
 
     // Auto-scroll focus mode with audio playback + auto-exit after last verse
     useEffect(() => {
