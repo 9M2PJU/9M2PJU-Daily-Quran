@@ -131,6 +131,16 @@ const PrayerTimes: React.FC = () => {
     const dialRotation = heading !== null ? -heading : 0;
     const qiblaNeedleRotation = qiblaDirection; // Relative to the dial's N
 
+    // Check alignment (within ±5 degrees) - accounting for wrap-around
+    const isAligned = heading !== null && Math.abs((heading - qiblaDirection + 540) % 360 - 180) < 5;
+
+    // Haptic feedback on alignment
+    React.useEffect(() => {
+        if (isAligned && navigator.vibrate) {
+            navigator.vibrate(50);
+        }
+    }, [isAligned]);
+
     return (
         <div className="h-full flex flex-col lg:flex-row lg:items-start lg:gap-12 lg:p-8 pb-20 lg:pb-0">
             {/* Pattern Overlay */}
@@ -145,7 +155,7 @@ const PrayerTimes: React.FC = () => {
 
                 {/* Qibla Compass */}
                 <div className="relative w-56 h-56 lg:w-72 lg:h-72 flex items-center justify-center mb-6 lg:mb-10 transition-all duration-500">
-                    <div className="absolute inset-0 rounded-full border-4 border-slate-200 dark:border-white/5 opacity-50"></div>
+                    <div className={`absolute inset-0 rounded-full border-4 transition-colors duration-500 ${isAligned ? 'border-emerald-500/50 shadow-[0_0_30px_rgba(16,185,129,0.3)]' : 'border-slate-200 dark:border-white/5 opacity-50'}`}></div>
                     <div className="absolute inset-4 rounded-full border border-slate-100 dark:border-white/5"></div>
 
                     {/* Compass Container - Rotates with device heading */}
@@ -167,18 +177,23 @@ const PrayerTimes: React.FC = () => {
                         >
                             {/* Direction Arrow */}
                             <div className="absolute top-6 flex flex-col items-center">
-                                <div className="w-4 h-16 bg-gradient-to-t from-primary/20 to-primary rounded-full blur-[1px] absolute -top-2"></div>
-                                <span className="material-symbols-outlined text-primary text-4xl drop-shadow-[0_0_15px_rgba(34,197,94,0.6)]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                                <div className={`w-4 h-16 bg-gradient-to-t rounded-full blur-[1px] absolute -top-2 transition-colors duration-500 ${isAligned ? 'from-emerald-500/20 to-emerald-500' : 'from-primary/20 to-primary'}`}></div>
+                                <span
+                                    className={`material-symbols-outlined text-4xl transition-all duration-500 ${isAligned ? 'text-emerald-500 drop-shadow-[0_0_20px_rgba(16,185,129,0.8)] scale-110' : 'text-primary drop-shadow-[0_0_15px_rgba(34,197,94,0.6)]'}`}
+                                    style={{ fontVariationSettings: "'FILL' 1" }}
+                                >
                                     navigation
                                 </span>
-                                <span className="text-[10px] font-bold text-primary tracking-widest uppercase mt-1 drop-shadow-md">Qibla</span>
+                                <span className={`text-[10px] font-bold tracking-widest uppercase mt-1 drop-shadow-md transition-colors duration-500 ${isAligned ? 'text-emerald-500' : 'text-primary'}`}>
+                                    {isAligned ? 'FACING QIBLA' : 'QIBLA'}
+                                </span>
                             </div>
                         </div>
                     </div>
 
                     {/* Center Info (Static relative to screen) */}
-                    <div className="relative z-20 flex flex-col items-center text-center bg-[#0a1a10]/80 backdrop-blur-sm p-4 rounded-full w-24 h-24 flex items-center justify-center border border-white/10 shadow-xl">
-                        <span className="text-[10px] font-bold tracking-tighter uppercase text-slate-500">Qibla</span>
+                    <div className={`relative z-20 flex flex-col items-center text-center backdrop-blur-sm p-4 rounded-full w-24 h-24 flex items-center justify-center border shadow-xl transition-all duration-500 ${isAligned ? 'bg-emerald-900/80 border-emerald-500/50' : 'bg-[#0a1a10]/80 border-white/10'}`}>
+                        <span className={`text-[10px] font-bold tracking-tighter uppercase transition-colors duration-500 ${isAligned ? 'text-emerald-400' : 'text-slate-500'}`}>Qibla</span>
                         <span className="text-xl font-bold mt-0 text-white">{Math.round(qiblaDirection)}°</span>
                     </div>
                 </div>
