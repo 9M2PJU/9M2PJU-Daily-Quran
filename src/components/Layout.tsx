@@ -298,6 +298,11 @@ const Layout: React.FC = () => {
                             <span className="text-[10px] font-medium uppercase tracking-tighter">Quran</span>
                         </Link>
 
+                        <Link to="/bookmarks" className={`flex flex-col items-center gap-1 ${isActive('/bookmarks') ? 'text-primary' : 'text-white/40 hover:text-primary'} transition-colors`}>
+                            <span className={`material-symbols-outlined text-2xl ${isActive('/bookmarks') ? 'fill-1' : ''}`}>bookmark</span>
+                            <span className="text-[10px] font-medium uppercase tracking-tighter">Saved</span>
+                        </Link>
+
                         <Link to="/prayer-times" className={`flex flex-col items-center gap-1 ${isActive('/prayer-times') ? 'text-white' : 'text-white/40 hover:text-primary'} transition-colors`}>
                             <div className={`${isActive('/prayer-times') ? 'bg-primary/20' : ''} p-1 rounded-full mb-0.5`}>
                                 <span className={`material-symbols-outlined text-2xl block ${isActive('/prayer-times') ? 'fill-1' : ''}`}>explore</span>

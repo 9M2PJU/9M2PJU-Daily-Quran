@@ -480,20 +480,7 @@ const SurahPage: React.FC = () => {
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            setFocusedVerse(index);
-                                            scrollToFocusedVerse(index);
-                                            setActiveTab('notes');
-                                            setEditingNoteVerse(ayah.verse_key);
-                                            const existing = getNote(ayah.verse_key);
-                                            setNoteText(existing?.text || '');
-                                        }}
-                                        className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-white transition-colors"
-                                    >
-                                        <span className="material-symbols-outlined text-lg">edit_note</span> Add Note
-                                    </button>
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
+                                            const currentlyBookmarked = isBookmarked(ayah.verse_key);
                                             toggleBookmark({
                                                 verseKey: ayah.verse_key,
                                                 surahId: Number(id),
@@ -501,6 +488,16 @@ const SurahPage: React.FC = () => {
                                                 arabicText: ayah.text_uthmani,
                                                 translationText: ayah.translations?.[0]?.text.replace(/<sup[^>]*>.*?<\/sup>/g, '').replace(/<[^>]*>/g, '') || '',
                                             });
+
+                                            // If adding a bookmark, open the notes sidebar automatically
+                                            if (!currentlyBookmarked) {
+                                                setFocusedVerse(index);
+                                                scrollToFocusedVerse(index);
+                                                setActiveTab('notes');
+                                                setEditingNoteVerse(ayah.verse_key);
+                                                const existing = getNote(ayah.verse_key);
+                                                setNoteText(existing?.text || '');
+                                            }
                                         }}
                                         className={`flex items-center gap-2 text-xs font-bold transition-colors ${isBookmarked(ayah.verse_key) ? 'text-primary' : 'text-slate-500 hover:text-white'}`}
                                     >

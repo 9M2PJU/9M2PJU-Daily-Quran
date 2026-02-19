@@ -27,28 +27,35 @@ const PrayerTimes: React.FC = () => {
             if (e.webkitCompassHeading) {
                 // iOS
                 compass = e.webkitCompassHeading;
-            } else if (e.alpha) {
-                // Android / Standard (alpha is 0 at North, usually)
-                // However, alpha is often relative. deviceorientationabsolute is better but less supported.
-                // Assuming standard alpha: 360 - alpha might be needed if rotation is counter-clockwise?
-                // Standard: alpha = degrees around Z axis. 0 = North? 
-                // Actually, alpha 0 = North for deviceorientationabsolute.
-                compass = 360 - e.alpha;
+            } else if (e.alpha !== null) {
+                // Android
+                // deviceorientationabsolute: alpha = 0 at North.
+                // deviceorientation: alpha is relative, but on modern Android Chrome 'deviceorientationabsolute' is fired for compass.
+                // We need to invert it because alpha increases count-clockwise? No, alpha increases counter-clockwise (Z axis).
+                // Compass heading increases clockwise. So 360 - alpha.
+                compass = Math.abs(360 - e.alpha);
             }
             setHeading(compass);
         };
 
+        const handleAbsoluteOrientation = (e: any) => {
+            // Precise absolute orientation for Android
+            if (e.alpha !== null) {
+                setHeading(Math.abs(360 - e.alpha));
+            }
+        };
+
         if ('ondeviceorientationabsolute' in window) {
-            (window as any).addEventListener('deviceorientationabsolute', handleOrientation);
+            window.addEventListener('deviceorientationabsolute', handleAbsoluteOrientation);
         } else {
-            (window as any).addEventListener('deviceorientation', handleOrientation);
+            window.addEventListener('deviceorientation', handleOrientation);
         }
 
         return () => {
             if ('ondeviceorientationabsolute' in window) {
-                (window as any).removeEventListener('deviceorientationabsolute', handleOrientation);
+                window.removeEventListener('deviceorientationabsolute', handleAbsoluteOrientation);
             } else {
-                (window as any).removeEventListener('deviceorientation', handleOrientation);
+                window.removeEventListener('deviceorientation', handleOrientation);
             }
         };
     }, [permissionGranted]);
@@ -65,7 +72,13 @@ const PrayerTimes: React.FC = () => {
                 }
             } catch (e) {
                 console.error(e);
+                // If it fails (not HTTPS?), try setting granted anyway for dev
+                setPermissionGranted(true);
             }
+        } else {
+            // Non-iOS devices usually don't need permission or prompt automatically
+            setPermissionGranted(true);
+            setShowPermissionBtn(false);
         }
     }, []);
 
