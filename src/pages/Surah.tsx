@@ -24,7 +24,7 @@ const SurahPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [tafsirLoading, setTafsirLoading] = useState(false);
     const [activeTab, setActiveTab] = useState<'tafsir' | 'notes'>('tafsir');
-    const [fontSize, setFontSize] = useState(3); // Scale 1-5, default 3 (maps to text sizes)
+    const [fontSize, setFontSize] = useState(2); // Scale 0-4, default 2 for desktop
 
     // Default to smaller font on mobile
     useEffect(() => {
