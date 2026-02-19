@@ -4,12 +4,18 @@ import { getRandomTip } from '../data/tips';
 import { getRandomAyah, type Ayah } from '../services/api';
 import { useSettings } from '../contexts/SettingsContext';
 import { useProgress } from '../contexts/ProgressContext';
+import { useGeolocation } from '../hooks/useGeolocation';
+import { usePrayerTimesCache } from '../hooks/usePrayerTimesCache';
 import { motion } from 'framer-motion';
 
 const Home: React.FC = () => {
     const [tipText] = useState(() => getRandomTip());
     const { translationId } = useSettings();
     const { dailyGoal, dailyProgress, streak, readHistory } = useProgress();
+
+    // Prefetch prayer times in background so Prayer Times page loads instantly
+    const { latitude, longitude } = useGeolocation();
+    usePrayerTimesCache(latitude, longitude);
 
     // --- Verse of the Day (random on every reload) ---
     const [votd, setVotd] = useState<{ ayah: Ayah; surahName: string } | null>(null);

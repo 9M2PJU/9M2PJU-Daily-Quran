@@ -7,10 +7,34 @@ interface GeolocationState {
     loading: boolean;
 }
 
+const GEO_LAT_KEY = 'lastKnownLat';
+const GEO_LNG_KEY = 'lastKnownLng';
+
+const getCachedLocation = (): { lat: number | null; lng: number | null } => {
+    try {
+        const lat = localStorage.getItem(GEO_LAT_KEY);
+        const lng = localStorage.getItem(GEO_LNG_KEY);
+        if (lat && lng) {
+            return { lat: parseFloat(lat), lng: parseFloat(lng) };
+        }
+    } catch { /* ignore */ }
+    return { lat: null, lng: null };
+};
+
+const saveCachedLocation = (lat: number, lng: number) => {
+    try {
+        localStorage.setItem(GEO_LAT_KEY, lat.toString());
+        localStorage.setItem(GEO_LNG_KEY, lng.toString());
+    } catch { /* ignore */ }
+};
+
 export const useGeolocation = () => {
+    // Initialize with cached location if available (allows instant data fetching)
+    const cached = getCachedLocation();
+
     const [state, setState] = useState<GeolocationState>({
-        latitude: null,
-        longitude: null,
+        latitude: cached.lat,
+        longitude: cached.lng,
         error: null,
         loading: true,
     });
@@ -23,15 +47,22 @@ export const useGeolocation = () => {
 
         navigator.geolocation.getCurrentPosition(
             (position) => {
+                const { latitude, longitude } = position.coords;
+                saveCachedLocation(latitude, longitude);
                 setState({
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude,
+                    latitude,
+                    longitude,
                     error: null,
                     loading: false,
                 });
             },
             (error) => {
-                setState(prev => ({ ...prev, error: error.message, loading: false }));
+                // If we have cached coords, don't set error — use them as fallback
+                setState(prev => ({
+                    ...prev,
+                    error: prev.latitude ? null : error.message,
+                    loading: false,
+                }));
             },
             {
                 enableHighAccuracy: true,

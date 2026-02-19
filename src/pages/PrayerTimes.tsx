@@ -1,25 +1,6 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useGeolocation } from '../hooks/useGeolocation';
-
-interface PrayerDay {
-    day: number;
-    hijri: string;
-    fajr: number;
-    syuruk: number;
-    dhuhr: number;
-    asr: number;
-    maghrib: number;
-    isha: number;
-}
-
-interface WaktuSolatResponse {
-    zone: string;
-    year: number;
-    month: string;
-    month_number: number;
-    last_updated: string | null;
-    prayers: PrayerDay[];
-}
+import { usePrayerTimesCache, type PrayerDay } from '../hooks/usePrayerTimesCache';
 
 const HIJRI_MONTHS = [
     'Muharram', 'Safar', 'Rabi\' al-Awwal', 'Rabi\' al-Thani',
@@ -27,30 +8,36 @@ const HIJRI_MONTHS = [
     'Ramadan', 'Shawwal', 'Dhu al-Qi\'dah', 'Dhu al-Hijjah',
 ];
 
+// Skeleton placeholder row
+const SkeletonRow = () => (
+    <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 animate-pulse">
+        <div className="flex items-center gap-4">
+            <div className="w-6 h-6 rounded bg-white/10"></div>
+            <div>
+                <div className="h-3 w-16 bg-white/10 rounded mb-2"></div>
+                <div className="h-5 w-24 bg-white/10 rounded"></div>
+            </div>
+        </div>
+    </div>
+);
+
+const SkeletonQibla = () => (
+    <div className="w-full max-w-xs">
+        <div className="bg-gradient-to-b from-[#11241a] to-[#0d1f15] border border-white/10 rounded-3xl p-6 text-center animate-pulse">
+            <div className="w-16 h-16 mx-auto bg-white/10 rounded-2xl mb-4"></div>
+            <div className="h-14 w-24 bg-white/10 rounded mx-auto mb-4"></div>
+            <div className="bg-black/30 rounded-2xl p-4 space-y-3">
+                {[1, 2, 3, 4].map(i => (
+                    <div key={i} className="h-3 bg-white/10 rounded"></div>
+                ))}
+            </div>
+        </div>
+    </div>
+);
+
 const PrayerTimes: React.FC = () => {
     const { latitude, longitude, error, loading: geoLoading } = useGeolocation();
-    const [apiData, setApiData] = useState<WaktuSolatResponse | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        if (latitude && longitude) {
-            const fetchData = async () => {
-                try {
-                    const res = await fetch(`https://api.waktusolat.app/v2/solat/gps/${latitude}/${longitude}`);
-                    if (!res.ok) throw new Error('Failed to fetch prayer times');
-                    const data: WaktuSolatResponse = await res.json();
-                    setApiData(data);
-                } catch (err) {
-                    console.error('Failed to fetch prayer times', err);
-                } finally {
-                    setLoading(false);
-                }
-            };
-            fetchData();
-        } else if (!geoLoading && !latitude) {
-            setLoading(false);
-        }
-    }, [latitude, longitude, geoLoading]);
+    const { data: apiData, loading } = usePrayerTimesCache(latitude, longitude);
 
     // Format Unix timestamp to HH:mm
     const formatTime = (ts: number) => {
@@ -123,12 +110,16 @@ const PrayerTimes: React.FC = () => {
         return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
     }, [latitude, longitude]);
 
-    if (geoLoading || loading) {
+    // Show skeleton while loading (either geo or prayer data)
+    if ((geoLoading && !latitude) || loading) {
         return (
-            <div className="min-h-[50vh] flex items-center justify-center text-white">
-                <div className="text-center">
-                    <span className="material-symbols-outlined text-4xl animate-spin mb-4 text-primary block">progress_activity</span>
-                    <p>Locating & Fetching Times...</p>
+            <div className="flex flex-col lg:flex-row lg:items-start lg:gap-12 lg:p-8 pb-20 lg:pb-0">
+                <div className="absolute inset-0 islamic-pattern pointer-events-none -z-10 opacity-50"></div>
+                <div className="flex flex-col items-center mb-8 lg:mb-0 lg:w-1/3 lg:sticky lg:top-24">
+                    <SkeletonQibla />
+                </div>
+                <div className="flex-1 w-full space-y-3 lg:space-y-4">
+                    {[1, 2, 3, 4, 5, 6].map(i => <SkeletonRow key={i} />)}
                 </div>
             </div>
         );
