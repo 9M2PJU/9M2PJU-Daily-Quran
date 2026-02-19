@@ -162,13 +162,16 @@ const PrayerTimes: React.FC = () => {
 
                         {/* Qibla Needle/Icon - Fixed specific angle on the dial */}
                         <div
-                            className="absolute inset-0 flex items-center justify-center"
+                            className="absolute inset-0 flex items-center justify-center transition-transform duration-500 ease-out"
                             style={{ transform: `rotate(${qiblaNeedleRotation}deg)` }}
                         >
-                            <div className="absolute top-8"> {/* Position it towards the edge */}
-                                <span className="material-symbols-outlined text-primary text-3xl drop-shadow-glow animate-pulse" style={{ fontVariationSettings: "'FILL' 1" }}>
-                                    kaaba
+                            {/* Direction Arrow */}
+                            <div className="absolute top-6 flex flex-col items-center">
+                                <div className="w-4 h-16 bg-gradient-to-t from-primary/20 to-primary rounded-full blur-[1px] absolute -top-2"></div>
+                                <span className="material-symbols-outlined text-primary text-4xl drop-shadow-[0_0_15px_rgba(34,197,94,0.6)]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                                    navigation
                                 </span>
+                                <span className="text-[10px] font-bold text-primary tracking-widest uppercase mt-1 drop-shadow-md">Qibla</span>
                             </div>
                         </div>
                     </div>
