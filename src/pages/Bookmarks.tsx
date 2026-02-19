@@ -3,10 +3,9 @@ import { Link } from 'react-router-dom';
 import { useBookmarks } from '../contexts/BookmarkContext';
 
 const BookmarksPage: React.FC = () => {
-    const { bookmarks, notes, removeBookmark, deleteNote } = useBookmarks();
+    const { bookmarks, removeBookmark, getNote } = useBookmarks();
 
     const sortedBookmarks = [...bookmarks].sort((a, b) => b.timestamp - a.timestamp);
-    const sortedNotes = [...notes].sort((a, b) => b.timestamp - a.timestamp);
 
     return (
         <div className="pb-12 max-w-4xl mx-auto">
