@@ -152,6 +152,12 @@ This project is open source and available under the [GNU Affero General Public L
 
 ---
 
+## ☕ Support
+ 
+If you find this plugin useful, you can support its development by buying me a coffee:
+ 
+[![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://buymeacoffee.com/9m2pju)
+
 <p align="center">
   Made with ❤️ by <a href="https://github.com/9M2PJU">9M2PJU</a><br/>
   <em>"Guide us to the straight path." — Surah Al-Fatihah 1:6</em>
