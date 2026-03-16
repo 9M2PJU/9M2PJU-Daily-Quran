@@ -154,7 +154,7 @@ This project is open source and available under the [GNU Affero General Public L
 
 ## ☕ Support
  
-If you find this plugin useful, you can support its development by buying me a coffee:
+If you find this project useful, you can support its development by buying me a coffee:
  
 [![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://buymeacoffee.com/9m2pju)
 
