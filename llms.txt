@@ -1,0 +1,30 @@
+# 9M2PJU Daily Quran
+> An elegant, ad-free, high-performance web app for reading, listening, and studying the Holy Quran with multi-reciter audio, translations, scholarly Tafsir, JAKIM prayer times, and Qibla direction.
+
+## Canonical URL & Repository
+- Website: https://quran.hamradio.my/
+- Developer: 9M2PJU (https://hamradio.my)
+- License: AGPL-3.0
+
+## Core Capabilities
+- **Quran Reading**: Complete 114 Surahs in Uthmani Arabic calligraphy with verse-by-verse translations in English (Sahih International, Hilali & Khan, Yusuf Ali, Pickthall), Malay (Abdul Hameed), Indonesian, and 20+ other world languages.
+- **Audio Recitations**: Synchronized verse-by-verse recitation with audio provided by world-renowned Qaris: Mishary Rashid Alafasy, Abdurrahman As-Sudais, Abdul Basit (Murattal), Saad Al-Ghamdi, Abu Bakr Ash-Shatri, Hani Ar-Rifai, Mahmoud Khalil Al-Husary, Mohamed Siddiq El-Minshawi, Ahmed Al-Ajamy, and Maher Al-Muaiqly.
+- **Exegesis (Tafsir)**: Scholarly commentaries including Tafsir Ibn Kathir, Ma'arif al-Qur'an (Mufti Muhammad Shafi), Tazkirul Quran (Maulana Wahiduddin Khan), and Tafsir Al-Jalalayn.
+- **Prayer Times & Qibla**: Official Malaysian JAKIM prayer times with automatic GPS coordinate resolution, zone detection, and offline caching; plus high-precision Qibla compass with bearing angle and distance calculation to Makkah.
+- **Progress Tracking & Study Tools**: Daily reading goals, streak counter, bookmarking with personal reflection notes, and focus reading mode.
+- **PWA / Offline Access**: Certified Progressive Web App installable on iOS, Android, macOS, Windows, and Linux.
+
+## Key Routes & Navigation
+- `/` - Daily Dashboard: Verse of the Day, Daily Goal, 7-Day Consistency, Quick Access.
+- `/quran` - Surah & Juz Index: Complete 114 Surah directory and 30 Juz quick navigation.
+- `/surah/:id` - Interactive Reading Mode: Uthmani script, translation, audio playback, Tafsir exegesis, personal reflection notes, focus mode.
+- `/prayer-times` - JAKIM Prayer Times & Interactive Qibla Compass.
+- `/library` - Curated Surah collections (Morning & Evening, Friday Surahs, Protection & Ruqyah, Stories of Prophets).
+- `/bookmarks` - Saved verses and personal reflection notes.
+- `/activity` - Reading analytics, streaks, and history.
+- `/settings` - Reciter selection, translation language, and display configuration.
+
+## APIs & Data Sources
+- Quran Data & Text: Quran.com API v4 (https://api.quran.com)
+- Audio Streams: EveryAyah.com audio repository (https://everyayah.com)
+- Prayer Times: WaktuSolat.app (JAKIM Malaysian Prayer Times API)

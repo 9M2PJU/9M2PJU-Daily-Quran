@@ -1,0 +1,30 @@
+# Robots.txt for 9M2PJU Daily Quran
+# https://quran.hamradio.my/
+
+User-agent: *
+Allow: /
+
+# AI Crawlers & Answer Engines
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+# Sitemap
+Sitemap: https://quran.hamradio.my/sitemap.xml
