@@ -1,0 +1,48 @@
+# 9M2PJU Daily Quran - Complete System Reference & Documentation
+
+## Overview
+9M2PJU Daily Quran is an open-source, non-commercial Quran platform developed by 9M2PJU to assist readers in establishing a daily Quran reading habit. It combines high-accuracy scripture data from Quran.com, audio from EveryAyah, and prayer calculations from the Malaysian Islamic Development Department (JAKIM).
+
+## Features & Architecture
+
+### 1. Surah Reading Engine
+- Uthmani Script: Rendered using the Amiri / Noto Naskh Arabic fonts for optimal Quranic ligature rendering.
+- Code-Split & Lazy Loaded: Minimal initial bundle size for instant 3G/4G loading.
+- Verse-Level Audio Synchronization: Highlight and scroll tracking as reciters read each ayah.
+- Focus Mode: Distraction-free single-verse view with keyboard shortcuts (Arrow keys, J/K, Escape).
+- Personal Notes & Reflections: Stored securely in client-side localStorage.
+
+### 2. Available Translations
+- English: Sahih International (ID 20), Hilali & Khan (ID 95), Yusuf Ali (ID 85), Maududi (ID 84), Pickthall (ID 22)
+- Malay: Abdul Hameed (ID 39)
+- Indonesian: Kemenag (ID 33)
+- French, Spanish, German, Russian, Turkish, Urdu, Bengali, Hindi, Tamil, Thai, Somali, Japanese, Bosnian, Persian, Swahili, Dutch, Korean, Chinese.
+
+### 3. Available Reciters (Qaris)
+- Mishary Rashid Alafasy (`Alafasy_128kbps`)
+- Abdurrahman As-Sudais (`Abdurrahmaan_As-Sudais_192kbps`)
+- Abdul Basit Murattal (`Abdul_Basit_Murattal_192kbps`)
+- Saad Al-Ghamdi (`Saad_Al_Ghamdi_128kbps`)
+- Abu Bakr Ash-Shatri (`Abu_Bakr_Ash-Shaatree_128kbps`)
+- Hani Ar-Rifai (`Hani_Rifai_192kbps`)
+- Mahmoud Khalil Al-Husary (`Husary_128kbps`)
+- Mohamed Siddiq El-Minshawi (`Minshawy_Murattal_128kbps`)
+- Ahmed Al-Ajamy (`Ahmed_ibn_Ali_al-Ajamy_128kbps_ketaballah.net`)
+- Maher Al-Muaiqly (`Maher_AlMuaiqly_128kbps`)
+
+### 4. Available Tafsir Exegesis
+- Tafsir Ibn Kathir (English, ID 169)
+- Ma'arif al-Qur'an (Mufti Muhammad Shafi, ID 168)
+- Tazkirul Quran (Maulana Wahiduddin Khan, ID 817)
+- Tafsir Al-Jalalayn (Indonesian, ID 158)
+
+### 5. JAKIM Prayer Times & Qibla Compass
+- Automatic GPS resolution via WaktuSolat GPS API (`https://api.waktusolat.app/v2/solat/gps/{lat}/{lng}`)
+- Computes Fajr, Syuruk, Dhuhr, Asr, Maghrib, and Isha.
+- Qibla bearing calculation using the great circle forward azimuth formula to Kaaba coordinates (21.4225° N, 39.8262° E).
+- Haversine distance computation to Kaaba in kilometers.
+
+### 6. Progressive Web App (PWA)
+- Auto-updating service worker configured with `vite-plugin-pwa`.
+- Offline caching for scripture text, static assets, and cached prayer data.
+- Standalone display mode with custom theme colors.

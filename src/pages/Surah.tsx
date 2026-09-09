@@ -5,6 +5,7 @@ import { useSettings, TAFSIRS } from '../contexts/SettingsContext';
 import { useAudio } from '../contexts/AudioContext';
 import { useProgress } from '../contexts/ProgressContext';
 import { useBookmarks } from '../contexts/BookmarkContext';
+import { usePageSEO } from '../hooks/usePageSEO';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const SurahPage: React.FC = () => {
@@ -19,6 +20,11 @@ const SurahPage: React.FC = () => {
         return () => { stop(); };
     }, [stop]);
     const [surah, setSurah] = useState<Surah | null>(null);
+
+    usePageSEO({
+        title: surah ? `Surah ${surah.name_simple} (${surah.name_arabic}) — 9M2PJU Daily Quran` : `Surah ${id || ''} — 9M2PJU Daily Quran`,
+        description: surah ? `Read, listen and study Surah ${surah.name_simple} (${surah.translated_name.name}) with ${surah.verses_count} verses in Uthmani calligraphy, synchronized audio and scholarly Tafsir.` : 'Read and listen to the Holy Quran online.'
+    });
     const [ayahs, setAyahs] = useState<Ayah[]>([]);
     const [tafsirs, setTafsirs] = useState<Tafsir[]>([]);
     const [loading, setLoading] = useState(true);
@@ -300,70 +306,71 @@ const SurahPage: React.FC = () => {
         };
     }, [focusMode, loading, ayahs.length]);
 
-    if (loading) return <div className="flex items-center justify-center min-h-[50vh]"><span className="material-symbols-outlined text-4xl animate-spin text-primary">progress_activity</span></div>;
-    if (!surah) return <div className="text-center py-20 text-red-500">Failed to load Surah.</div>;
+    if (loading) return <div className="flex items-center justify-center min-h-[50vh]"><span className="material-symbols-outlined text-4xl animate-spin text-emerald-400">progress_activity</span></div>;
+    if (!surah) return <div className="text-center py-20 text-rose-400">Failed to load Surah.</div>;
 
     const isSurahPlaying = isPlaying && currentSurah === Number(id);
 
     return (
-        <div className={`flex flex-col lg:flex-row min-h-screen bg-[#0a1a10]`}>
+        <div className={`flex flex-col lg:flex-row min-h-screen bg-[#07140e]`}>
             {/* Main Content (Verses) */}
             <div className={`flex-1 p-6 lg:p-12 overflow-y-auto ${focusMode ? 'lg:max-w-4xl lg:mx-auto' : ''}`}>
 
                 {/* Header Info */}
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
+                    initial={{ opacity: 0, scale: 0.98 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5, ease: 'easeOut' }}
+                    transition={{ duration: 0.4, ease: 'easeOut' }}
                     className="text-center mb-16 space-y-4"
                 >
-                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold tracking-widest uppercase border border-primary/20">
+                    <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-500/10 text-emerald-300 text-[11px] font-bold tracking-widest uppercase border border-emerald-500/25">
                         {surah.revelation_place} Surah
-                        <span className="material-symbols-outlined text-sm">verified</span>
+                        <span className="material-symbols-outlined text-sm text-emerald-400">verified</span>
                     </span>
 
-                    <h1 className="font-arabic text-6xl text-white mt-4 mb-2">{surah.name_arabic}</h1>
-                    <p className="text-xl text-slate-400 font-medium">{surah.name_simple} ({surah.translated_name.name})</p>
+                    <h1 className="font-arabic text-6xl text-white mt-4 mb-2 drop-shadow-sm">{surah.name_arabic}</h1>
+                    <p className="text-xl text-slate-300 font-medium">{surah.name_simple} ({surah.translated_name.name})</p>
 
-                    <div className="flex justify-center items-center gap-8 mt-6 border-y border-white/5 py-4 w-full max-w-2xl mx-auto flex-wrap md:flex-nowrap">
+                    <div className="flex justify-center items-center gap-8 mt-6 border-y border-emerald-500/10 py-4 w-full max-w-2xl mx-auto flex-wrap md:flex-nowrap bg-[#0d2017]/40 rounded-2xl">
                         <div className="text-center">
-                            <span className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Verse</span>
-                            <span className="block text-xl font-bold text-white">{surah.verses_count}</span>
+                            <span className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Verses</span>
+                            <span className="block text-xl font-bold text-emerald-400">{surah.verses_count}</span>
                         </div>
-                        <div className="w-px h-8 bg-white/10 hidden md:block"></div>
+                        <div className="w-px h-8 bg-emerald-500/15 hidden md:block"></div>
                         <div className="text-center">
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={handlePlaySurah}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${isSurahPlaying ? 'bg-primary text-[#0a1a10]' : 'bg-white/5 text-slate-400 hover:bg-primary/20 hover:text-primary'}`}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${isSurahPlaying ? 'bg-emerald-500 text-[#07140e] font-bold shadow-lg shadow-emerald-500/25' : 'bg-white/5 text-slate-300 hover:bg-emerald-500/20 hover:text-emerald-300 border border-emerald-500/15'}`}
                             >
                                 <span className="material-symbols-outlined fill-1">{isSurahPlaying ? 'pause' : 'play_arrow'}</span>
-                                <span className="text-xs font-bold">{isSurahPlaying ? 'Pause' : 'Play'}</span>
+                                <span className="text-xs font-bold">{isSurahPlaying ? 'Pause Audio' : 'Play Surah'}</span>
                             </motion.button>
                         </div>
-                        <div className="w-px h-8 bg-white/10 hidden md:block"></div>
+                        <div className="w-px h-8 bg-emerald-500/15 hidden md:block"></div>
                         <div className="text-center">
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={handleBookmarkSurah}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${isSurahBookmarked(Number(id)) ? 'bg-primary text-[#0a1a10]' : 'bg-white/5 text-slate-400 hover:bg-primary/20 hover:text-primary'}`}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${isSurahBookmarked(Number(id)) ? 'bg-amber-400 text-[#07140e] font-bold shadow-lg shadow-amber-400/25' : 'bg-white/5 text-slate-300 hover:bg-emerald-500/20 hover:text-emerald-300 border border-emerald-500/15'}`}
                             >
                                 <span className={`material-symbols-outlined ${isSurahBookmarked(Number(id)) ? 'fill-1' : ''}`}>bookmark</span>
                                 <span className="text-xs font-bold">{isSurahBookmarked(Number(id)) ? 'Bookmarked' : 'Bookmark'}</span>
                             </motion.button>
                         </div>
-                        <div className="w-px h-8 bg-white/10 hidden md:block"></div>
+                        <div className="w-px h-8 bg-emerald-500/15 hidden md:block"></div>
                         <div className="text-center">
-                            <span className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Font Size</span>
+                            <span className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Font Size</span>
                             <div className="flex gap-2">
                                 <motion.button
                                     whileHover={{ scale: 1.1 }}
                                     whileTap={{ scale: 0.9 }}
                                     onClick={() => setFontSize(prev => Math.max(0, prev - 1))}
-                                    className={`text-sm px-2 py-0.5 rounded transition-colors ${fontSize === 0 ? 'text-slate-600 cursor-not-allowed' : 'text-slate-400 hover:text-white hover:bg-white/10'}`}
+                                    className={`text-xs px-2.5 py-1 rounded-lg border transition-colors ${fontSize === 0 ? 'text-slate-600 border-transparent cursor-not-allowed' : 'text-slate-300 hover:text-white hover:bg-white/10 border-white/10'}`}
                                     disabled={fontSize === 0}
+                                    title="Decrease Font Size"
                                 >
                                     A-
                                 </motion.button>
@@ -371,8 +378,9 @@ const SurahPage: React.FC = () => {
                                     whileHover={{ scale: 1.1 }}
                                     whileTap={{ scale: 0.9 }}
                                     onClick={() => setFontSize(prev => Math.min(4, prev + 1))}
-                                    className={`text-sm px-2 py-0.5 rounded font-bold transition-colors ${fontSize === 4 ? 'text-slate-600 cursor-not-allowed' : 'text-primary hover:bg-primary/10'}`}
+                                    className={`text-xs px-2.5 py-1 rounded-lg border font-bold transition-colors ${fontSize === 4 ? 'text-slate-600 border-transparent cursor-not-allowed' : 'text-emerald-400 hover:bg-emerald-500/15 border-emerald-500/30'}`}
                                     disabled={fontSize === 4}
+                                    title="Increase Font Size"
                                 >
                                     A+
                                 </motion.button>
@@ -383,13 +391,13 @@ const SurahPage: React.FC = () => {
 
                 {/* Bismillah */}
                 {Number(id) !== 9 && (
-                    <div className="text-center mb-20 relative">
-                        <p className="font-arabic text-4xl text-emerald-500/80">بسم الله الرحمن الرحيم</p>
+                    <div className="text-center mb-16 relative">
+                        <p className="font-arabic text-4xl text-emerald-400/90 drop-shadow-sm">بسم الله الرحمن الرحيم</p>
                     </div>
                 )}
 
                 {/* Verses List */}
-                <div className="space-y-16 max-w-3xl mx-auto">
+                <div className="space-y-12 max-w-3xl mx-auto">
                     {ayahs.map((ayah, index) => {
                         const isFocused = !focusMode || focusedVerse === index;
                         const isDimmed = focusMode && focusedVerse !== index;
@@ -399,22 +407,24 @@ const SurahPage: React.FC = () => {
                                 key={ayah.verse_key}
                                 ref={el => { verseRefs.current[index] = el; }}
                                 data-index={index}
-                                initial={{ opacity: 0, y: 20 }}
+                                initial={{ opacity: 0, y: 15 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true, margin: "-100px" }}
-                                transition={{ duration: 0.5, delay: index % 5 * 0.1 }}
+                                transition={{ duration: 0.4, delay: index % 5 * 0.08 }}
                                 onClick={() => { if (focusMode) { setFocusedVerse(index); } }}
-                                className={`group relative transition-all duration-500 rounded-2xl ${isCurrentlyPlaying
-                                    ? 'bg-primary/[0.06] border border-primary/40 p-6 shadow-lg shadow-primary/10'
+                                className={`group relative transition-all duration-500 rounded-3xl ${isCurrentlyPlaying
+                                    ? 'bg-emerald-500/10 border-2 border-emerald-500/50 p-6 shadow-xl shadow-emerald-950/50'
                                     : focusMode
                                         ? isFocused
-                                            ? 'bg-primary/10 border-2 border-primary/50 p-6 shadow-xl shadow-primary/10 scale-100'
-                                            : 'opacity-10 scale-95 cursor-pointer hover:opacity-25 p-6'
-                                        : ''
+                                            ? 'bg-[#0d2017] border-2 border-emerald-500/60 p-6 shadow-2xl shadow-emerald-950/60 scale-100'
+                                            : 'opacity-15 scale-95 cursor-pointer hover:opacity-30 p-6'
+                                        : 'bg-[#0d2017]/50 hover:bg-[#0d2017] border border-emerald-500/10 hover:border-emerald-500/25 p-6 shadow-lg'
                                     }`}
                             >
                                 {/* Verse Number Indicator */}
-                                <div className={`absolute -left-12 top-2 hidden lg:flex size-8 rounded text-xs font-bold items-center justify-center border transition-colors ${focusMode && isFocused ? 'bg-primary text-[#0a1a10] border-primary' : 'bg-primary/10 text-primary border-primary/20'
+                                <div className={`absolute -left-12 top-6 hidden lg:flex size-8 rounded-xl text-xs font-bold items-center justify-center border transition-all ${isCurrentlyPlaying
+                                    ? 'bg-emerald-500 text-[#07140e] border-emerald-400 shadow-md shadow-emerald-500/30 font-bold'
+                                    : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                                     }`}>
                                     {ayah.verse_key.split(':')[1]}
                                 </div>
@@ -460,20 +470,20 @@ const SurahPage: React.FC = () => {
                                     }`}>
                                     <button
                                         onClick={(e) => { e.stopPropagation(); handlePlayVerse(ayah, index); }}
-                                        className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-white transition-colors"
+                                        className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-emerald-400 transition-colors"
                                     >
                                         <span className="material-symbols-outlined text-lg">play_arrow</span> Play
                                     </button>
                                     <button
                                         onClick={(e) => { e.stopPropagation(); handleCopyVerse(ayah); }}
-                                        className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-white transition-colors"
+                                        className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-emerald-400 transition-colors"
                                     >
                                         <span className="material-symbols-outlined text-lg">{copiedVerse === ayah.verse_key ? 'check' : 'content_copy'}</span>
                                         {copiedVerse === ayah.verse_key ? 'Copied!' : 'Copy'}
                                     </button>
                                     <button
                                         onClick={(e) => { e.stopPropagation(); handleShareVerse(ayah); }}
-                                        className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-white transition-colors"
+                                        className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-emerald-400 transition-colors"
                                     >
                                         <span className="material-symbols-outlined text-lg">share</span> Share
                                     </button>
@@ -490,25 +500,23 @@ const SurahPage: React.FC = () => {
                                             });
 
                                             if (!currentlyBookmarked) {
-                                                // If adding bookmark, open inline note editor
                                                 setEditingNoteVerse(ayah.verse_key);
                                                 const existing = getNote(ayah.verse_key);
                                                 setNoteText(existing?.text || '');
                                             } else {
-                                                // If removing bookmark, ensure note editor is closed
                                                 if (editingNoteVerse === ayah.verse_key) {
                                                     setEditingNoteVerse(null);
                                                     setNoteText('');
                                                 }
                                             }
                                         }}
-                                        className={`flex items-center gap-2 text-xs font-bold transition-colors ${isBookmarked(ayah.verse_key) ? 'text-primary' : 'text-slate-500 hover:text-white'}`}
+                                        className={`flex items-center gap-1.5 text-xs font-semibold transition-colors ${isBookmarked(ayah.verse_key) ? 'text-amber-400' : 'text-slate-400 hover:text-amber-400'}`}
                                     >
                                         <span className="material-symbols-outlined text-lg fill-1">{isBookmarked(ayah.verse_key) ? 'bookmark' : 'bookmark_border'}</span>
                                         {isBookmarked(ayah.verse_key) ? 'Saved' : 'Bookmark'}
                                     </button>
 
-                                    {/* Edit Note Button (Visible only if bookmarked) */}
+                                    {/* Edit Note Button */}
                                     {isBookmarked(ayah.verse_key) && (
                                         <button
                                             onClick={(e) => {
@@ -521,10 +529,11 @@ const SurahPage: React.FC = () => {
                                                     setNoteText(existing?.text || '');
                                                 }
                                             }}
-                                            className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-white transition-colors ml-2"
+                                            className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-emerald-400 transition-colors ml-1"
                                             title="Add/Edit Note"
                                         >
                                             <span className="material-symbols-outlined text-lg">edit_note</span>
+                                            <span>Note</span>
                                         </button>
                                     )}
                                 </div>
@@ -533,20 +542,23 @@ const SurahPage: React.FC = () => {
                                 {editingNoteVerse === ayah.verse_key && (
                                     <div
                                         onClick={(e) => e.stopPropagation()}
-                                        className="mt-4 bg-[#11241a] border border-white/10 rounded-xl p-4 animate-fadeIn"
+                                        className="mt-4 bg-[#07140e] border border-emerald-500/25 rounded-2xl p-4 animate-fadeIn shadow-lg"
                                     >
-                                        <p className="text-xs text-primary font-bold mb-2">Personal Note</p>
+                                        <p className="text-xs text-emerald-400 font-bold mb-2 flex items-center gap-1.5">
+                                            <span className="material-symbols-outlined text-sm">edit_note</span>
+                                            Personal Reflection for Verse {ayah.verse_key}
+                                        </p>
                                         <textarea
                                             value={noteText}
                                             onChange={(e) => setNoteText(e.target.value)}
-                                            placeholder="Write your reflection..."
-                                            className="w-full bg-black/20 border border-white/10 rounded-lg py-3 px-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-primary/50 min-h-[80px] resize-y mb-3"
+                                            placeholder="Write your reflection or personal notes on this verse..."
+                                            className="w-full bg-[#0d2017] border border-emerald-500/20 rounded-xl py-3 px-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-400 min-h-[90px] resize-y mb-3"
                                             autoFocus
                                         />
                                         <div className="flex gap-2 justify-end">
                                             <button
                                                 onClick={() => { setEditingNoteVerse(null); setNoteText(''); }}
-                                                className="py-1.5 px-3 rounded-lg border border-white/10 text-slate-400 text-xs font-bold uppercase tracking-wider hover:bg-white/5 transition-colors"
+                                                className="py-1.5 px-3.5 rounded-xl border border-white/10 text-slate-400 text-xs font-semibold hover:bg-white/5 transition-colors"
                                             >
                                                 Cancel
                                             </button>
@@ -559,7 +571,6 @@ const SurahPage: React.FC = () => {
                                                             surahName: surah?.name_simple || '',
                                                             text: noteText.trim(),
                                                         });
-                                                        // Ensure bookmark exists (redundant if triggered by bookmark, but safe)
                                                         if (!isBookmarked(ayah.verse_key)) {
                                                             toggleBookmark({
                                                                 verseKey: ayah.verse_key,
@@ -573,22 +584,22 @@ const SurahPage: React.FC = () => {
                                                     setEditingNoteVerse(null);
                                                     setNoteText('');
                                                 }}
-                                                className="py-1.5 px-4 rounded-lg bg-primary text-[#0a1a10] text-xs font-bold uppercase tracking-wider hover:bg-primary-light transition-colors"
+                                                className="py-1.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-[#07140e] text-xs font-bold transition-all shadow-md shadow-emerald-500/20"
                                             >
-                                                Save
+                                                Save Reflection
                                             </button>
                                         </div>
                                     </div>
                                 )}
 
-                                {/* Display Saved Note Inline (Optional but helpful) */}
+                                {/* Display Saved Note Inline */}
                                 {isBookmarked(ayah.verse_key) && getNote(ayah.verse_key) && editingNoteVerse !== ayah.verse_key && (
-                                    <div className="mt-4 pt-3 border-t border-white/5">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <span className="material-symbols-outlined text-yellow-500 text-xs">sticky_note_2</span>
-                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Your Note</span>
+                                    <div className="mt-4 pt-3 border-t border-emerald-500/10">
+                                        <div className="flex items-center gap-1.5 mb-1.5">
+                                            <span className="material-symbols-outlined text-amber-400 text-sm">sticky_note_2</span>
+                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Your Reflection</span>
                                         </div>
-                                        <p className="text-sm text-slate-300 italic pl-5 border-l-2 border-white/10">
+                                        <p className="text-sm text-slate-200 italic pl-3 border-l-2 border-amber-400/40 bg-black/20 p-2.5 rounded-r-xl">
                                             "{getNote(ayah.verse_key)?.text}"
                                         </p>
                                     </div>
@@ -601,20 +612,20 @@ const SurahPage: React.FC = () => {
 
             {/* Right Sidebar (Tafsir & Notes) - Hidden in Focus Mode */}
             {!focusMode && (
-                <aside className="hidden lg:flex w-[400px] border-l border-white/5 bg-[#0a1a10] flex-col h-screen sticky top-0">
+                <aside className="hidden lg:flex w-[420px] border-l border-emerald-500/10 bg-[#091710] flex-col h-screen sticky top-0 shadow-2xl">
                     {/* Tabs */}
-                    <div className="flex border-b border-white/5">
+                    <div className="flex border-b border-emerald-500/10 bg-[#07140e]/60">
                         <button
                             onClick={() => setActiveTab('tafsir')}
-                            className={`flex-1 py-4 text-xs font-bold uppercase tracking-widest hover:text-white transition-colors ${activeTab === 'tafsir' ? 'text-primary border-b-2 border-primary' : 'text-slate-500'}`}
+                            className={`flex-1 py-4 text-xs font-bold uppercase tracking-widest transition-colors ${activeTab === 'tafsir' ? 'text-emerald-400 border-b-2 border-emerald-400 bg-emerald-500/5' : 'text-slate-400 hover:text-white'}`}
                         >
-                            Tafsir
+                            Tafsir (Exegesis)
                         </button>
                         <button
                             onClick={() => setActiveTab('notes')}
-                            className={`flex-1 py-4 text-xs font-bold uppercase tracking-widest hover:text-white transition-colors ${activeTab === 'notes' ? 'text-primary border-b-2 border-primary' : 'text-slate-500'}`}
+                            className={`flex-1 py-4 text-xs font-bold uppercase tracking-widest transition-colors ${activeTab === 'notes' ? 'text-emerald-400 border-b-2 border-emerald-400 bg-emerald-500/5' : 'text-slate-400 hover:text-white'}`}
                         >
-                            Personal Notes
+                            Personal Reflections
                         </button>
                     </div>
 
@@ -622,73 +633,71 @@ const SurahPage: React.FC = () => {
                     <div className="flex-1 overflow-y-auto p-6 space-y-6">
                         {activeTab === 'tafsir' ? (
                             <>
-                                <div className="flex justify-between items-center mb-6">
+                                <div className="flex justify-between items-center mb-6 bg-[#0d2017] p-4 rounded-2xl border border-emerald-500/15">
                                     <div className="flex flex-col">
-                                        <h3 className="font-bold text-white text-lg">{TAFSIRS.find(s => s.id === tafsirId)?.scholar}</h3>
-                                        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">{TAFSIRS.find(s => s.id === tafsirId)?.name}</p>
+                                        <h3 className="font-bold text-white text-base">{TAFSIRS.find(s => s.id === tafsirId)?.scholar}</h3>
+                                        <p className="text-[10px] text-emerald-400 uppercase font-bold tracking-wider">{TAFSIRS.find(s => s.id === tafsirId)?.name}</p>
                                     </div>
                                     <button
                                         onClick={() => setIsScholarSelectorOpen(true)}
-                                        className="text-xs text-primary font-bold px-3 py-1.5 rounded-full border border-primary/20 hover:bg-primary/5 transition-all"
+                                        className="text-xs text-emerald-400 font-semibold px-3 py-1.5 rounded-full border border-emerald-500/30 hover:bg-emerald-500/10 transition-all shrink-0"
                                     >
                                         Change Scholar
                                     </button>
                                 </div>
 
                                 {tafsirLoading ? (
-                                    <div className="flex flex-col items-center justify-center py-20 text-slate-600">
-                                        <span className="material-symbols-outlined animate-spin text-3xl mb-4 text-primary/40">progress_activity</span>
-                                        <p className="text-xs uppercase font-bold tracking-widest">Fetching Exegesis...</p>
+                                    <div className="flex flex-col items-center justify-center py-20 text-slate-500">
+                                        <span className="material-symbols-outlined animate-spin text-3xl mb-4 text-emerald-400">progress_activity</span>
+                                        <p className="text-xs uppercase font-bold tracking-widest">Loading Exegesis...</p>
                                     </div>
                                 ) : tafsirs.length > 0 ? (
                                     <div className="space-y-6">
-                                        <div className="bg-[#11241a] rounded-xl p-4 border border-white/5">
-                                            <p className="text-[10px] font-bold text-primary uppercase tracking-wider mb-2">Verse {ayahs[focusedVerse]?.verse_key}</p>
+                                        <div className="bg-[#0d2017] rounded-2xl p-5 border border-emerald-500/15 shadow-lg">
+                                            <div className="flex items-center justify-between mb-3 pb-2 border-b border-emerald-500/10">
+                                                <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Verse {ayahs[focusedVerse]?.verse_key}</span>
+                                                <span className="text-[10px] text-slate-400 font-mono">Tafsir</span>
+                                            </div>
                                             <div
-                                                className="text-slate-300 text-sm leading-relaxed tafsir-content"
-                                                dangerouslySetInnerHTML={{ __html: tafsirs.find(t => t.verse_key === ayahs[focusedVerse]?.verse_key)?.text || 'No tafsir available for this verse.' }}
+                                                className="text-slate-200 text-sm leading-relaxed tafsir-content font-serif"
+                                                dangerouslySetInnerHTML={{ __html: tafsirs.find(t => t.verse_key === ayahs[focusedVerse]?.verse_key)?.text || 'No tafsir commentary found for this verse.' }}
                                             />
                                         </div>
 
-                                        {/* Quick Insight (Dynamic from text if possible, or static tip) */}
-                                        <div className="bg-primary/5 rounded-xl p-4 border border-primary/10">
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <span className="material-symbols-outlined text-primary text-sm fill-1">info</span>
-                                                <h4 className="text-[10px] font-bold text-white uppercase tracking-wider">Note</h4>
+                                        <div className="bg-emerald-500/5 rounded-2xl p-4 border border-emerald-500/15">
+                                            <div className="flex items-center gap-2 mb-1.5">
+                                                <span className="material-symbols-outlined text-emerald-400 text-sm fill-1">info</span>
+                                                <h4 className="text-[11px] font-bold text-white uppercase tracking-wider">Reflective Note</h4>
                                             </div>
-                                            <p className="text-[11px] text-slate-400 leading-relaxed italic">
-                                                Tafsir (exegesis) provides depth and context to the words of Allah. Use "Change Scholar" to compare different analytical perspectives.
+                                            <p className="text-xs text-slate-400 leading-relaxed italic">
+                                                Tafsir gives historical context and linguistic depth. Compare perspectives across classical commentators like Ibn Kathir and Jalalayn.
                                             </p>
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="text-center py-12 text-slate-600">
-                                        <span className="material-symbols-outlined text-4xl mb-2">auto_stories</span>
-                                        <p className="text-sm">No tafsir data found for this surah.</p>
+                                    <div className="text-center py-12 text-slate-500">
+                                        <span className="material-symbols-outlined text-4xl mb-2 text-slate-600">auto_stories</span>
+                                        <p className="text-sm">No tafsir data available for this surah.</p>
                                     </div>
                                 )}
                             </>
                         ) : (
                             <div className="space-y-4">
-                                {/* Add/Edit Note Form */}
                                 <div>
                                     <div className="flex justify-between items-center mb-4">
-                                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
-                                            {editingNoteVerse ? `Note for Verse ${editingNoteVerse}` : 'Personal Notes'}
+                                        <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block">
+                                            {editingNoteVerse ? `Reflection for Verse ${editingNoteVerse}` : 'Personal Reflections'}
                                         </label>
-                                        {!editingNoteVerse && (
-                                            <p className="text-[10px] text-slate-500 italic">Select "Add Note" on a verse to write.</p>
-                                        )}
                                     </div>
 
                                     {editingNoteVerse ? (
-                                        <div className="bg-[#11241a] border border-white/10 rounded-xl p-4">
-                                            <p className="text-xs text-primary font-bold mb-2">Writing note for {editingNoteVerse}</p>
+                                        <div className="bg-[#0d2017] border border-emerald-500/20 rounded-2xl p-4 shadow-lg">
+                                            <p className="text-xs text-emerald-400 font-bold mb-2">Writing for {editingNoteVerse}</p>
                                             <textarea
                                                 value={noteText}
                                                 onChange={(e) => setNoteText(e.target.value)}
-                                                placeholder="Write your reflection or note..."
-                                                className="w-full bg-black/20 border border-white/10 rounded-lg py-3 px-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-primary/50 min-h-[120px] resize-y mb-3"
+                                                placeholder="Write your reflection or personal note..."
+                                                className="w-full bg-[#07140e] border border-emerald-500/15 rounded-xl py-3 px-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-400 min-h-[120px] resize-y mb-3"
                                             />
                                             <div className="flex gap-2">
                                                 <button
@@ -701,7 +710,6 @@ const SurahPage: React.FC = () => {
                                                                 text: noteText.trim(),
                                                             });
 
-                                                            // Auto-bookmark if not already saved (to capture Arabic/Translation for the merged view)
                                                             if (!isBookmarked(editingNoteVerse)) {
                                                                 const verseData = ayahs.find(a => a.verse_key === editingNoteVerse);
                                                                 if (verseData) {
@@ -720,68 +728,62 @@ const SurahPage: React.FC = () => {
                                                         }
                                                     }}
                                                     disabled={!noteText.trim()}
-                                                    className="flex-1 py-2 rounded-lg bg-primary text-[#0a1a10] text-xs font-bold uppercase tracking-wider disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary-light transition-colors"
+                                                    className="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-[#07140e] text-xs font-bold uppercase tracking-wider disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-md shadow-emerald-500/20"
                                                 >
                                                     Save Note
                                                 </button>
                                                 <button
                                                     onClick={() => { setEditingNoteVerse(null); setNoteText(''); }}
-                                                    className="py-2 px-4 rounded-lg border border-white/10 text-slate-400 text-xs font-bold uppercase tracking-wider hover:bg-white/5 transition-colors"
+                                                    className="py-2.5 px-4 rounded-xl border border-white/10 text-slate-400 text-xs font-semibold hover:bg-white/5 transition-colors"
                                                 >
                                                     Cancel
                                                 </button>
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="bg-white/5 rounded-xl p-6 text-center border border-white/5 border-dashed">
-                                            <span className="material-symbols-outlined text-3xl text-slate-600 mb-2">edit_note</span>
-                                            <p className="text-xs text-slate-500">Tap "Add Note" on any verse to start writing a personal reflection.</p>
+                                        <div className="bg-[#0d2017] rounded-2xl p-6 text-center border border-emerald-500/15 border-dashed">
+                                            <span className="material-symbols-outlined text-3xl text-emerald-400/60 mb-2">edit_note</span>
+                                            <p className="text-xs text-slate-400">Click "Note" on any verse to write your reflection.</p>
                                         </div>
                                     )}
                                 </div>
 
                                 {/* Existing Notes for This Surah */}
                                 {getNotesBySurah(Number(id)).length > 0 && (
-                                    <div className="border-t border-white/5 pt-4">
-                                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Your Notes</h4>
+                                    <div className="border-t border-emerald-500/10 pt-4">
+                                        <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3">Saved Reflections in Surah {surah?.name_simple}</h4>
                                         <div className="space-y-3">
                                             {getNotesBySurah(Number(id)).sort((a, b) => b.timestamp - a.timestamp).map((note) => (
-                                                <div key={note.verseKey} className="bg-[#11241a] rounded-xl p-4 border border-white/5 group">
+                                                <div key={note.verseKey} className="bg-[#0d2017] rounded-2xl p-4 border border-emerald-500/15 group shadow-sm">
                                                     <div className="flex items-center justify-between mb-2">
-                                                        <span className="text-[10px] font-bold text-primary uppercase tracking-wider">Verse {note.verseKey}</span>
+                                                        <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Verse {note.verseKey}</span>
                                                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                             <button
                                                                 onClick={() => {
                                                                     setEditingNoteVerse(note.verseKey);
                                                                     setNoteText(note.text);
-                                                                    // Scroll to verse
                                                                     const index = ayahs.findIndex(a => a.verse_key === note.verseKey);
                                                                     if (index !== -1) scrollToFocusedVerse(index);
                                                                 }}
-                                                                className="text-slate-500 hover:text-white transition-colors"
+                                                                className="text-slate-400 hover:text-emerald-400 transition-colors p-1"
+                                                                title="Edit Note"
                                                             >
                                                                 <span className="material-symbols-outlined text-sm">edit</span>
                                                             </button>
                                                             <button
                                                                 onClick={() => deleteNote(note.verseKey)}
-                                                                className="text-slate-500 hover:text-red-400 transition-colors"
+                                                                className="text-slate-400 hover:text-rose-400 transition-colors p-1"
+                                                                title="Delete Note"
                                                             >
                                                                 <span className="material-symbols-outlined text-sm">delete</span>
                                                             </button>
                                                         </div>
                                                     </div>
-                                                    <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">{note.text}</p>
-                                                    <span className="text-[10px] text-slate-600 mt-2 block">{new Date(note.timestamp).toLocaleDateString()}</span>
+                                                    <p className="text-slate-200 text-sm leading-relaxed whitespace-pre-wrap">{note.text}</p>
+                                                    <span className="text-[10px] text-slate-500 mt-2 block">{new Date(note.timestamp).toLocaleDateString()}</span>
                                                 </div>
                                             ))}
                                         </div>
-                                    </div>
-                                )}
-
-                                {getNotesBySurah(Number(id)).length === 0 && !editingNoteVerse && (
-                                    <div className="text-center py-12 text-slate-500">
-                                        <span className="material-symbols-outlined text-4xl mb-2 block">edit_note</span>
-                                        <p className="text-sm">Select a verse above to add your first note.</p>
                                     </div>
                                 )}
                             </div>
@@ -789,10 +791,10 @@ const SurahPage: React.FC = () => {
                     </div>
 
                     {/* Footer Buttons */}
-                    <div className="p-4 border-t border-white/5">
+                    <div className="p-4 border-t border-emerald-500/10 bg-[#07140e]/60">
                         <button
                             onClick={enterFocusMode}
-                            className="w-full py-3 rounded-lg border border-white/10 hover:bg-white/5 hover:border-white/20 text-slate-400 hover:text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2"
+                            className="w-full py-3 rounded-xl border border-emerald-500/25 hover:bg-emerald-500/15 hover:border-emerald-500/40 text-slate-300 hover:text-emerald-300 text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2"
                         >
                             <span className="material-symbols-outlined text-base">fullscreen</span>
                             Enable Focus Mode
@@ -801,56 +803,54 @@ const SurahPage: React.FC = () => {
                 </aside>
             )}
 
-
             {/* Focus Mode Controls */}
             {focusMode && (
                 <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2">
-                    {/* Prev/Next Navigation */}
-                    <div className="flex items-center gap-1 bg-[#0f2416] border border-white/10 rounded-full px-2 py-1.5 shadow-xl">
+                    <div className="flex items-center gap-1 bg-[#091710] border border-emerald-500/30 rounded-full px-2 py-1.5 shadow-2xl">
                         <button
                             onClick={goToPrevVerse}
                             disabled={focusedVerse === 0}
-                            className={`size-9 rounded-full flex items-center justify-center transition-colors ${focusedVerse === 0 ? 'text-slate-700 cursor-not-allowed' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}
+                            className={`size-9 rounded-full flex items-center justify-center transition-colors ${focusedVerse === 0 ? 'text-slate-700 cursor-not-allowed' : 'text-slate-300 hover:bg-emerald-500/20 hover:text-emerald-300'}`}
+                            title="Previous Verse (Up / K)"
                         >
                             <span className="material-symbols-outlined text-lg">keyboard_arrow_up</span>
                         </button>
-                        <span className="text-xs font-bold text-slate-400 px-2 min-w-[3rem] text-center">
+                        <span className="text-xs font-bold text-emerald-400 px-2 min-w-[3.5rem] text-center font-mono">
                             {focusedVerse + 1}/{ayahs.length}
                         </span>
                         <button
                             onClick={goToNextVerse}
                             disabled={focusedVerse === ayahs.length - 1}
-                            className={`size-9 rounded-full flex items-center justify-center transition-colors ${focusedVerse === ayahs.length - 1 ? 'text-slate-700 cursor-not-allowed' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}
+                            className={`size-9 rounded-full flex items-center justify-center transition-colors ${focusedVerse === ayahs.length - 1 ? 'text-slate-700 cursor-not-allowed' : 'text-slate-300 hover:bg-emerald-500/20 hover:text-emerald-300'}`}
+                            title="Next Verse (Down / J)"
                         >
                             <span className="material-symbols-outlined text-lg">keyboard_arrow_down</span>
                         </button>
                     </div>
 
-                    {/* Exit Button */}
                     <button
                         onClick={() => setFocusMode(false)}
-                        className="flex items-center gap-2 px-4 py-3 rounded-full bg-primary text-[#0a1a10] font-bold text-sm shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all"
+                        className="flex items-center gap-1.5 px-5 py-3 rounded-full bg-emerald-500 hover:bg-emerald-400 text-[#07140e] font-bold text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/30 transition-all"
                     >
                         <span className="material-symbols-outlined text-base">fullscreen_exit</span>
-                        Exit
+                        Exit Focus
                     </button>
                 </div>
-            )
-            }
+            )}
 
             {/* Mobile Audio Player Bar */}
             {isSurahPlaying && (
-                <div className="lg:hidden fixed bottom-20 left-4 right-4 z-40 bg-[#0f2416]/95 backdrop-blur-xl rounded-2xl border border-primary/30 p-3 shadow-2xl shadow-primary/20">
+                <div className="lg:hidden fixed bottom-20 left-4 right-4 z-40 bg-[#091710]/95 backdrop-blur-xl rounded-2xl border border-emerald-500/30 p-3.5 shadow-2xl shadow-emerald-950/80">
                     <div className="flex items-center gap-3">
                         <button
                             onClick={handlePlaySurah}
-                            className="size-10 bg-primary rounded-full flex items-center justify-center shrink-0"
+                            className="size-10 bg-emerald-500 rounded-full flex items-center justify-center shrink-0 shadow-md shadow-emerald-500/30 active:scale-95"
                         >
-                            <span className="material-symbols-outlined text-[#0a1a10] fill-1">{isSurahPlaying ? 'pause' : 'play_arrow'}</span>
+                            <span className="material-symbols-outlined text-[#07140e] fill-1">{isSurahPlaying ? 'pause' : 'play_arrow'}</span>
                         </button>
                         <div className="flex-1 min-w-0">
                             <p className="text-sm font-bold text-white truncate">{surah.name_simple}</p>
-                            <p className="text-[10px] text-slate-400">Verse {currentVerseIndex + 1} of {ayahs.length}</p>
+                            <p className="text-[10px] text-emerald-400 font-medium">Verse {currentVerseIndex + 1} of {ayahs.length}</p>
                         </div>
                         <button
                             onClick={stop}
@@ -870,20 +870,20 @@ const SurahPage: React.FC = () => {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                            className="absolute inset-0 bg-black/80 backdrop-blur-md"
                             onClick={() => setIsScholarSelectorOpen(false)}
                         />
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            initial={{ opacity: 0, scale: 0.95, y: 15 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 15 }}
                             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                            className="relative w-full max-w-md bg-[#0a1a10] border border-white/10 rounded-3xl overflow-hidden shadow-2xl"
+                            className="relative w-full max-w-md bg-[#091710] border border-emerald-500/25 rounded-3xl overflow-hidden shadow-2xl shadow-emerald-950/80"
                         >
-                            <div className="p-6 border-b border-white/5 flex items-center justify-between">
+                            <div className="p-6 border-b border-emerald-500/10 flex items-center justify-between">
                                 <div>
-                                    <h3 className="text-xl font-bold text-white">Select Scholar</h3>
-                                    <p className="text-xs text-slate-500">Pick a source for Tafsir/Interpretation</p>
+                                    <h3 className="text-xl font-bold text-white">Select Exegesis (Tafsir)</h3>
+                                    <p className="text-xs text-slate-400 mt-0.5">Choose your preferred scholarly source</p>
                                 </div>
                                 <button
                                     onClick={() => setIsScholarSelectorOpen(false)}
@@ -892,7 +892,7 @@ const SurahPage: React.FC = () => {
                                     <span className="material-symbols-outlined">close</span>
                                 </button>
                             </div>
-                            <div className="p-2 overflow-y-auto max-h-[60vh]">
+                            <div className="p-3 overflow-y-auto max-h-[60vh] space-y-1">
                                 {TAFSIRS.map((s) => (
                                     <button
                                         key={s.id}
@@ -901,28 +901,28 @@ const SurahPage: React.FC = () => {
                                             setIsScholarSelectorOpen(false);
                                         }}
                                         className={`w-full p-4 rounded-2xl flex items-center gap-4 text-left transition-all ${tafsirId === s.id
-                                            ? 'bg-primary/10 border border-primary/20'
+                                            ? 'bg-emerald-500/15 border border-emerald-500/30'
                                             : 'hover:bg-white/5 border border-transparent'
                                             }`}
                                     >
-                                        <div className={`size-12 rounded-xl flex items-center justify-center shrink-0 ${tafsirId === s.id ? 'bg-primary text-[#0a1a10]' : 'bg-white/5 text-slate-500'
+                                        <div className={`size-11 rounded-xl flex items-center justify-center shrink-0 ${tafsirId === s.id ? 'bg-emerald-500 text-[#07140e] font-bold' : 'bg-white/5 text-slate-400'
                                             }`}>
                                             <span className="material-symbols-outlined">menu_book</span>
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className={`font-bold transition-colors ${tafsirId === s.id ? 'text-primary' : 'text-white'}`}>
+                                            <p className={`font-bold text-sm transition-colors ${tafsirId === s.id ? 'text-emerald-400' : 'text-white'}`}>
                                                 {s.scholar}
                                             </p>
-                                            <p className="text-xs text-slate-500 truncate">{s.name}</p>
+                                            <p className="text-xs text-slate-400 truncate mt-0.5">{s.name}</p>
                                         </div>
                                         {tafsirId === s.id && (
-                                            <span className="material-symbols-outlined text-primary">check_circle</span>
+                                            <span className="material-symbols-outlined text-emerald-400 fill-1">check_circle</span>
                                         )}
                                     </button>
                                 ))}
                             </div>
-                            <div className="p-6 bg-white/5 text-center">
-                                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">More scholars coming soon</p>
+                            <div className="p-4 bg-[#07140e] text-center border-t border-emerald-500/10">
+                                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">More authentic commentaries available</p>
                             </div>
                         </motion.div>
                     </div>
@@ -931,4 +931,5 @@ const SurahPage: React.FC = () => {
         </div>
     );
 };
+
 export default SurahPage;

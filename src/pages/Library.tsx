@@ -1,135 +1,187 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { usePageSEO } from '../hooks/usePageSEO';
 
 interface Collection {
     title: string;
+    titleMalay: string;
     description: string;
     icon: string;
-    surahs: { id: number; name: string }[];
+    surahs: { id: number; name: string; arabicName: string }[];
     color: string;
 }
 
 const COLLECTIONS: Collection[] = [
     {
         title: 'Morning & Evening',
-        description: 'Surahs recommended for daily recitation',
+        titleMalay: 'Amalan Pagi & Petang',
+        description: 'Surah utama yang dianjurkan untuk bacaan harian pembuka dan penutup hari.',
         icon: 'wb_twilight',
-        color: 'text-amber-500 bg-amber-500/10',
+        color: 'text-gold-400 bg-gold-500/10 border-gold-500/20',
         surahs: [
-            { id: 36, name: 'Yaseen' },
-            { id: 67, name: 'Al-Mulk' },
-            { id: 56, name: "Al-Waqi'ah" },
-            { id: 18, name: 'Al-Kahf' },
+            { id: 36, name: 'Yaseen', arabicName: 'يس' },
+            { id: 67, name: 'Al-Mulk', arabicName: 'الملك' },
+            { id: 56, name: "Al-Waqi'ah", arabicName: 'الواقعة' },
+            { id: 18, name: 'Al-Kahf', arabicName: 'الكهف' },
         ],
     },
     {
-        title: 'Short Surahs',
-        description: 'Easy to memorize surahs for beginners',
-        icon: 'school',
-        color: 'text-blue-400 bg-blue-400/10',
-        surahs: [
-            { id: 112, name: 'Al-Ikhlas' },
-            { id: 113, name: 'Al-Falaq' },
-            { id: 114, name: 'An-Nas' },
-            { id: 1, name: 'Al-Fatihah' },
-            { id: 108, name: 'Al-Kawthar' },
-            { id: 110, name: 'An-Nasr' },
-        ],
-    },
-    {
-        title: 'Friday Surahs',
-        description: 'Recommended to read on Fridays',
+        title: 'Friday Sunnah',
+        titleMalay: 'Sunnah Hari Jumaat',
+        description: 'Surah penuh barakah yang disunnahkan untuk dibaca pada setiap malam dan hari Jumaat.',
         icon: 'mosque',
-        color: 'text-emerald-400 bg-emerald-400/10',
+        color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
         surahs: [
-            { id: 18, name: 'Al-Kahf' },
-            { id: 32, name: 'As-Sajdah' },
-            { id: 62, name: "Al-Jumu'ah" },
+            { id: 18, name: 'Al-Kahf', arabicName: 'الكهف' },
+            { id: 32, name: 'As-Sajdah', arabicName: 'السجدة' },
+            { id: 62, name: "Al-Jumu'ah", arabicName: 'الجمعة' },
         ],
     },
     {
-        title: 'Protection & Healing',
-        description: 'Verses and surahs for protection and ruqyah',
+        title: 'Protection & Ruqyah',
+        titleMalay: 'Perlindungan & Ruqyah Syar\'iyyah',
+        description: 'Ayat dan surah pelindung dari kejahatan dan penenang jiwa.',
         icon: 'shield',
-        color: 'text-purple-400 bg-purple-400/10',
+        color: 'text-teal-400 bg-teal-500/10 border-teal-500/20',
         surahs: [
-            { id: 2, name: 'Al-Baqarah' },
-            { id: 113, name: 'Al-Falaq' },
-            { id: 114, name: 'An-Nas' },
-            { id: 112, name: 'Al-Ikhlas' },
+            { id: 2, name: 'Al-Baqarah', arabicName: 'البقرة' },
+            { id: 112, name: 'Al-Ikhlas', arabicName: 'الإخلاص' },
+            { id: 113, name: 'Al-Falaq', arabicName: 'الفلق' },
+            { id: 114, name: 'An-Nas', arabicName: 'الناس' },
+        ],
+    },
+    {
+        title: 'Short Surahs (Juz Amma)',
+        titleMalay: 'Surah Lazim Mudah Hafaz',
+        description: 'Surah pendek yang mudah dihafaz untuk pemula dan bacaan dalam solat harian.',
+        icon: 'school',
+        color: 'text-sky-400 bg-sky-500/10 border-sky-500/20',
+        surahs: [
+            { id: 1, name: 'Al-Fatihah', arabicName: 'الفاتحة' },
+            { id: 108, name: 'Al-Kawthar', arabicName: 'الكوثر' },
+            { id: 110, name: 'An-Nasr', arabicName: 'النصر' },
+            { id: 112, name: 'Al-Ikhlas', arabicName: 'الإخلاص' },
+            { id: 113, name: 'Al-Falaq', arabicName: 'الفلق' },
+            { id: 114, name: 'An-Nas', arabicName: 'الناس' },
         ],
     },
     {
         title: 'Stories of the Prophets',
-        description: 'Surahs containing stories of the Prophets',
+        titleMalay: 'Kisah Para Nabi & Teladan',
+        description: 'Surah yang memuatkan kisah perjuangan para Nabi dan ibrah kehidupan.',
         icon: 'history_edu',
-        color: 'text-cyan-400 bg-cyan-400/10',
+        color: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
         surahs: [
-            { id: 12, name: 'Yusuf' },
-            { id: 19, name: 'Maryam' },
-            { id: 20, name: 'Ta-Ha' },
-            { id: 21, name: "Al-Anbiya'" },
-            { id: 28, name: 'Al-Qasas' },
+            { id: 12, name: 'Yusuf', arabicName: 'يوسف' },
+            { id: 19, name: 'Maryam', arabicName: 'مريم' },
+            { id: 20, name: 'Ta-Ha', arabicName: 'طه' },
+            { id: 21, name: "Al-Anbiya'", arabicName: 'الأنبياء' },
+            { id: 28, name: 'Al-Qasas', arabicName: 'القصص' },
         ],
     },
     {
         title: 'The Last 10 Surahs',
-        description: 'The final surahs of the Quran',
+        titleMalay: '10 Surah Terakhir Al-Quran',
+        description: 'Rangkaian 10 surah penutup Al-Quran yang sarat dengan mesej tauhid dan perlindungan.',
         icon: 'bookmark_star',
-        color: 'text-rose-400 bg-rose-400/10',
+        color: 'text-rose-400 bg-rose-500/10 border-rose-500/20',
         surahs: [
-            { id: 105, name: 'Al-Fil' },
-            { id: 106, name: 'Quraysh' },
-            { id: 107, name: "Al-Ma'un" },
-            { id: 108, name: 'Al-Kawthar' },
-            { id: 109, name: 'Al-Kafirun' },
-            { id: 110, name: 'An-Nasr' },
-            { id: 111, name: 'Al-Masad' },
-            { id: 112, name: 'Al-Ikhlas' },
-            { id: 113, name: 'Al-Falaq' },
-            { id: 114, name: 'An-Nas' },
+            { id: 105, name: 'Al-Fil', arabicName: 'الفيل' },
+            { id: 106, name: 'Quraysh', arabicName: 'قريش' },
+            { id: 107, name: "Al-Ma'un", arabicName: 'الماعون' },
+            { id: 108, name: 'Al-Kawthar', arabicName: 'الكوثر' },
+            { id: 109, name: 'Al-Kafirun', arabicName: 'الكافرون' },
+            { id: 110, name: 'An-Nasr', arabicName: 'النصر' },
+            { id: 111, name: 'Al-Masad', arabicName: 'المسد' },
+            { id: 112, name: 'Al-Ikhlas', arabicName: 'الإخلاص' },
+            { id: 113, name: 'Al-Falaq', arabicName: 'الفلق' },
+            { id: 114, name: 'An-Nas', arabicName: 'الناس' },
         ],
     },
 ];
 
 const Library: React.FC = () => {
+    usePageSEO({
+        title: 'Koleksi Surah Pilihan & Pustaka Al-Quran | 9M2PJU Daily Quran',
+        description: 'Himpunan koleksi surah pilihan seperti Amalan Pagi & Petang, Sunnah Jumaat, Ruqyah & Perlindungan, serta Kisah Para Nabi.',
+        canonicalUrl: 'https://quran.hamradio.my/#/library',
+    });
+
     return (
-        <div className="pb-12">
+        <div className="pb-16 max-w-7xl mx-auto">
+            {/* Header */}
             <div className="mb-8">
-                <h1 className="text-2xl font-bold tracking-tight text-white mb-2">Library</h1>
-                <p className="text-slate-400 text-sm">Curated collections of surahs for different occasions and purposes.</p>
+                <div className="flex items-center gap-3 mb-2">
+                    <span className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                        <span className="material-symbols-outlined text-lg">local_library</span>
+                    </span>
+                    <h1 className="text-3xl font-bold tracking-tight text-white">Pustaka & Koleksi Pilihan</h1>
+                </div>
+                <p className="text-slate-400 text-sm">
+                    Koleksi surah yang disusun khusus untuk amalan harian, waktu mustajab, dan pelbagai keutamaan ibadah.
+                </p>
             </div>
 
+            {/* Collections Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {COLLECTIONS.map((collection) => (
-                    <div key={collection.title} className="bg-[#0f2416] rounded-2xl border border-white/5 hover:border-primary/20 transition-all overflow-hidden group">
+                    <div
+                        key={collection.title}
+                        className="bg-gradient-to-b from-[#0d2017] to-[#07140e] rounded-3xl border border-white/5 hover:border-emerald-500/30 transition-all duration-300 overflow-hidden group shadow-xl flex flex-col justify-between"
+                    >
                         {/* Header */}
-                        <div className="p-5 pb-4">
-                            <div className="flex items-start gap-3 mb-3">
-                                <div className={`size-10 rounded-lg ${collection.color} flex items-center justify-center flex-shrink-0`}>
-                                    <span className="material-symbols-outlined fill-1">{collection.icon}</span>
+                        <div className="p-6 pb-4">
+                            <div className="flex items-start gap-3.5 mb-3">
+                                <div className={`w-11 h-11 rounded-2xl ${collection.color} border flex items-center justify-center flex-shrink-0 shadow-sm`}>
+                                    <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                                        {collection.icon}
+                                    </span>
                                 </div>
                                 <div className="min-w-0">
-                                    <h3 className="font-bold text-white text-base group-hover:text-primary transition-colors">{collection.title}</h3>
-                                    <p className="text-slate-500 text-xs mt-0.5">{collection.description}</p>
+                                    <h3 className="font-bold text-white text-lg group-hover:text-emerald-400 transition-colors">
+                                        {collection.titleMalay}
+                                    </h3>
+                                    <span className="text-[11px] text-slate-500 font-medium block">
+                                        {collection.title}
+                                    </span>
                                 </div>
                             </div>
-                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{collection.surahs.length} Surahs</span>
+                            <p className="text-slate-400 text-xs leading-relaxed mb-4">
+                                {collection.description}
+                            </p>
+                            <div className="flex items-center justify-between pt-1">
+                                <span className="text-[10px] font-bold text-emerald-400/90 uppercase tracking-widest bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                                    {collection.surahs.length} Surah
+                                </span>
+                            </div>
                         </div>
 
                         {/* Surahs List */}
-                        <div className="border-t border-white/5">
+                        <div className="border-t border-white/5 bg-black/20">
                             {collection.surahs.map((s, i) => (
                                 <Link
                                     key={s.id}
                                     to={`/surah/${s.id}`}
-                                    className={`flex items-center justify-between px-5 py-3 hover:bg-white/5 transition-colors ${i < collection.surahs.length - 1 ? 'border-b border-white/[0.03]' : ''}`}
+                                    className={`flex items-center justify-between px-5 py-3 hover:bg-emerald-500/10 transition-colors ${
+                                        i < collection.surahs.length - 1 ? 'border-b border-white/[0.04]' : ''
+                                    }`}
                                 >
-                                    <div className="flex items-center gap-3">
-                                        <span className="text-xs font-bold text-slate-600 w-6 text-center">{s.id}</span>
-                                        <span className="text-sm text-slate-300 font-medium">{s.name}</span>
+                                    <div className="flex items-center gap-3 min-w-0">
+                                        <span className="text-xs font-mono font-bold text-emerald-400/70 w-6 text-center">
+                                            {s.id}
+                                        </span>
+                                        <span className="text-sm text-slate-200 font-medium group-hover:text-white truncate">
+                                            {s.name}
+                                        </span>
                                     </div>
-                                    <span className="material-symbols-outlined text-slate-700 text-base group-hover:text-slate-500 transition-colors">chevron_right</span>
+                                    <div className="flex items-center gap-2 flex-shrink-0">
+                                        <span className="font-arabic text-base text-gold-400/80">
+                                            {s.arabicName}
+                                        </span>
+                                        <span className="material-symbols-outlined text-slate-600 text-sm group-hover:text-emerald-400 transition-colors">
+                                            chevron_right
+                                        </span>
+                                    </div>
                                 </Link>
                             ))}
                         </div>

@@ -3,33 +3,47 @@
 
 @layer base {
   :root {
-    --color-primary: #11d442;
-    --color-background-light: #f6f8f6;
-    --color-background-dark: #102215;
+    --color-primary: #10b981;
+    --color-primary-dark: #059669;
+    --color-gold: #d4af37;
+    --color-background-light: #f6f9f6;
+    --color-background-dark: #07140e;
   }
 
   html {
     -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
   }
 
   body {
-    @apply bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-sans antialiased min-h-screen select-none;
+    @apply bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-100 font-sans antialiased min-h-screen selection:bg-emerald-500/30 selection:text-white;
     padding-bottom: env(safe-area-inset-bottom);
   }
 
-  /* Allow text selection in inputs and textareas */
+  /* Text selection in inputs, textareas and reading text */
   input, textarea {
     @apply select-text;
+  }
+
+  /* Arabic text rendering enhancements */
+  .font-arabic, .font-quran {
+    font-feature-settings: "liga" 1, "calt" 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
   }
 }
 
 @layer utilities {
   .glass-card {
-    @apply bg-white/70 dark:bg-[#193320]/60 backdrop-blur-xl border border-white/20 dark:border-[#92c9a0]/10;
+    @apply bg-white/80 dark:bg-[#0d2017]/80 backdrop-blur-xl border border-emerald-900/10 dark:border-emerald-500/15 shadow-xl shadow-emerald-950/20;
+  }
+
+  .glass-card-hover {
+    @apply transition-all duration-300 hover:border-emerald-500/40 hover:bg-white/95 dark:hover:bg-[#132b20]/90 hover:shadow-emerald-500/10;
   }
 
   .glass-header {
-    @apply bg-white/80 dark:bg-[#102215]/85 backdrop-blur-xl border-b border-primary/10;
+    @apply bg-white/85 dark:bg-[#07140e]/90 backdrop-blur-xl border-b border-emerald-500/10;
   }
 
   /* Variations for Material Symbols */
@@ -50,12 +64,32 @@
     scrollbar-width: none;
   }
 
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(7, 20, 14, 0.4);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(16, 185, 129, 0.25);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(16, 185, 129, 0.5);
+  }
+
   .islamic-pattern {
-    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuBMg0YzZ7RRBvLAuYDf-k3I_LPTtb5afxdF_R1C-p-5FA4aTsN57jBXqKhIKr53o8Q-wU8DlD6CK5WcbaaroWynSXdlQ7QCComxi_TXhgt_daFnmKbQdgV8UpzYwBSGVgGu1FfWfr1qKoUWYWcm3by5HJk6yQhHAR1sEoJlsms4zmiiGYE95W1nu6GHeSz2QS_MIwhMSzR4z2ykKNDAzjaxr4-QRunvFYMhWormUXSXHvIIFNaPmvQPv-1ghMAvONr21_AvQYq8hyo);
-    opacity: 0.05;
+    background-image: radial-gradient(rgba(16, 185, 129, 0.1) 1px, transparent 1px), radial-gradient(rgba(212, 175, 55, 0.08) 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-position: 0 0, 12px 12px;
   }
 
   .compass-dial {
-    background: conic-gradient(from 0deg, transparent 0%, rgba(17, 212, 66, 0.1) 45%, #11d442 50%, rgba(17, 212, 66, 0.1) 55%, transparent 100%);
+    background: conic-gradient(from 0deg, transparent 0%, rgba(16, 185, 129, 0.1) 45%, #10b981 50%, rgba(16, 185, 129, 0.1) 55%, transparent 100%);
   }
 }

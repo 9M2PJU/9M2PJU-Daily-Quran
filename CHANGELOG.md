@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-09-10 — Emerald & Gold Luxury Aesthetic & AI Engine Optimization 🌿✨
+
+### ✨ Added
+- **Comprehensive SEO & AEO Optimization**:
+  - Full Schema.org JSON-LD structured data (`WebSite` with SearchAction, `WebApplication`, `Organization`, `FAQPage`, `BreadcrumbList`)
+  - AI Engine machine context files: [`/llms.txt`](public/llms.txt) and [`/llms-full.txt`](public/llms-full.txt) for ChatGPT, Perplexity, Claude, and Gemini
+  - Dynamic `usePageSEO` hook for client-side title, description, Open Graph, Twitter Cards, and canonical URL synchronization
+  - Complete 114-Surah XML Sitemap (`/sitemap.xml`) and search engine crawl policies (`/robots.txt`)
+- **Luxury Theme & Typography**:
+  - Refined palette with Midnight Emerald (`#07140e`), Warm Gold (`#d4af37`), and rich glassmorphism
+  - Arabic typography with Amiri and Noto Naskh Arabic font feature ligatures and customizable font sizing
+  - Custom emerald scrollbars and decorative Islamic geometry accents
+- **Interactive 30 Juz Navigation**:
+  - Complete dataset of 30 Juz entries with starting Surah names, Arabic calligraphy, and direct Ayah jump links
+  - Place of revelation filtering (*Makkah* vs *Madinah*) in Surah Index
+- **Tafsir Exegesis Drawer**:
+  - Integrated commentary from classical scholars (Ibn Kathir, Al-Jalalayn, Ma'arif al-Qur'an, Tazkirul Quran)
+- **Enhanced Prayer Times & Qibla Compass**:
+  - Live animated compass dial with Kaaba bearing visualization, degree readout, DMS coordinates, and Next Prayer detector
+
+### 🔧 Changed
+- Upgraded UI across all pages: Home, Surah Reader, Surah Directory, Prayer Times, Library, Bookmarks, Activity, Settings, and Notifications
+- Standardized Malay translations with authentic Islamic terminology
+
+---
+
 ## [2.0.0] - 2026-02-19 — First Stable Release 🎉
 
 ### ✨ Added
